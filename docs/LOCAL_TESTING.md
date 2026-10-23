@@ -1,0 +1,281 @@
+# SUMA — Probar el proyecto en local
+
+| Campo | Valor |
+|---|---|
+| Fecha | 2026-10-23 |
+| Estado | Verificado: Metro arranca y sirve el bundle |
+| Requisitos base | Node.js 24+, pnpm 10+ |
+
+Este documento explica las formas de ejecutar y probar SUMA en un Mac, de la más rápida a la más completa.
+
+---
+
+## 0. Resumen de opciones
+
+| Opción | Necesitas | Verifica |
+|---|---|---|
+| A. Pruebas automatizadas | Node + pnpm | Dominio, persistencia, componentes |
+| B. Expo Go en tu teléfono | iPhone/Android + Expo Go | App completa en un dispositivo real |
+| C. Simulador iOS | Xcode + licencia aceptada | App en iOS sin teléfono |
+| D. Emulador Android | JDK + Android SDK | App en Android sin teléfono |
+| E. EAS Build (nube) | Cuenta Expo (+ Apple para iOS) | Build instalable sin toolchain local |
+
+La opción B es la más rápida para probar la app de verdad si tienes un teléfono a mano.
+
+---
+
+## 1. Preparación
+
+```bash
+cd /Users/diego/Desktop/dev/SUMA
+pnpm install
+```
+
+Comprueba que todo está sano:
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm exec jest --runInBand
+pnpm exec expo-doctor
+```
+
+---
+
+## 2. Opción A — Pruebas automatizadas (sin dispositivo)
+
+```bash
+pnpm exec jest --runInBand          # 20 suites, 102 pruebas
+pnpm test:integration               # persistencia con SQLite real (sql.js)
+```
+
+Cubren dinero y redondeos, fechas y cambios de hora, periodos y comparaciones, migraciones, CRUD, restricciones, reapertura de la base, exportación JSON y componentes.
+
+También puedes comprobar que la app empaqueta:
+
+```bash
+pnpm exec expo export --platform ios --platform android
+```
+
+**Limitación**: estas pruebas no sustituyen a ejecutar la app; no validan gestos, teclado, accesibilidad real ni la hoja de compartir.
+
+---
+
+## 3. Opción B — Expo Go en un teléfono (recomendada)
+
+1. Instala **Expo Go** desde App Store o Google Play.
+2. Conecta el teléfono y el Mac a la misma red Wi-Fi.
+3. Arranca el servidor:
+
+   ```bash
+   pnpm start
+   ```
+
+4. Escanea el código QR:
+   - iPhone: app Cámara.
+   - Android: Expo Go → "Scan QR code".
+5. La primera vez, Expo Go descarga el bundle y abre SUMA.
+
+Si la red local bloquea la conexión (Wi-Fi de invitados, VPN, firewall):
+
+```bash
+pnpm start --tunnel
+```
+
+**Módulos nativos**: SUMA usa `expo-sqlite`, `expo-crypto`, `expo-file-system`, `expo-sharing` y `react-native-svg`, todos incluidos en Expo Go. No hace falta compilar.
+
+**Expo Go y SDK**: Expo Go solo admite la versión de SDK que trae instalada (actualmente SDK 58, la del proyecto). Si tu Expo Go es más antiguo, actualízalo o usa la opción C/E.
+
+### Datos en Expo Go
+
+- La base SQLite y las preferencias viven dentro del sandbox de Expo Go para este proyecto.
+- Cerrar y reabrir la app **no** borra los datos (así se prueba la persistencia).
+- Desinstalar Expo Go o usar "Restablecer datos locales" en Ajustes sí los borra.
+
+---
+
+## 4. Opción C — Simulador iOS
+
+Requisitos: Xcode instalado (ya está, 26.6) y licencia aceptada.
+
+```bash
+sudo xcodebuild -license accept
+```
+
+Si no hay runtime de simulador instalado:
+
+```bash
+xcodebuild -downloadPlatform iOS
+```
+
+Abre el simulador y arranca:
+
+```bash
+open -a Simulator
+pnpm ios
+```
+
+Expo CLI instalará Expo Go en el simulador y abrirá SUMA. **No necesitas CocoaPods** para este camino.
+
+Si más adelante quieres un *development build* nativo:
+
+```bash
+brew install cocoapods
+npx expo run:ios
+```
+
+---
+
+## 5. Opción D — Emulador Android
+
+Requisitos: JDK 17+ y Android SDK.
+
+```bash
+brew install --cask temurin@17
+# Instala Android Studio y, desde SDK Manager, un Android SDK + emulador
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+export PATH="$PATH:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools"
+```
+
+Crea un dispositivo virtual en Android Studio (Device Manager) y ejecuta:
+
+```bash
+pnpm android
+```
+
+O con un teléfono Android por USB con depuración activada y Expo Go.
+
+---
+
+## 6. Opción E — Build en la nube con EAS
+
+No requiere Xcode ni Android SDK local. Necesita cuenta gratuita de Expo y, para instalar en un iPhone, cuenta de Apple.
+
+```bash
+npx eas-cli@latest login
+npx eas-cli@latest init
+npx eas-cli@latest build --platform android --profile preview
+```
+
+- Android: descarga e instala el APK.
+- iOS: con cuenta de Apple, distribución interna/TestFlight.
+
+El perfil `preview` ya está definido en `eas.json`.
+
+---
+
+## 7. Comprobación del servidor (evidencia)
+
+Ejecutado el 2026-10-23 sobre este repositorio:
+
+```bash
+node node_modules/expo/bin/cli start --port 8083 --offline
+```
+
+Resultado:
+
+- `GET /status` → `packager-status:running`
+- Manifiesto con `runtimeVersion: exposdk:58.0.0`
+- Bundle de desarrollo iOS → **HTTP 200**, 11,87 MB
+
+El aviso `Unable to run simctl` aparece solo porque la licencia de Xcode no está aceptada; no impide usar Expo Go en un teléfono.
+
+---
+
+## 8. Checklist manual de prueba
+
+Hazlo en este orden; cada paso tiene un resultado esperado.
+
+### Onboarding
+
+1. Abre SUMA por primera vez.
+2. Debe aparecer la bienvenida, no Inicio.
+3. Elige EUR y "Lunes" → Empezar.
+4. Inicio debe mostrar 0,00 €, Hoy 0,00 € y Esta semana 0,00 €.
+
+### Registro
+
+5. Pulsa "Registrar una decisión".
+6. Introduce `2,50`, elige Café, nota "Café en casa" → Guardar.
+7. Debe aparecer "Decisión registrada" y el formulario limpio.
+8. Vuelve a Inicio: total 2,50 €, hoy 2,50 €, semana 2,50 €, un movimiento.
+9. Añade `8,00` en Comida.
+10. Total 10,50 €.
+
+### Persistencia
+
+11. Cierra la app por completo (no solo a segundo plano).
+12. Vuelve a abrirla: los 10,50 € siguen ahí.
+
+### Historial
+
+13. Deben aparecer 2 registros, el más reciente primero.
+14. Filtra por Café: queda 1.
+15. Cambia el orden a "Antiguos": cambia el orden.
+16. Entra en el registro de 2,50 €, cámbialo a `3,00` y guarda.
+17. Inicio debe mostrar 11,00 €.
+18. Elimina el registro de 8,00 € y confirma.
+19. Total 3,00 €; el registro ya no aparece.
+
+### Estadísticas
+
+20. Abre Estadísticas: Mes actual, total 3,00 €, 1 decisión.
+21. Cambia a Semana y Año: los totales siguen siendo coherentes.
+22. Añade un registro con fecha de ayer y otro del mes pasado; comprueba que aparecen en el periodo correcto.
+23. Con datos del periodo anterior, debe mostrarse la comparación; sin ellos, "Sin datos suficientes".
+
+### Objetivo
+
+24. Inicio → "Crear objetivo".
+25. Nombre "Viaje", 50,00 € → Crear.
+26. Debe mostrar 3,00 € de 50,00 € (6 %) y la explicación de que no es dinero apartado.
+27. Edita el objetivo a 10,00 € → el porcentaje sube.
+28. Elimínalo y confirma → Inicio muestra "Sin objetivo activo".
+
+### Ajustes y datos
+
+29. Ajustes: cambia el primer día de semana y comprueba que la semana de Inicio se recalcula.
+30. Con registros, la moneda debe estar bloqueada.
+31. Exporta datos: debe abrirse la hoja de compartir con un JSON.
+32. Restablece datos, confirma: registros y objetivos desaparecen; el perfil se conserva.
+33. Sin registros, la moneda debe poder cambiarse.
+
+### Accesibilidad
+
+34. Activa VoiceOver (iOS) o TalkBack (Android) y recorre Inicio y Añadir: los botones e importes deben anunciarse con nombre y valor.
+35. Sube el tamaño de texto del sistema al máximo: nada debe quedar recortado ni inaccesible.
+36. Comprueba que la información no depende solo del color.
+
+### Errores
+
+37. Importe vacío, `0`, negativo, `2,505`, fecha futura, fecha inválida: deben mostrar mensajes claros y no guardar.
+38. Pulsa Guardar dos veces rápido: no debe crear duplicados.
+
+---
+
+## 9. Problemas frecuentes
+
+| Síntoma | Causa probable | Solución |
+|---|---|---|
+| "Unable to run simctl" | Licencia de Xcode | `sudo xcodebuild -license accept` |
+| El QR no conecta | Red/VPN/firewall | `pnpm start --tunnel` |
+| Puerto 8081 ocupado | Otro Metro | `pnpm start --port 8082` |
+| Expo Go no abre el proyecto | SDK distinto | Actualiza Expo Go o usa EAS/dev build |
+| Cambios no se reflejan | Caché de Metro | `pnpm start --clear` |
+| Los datos no persisten | Se reinstaló Expo Go o se restableció | Es el comportamiento esperado |
+| Fallo de tipos tras editar | tsconfig/entorno | `pnpm typecheck` |
+| Dependencias incoherentes | Versiones | `pnpm exec expo-doctor` |
+
+### Nota sobre sandbox
+
+Si ejecutas los comandos dentro de un entorno que no permite escribir en `~/.expo`, usa `HOME=$PWD/.home` y lanza Expo con `node node_modules/expo/bin/cli`. En una terminal normal de macOS **no hace falta**.
+
+---
+
+## 10. Qué no se puede probar todavía
+
+- Publicación en App Store o Google Play.
+- Compras o suscripciones (no implementadas).
+- Notificaciones (fuera del MVP).
+- Sincronización entre dispositivos (fuera del MVP).
+- Cumplimiento legal (requiere revisión externa).

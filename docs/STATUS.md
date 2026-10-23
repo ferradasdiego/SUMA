@@ -136,7 +136,11 @@ Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español, EUR, sin notificac
 
 ---
 
-## 9. Próximos pasos
+## 9. Cómo probar en local
+
+Sigue [LOCAL_TESTING.md](./LOCAL_TESTING.md): pruebas automatizadas, Expo Go en teléfono, simulador iOS, emulador Android o EAS Build, con checklist manual y solución de problemas.
+
+## 10. Próximos pasos
 
 1. **Desbloquear el entorno**: aceptar la licencia de Xcode y/o instalar JDK + Android SDK.
 2. **Verificación real**: ejecutar en simulador, probar teclado, tamaños de texto, exportación y reinicio.
@@ -147,7 +151,7 @@ Ninguna de estas acciones se puede completar en este entorno sin intervención e
 
 ---
 
-## 10. Registro de cambios
+## 11. Registro de cambios
 
 | Fecha | Cambio |
 |---|---|

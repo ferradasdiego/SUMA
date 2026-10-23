@@ -132,6 +132,7 @@ No se han ejecutado pruebas E2E ni de lector de pantalla: requieren simulador o 
 
 ## Documentación
 
+- [Cómo probar en local](docs/LOCAL_TESTING.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Plan de ejecución](docs/EXECUTION_PLAN.md)
 - [Estado](docs/STATUS.md)

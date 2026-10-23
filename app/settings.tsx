@@ -4,11 +4,13 @@ import { View } from 'react-native';
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog';
 import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { Divider } from '@/components/ui/Divider';
 import { Screen } from '@/components/ui/Screen';
 import { useApp } from '@/features/app/AppProvider';
+import { collectExportData, shareExport } from '@/features/settings/exportService';
 import type { WeekStartsOn } from '@/domain/entities/types';
 import { t } from '@/i18n';
 import { colors, spacing } from '@/theme';
@@ -19,6 +21,7 @@ export default function SettingsScreen() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -38,6 +41,23 @@ export default function SettingsScreen() {
   async function changeWeekStart(next: WeekStartsOn) {
     const result = await updateProfile({ weekStartsOn: next });
     setMessage(result.ok ? null : result.error.message);
+  }
+
+  async function exportData() {
+    if (!repositories || !profile) return;
+    setExporting(true);
+    setMessage(null);
+
+    const collected = await collectExportData(repositories, profile);
+    if (!collected.ok) {
+      setMessage(collected.error.message);
+      setExporting(false);
+      return;
+    }
+
+    const shared = await shareExport(collected.value);
+    setExporting(false);
+    setMessage(shared.ok ? 'Exportación preparada' : shared.error.message);
   }
 
   async function resetData() {
@@ -109,6 +129,19 @@ export default function SettingsScreen() {
       <Divider />
 
       <AppText variant="label">{t('settings.data')}</AppText>
+      <Button
+        label={exporting ? 'Exportando…' : 'Exportar datos (JSON)'}
+        onPress={() => {
+          void exportData();
+        }}
+        variant="secondary"
+        loading={exporting}
+        disabled={exporting}
+        style={styles.exportButton}
+      />
+      <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+        El archivo incluye tus registros y notas personales. Compártelo solo con quien tú decidas.
+      </AppText>
       <AppText
         variant="body"
         color={colors.danger}
@@ -151,5 +184,6 @@ const styles = {
   hint: { marginTop: spacing.xs },
   chips: { flexDirection: 'row' as const, gap: spacing.sm, marginTop: spacing.sm },
   message: { marginTop: spacing.sm },
+  exportButton: { marginTop: spacing.sm },
   destructive: { marginTop: spacing.sm },
 };

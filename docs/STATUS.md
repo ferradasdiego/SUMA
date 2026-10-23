@@ -3,8 +3,8 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-10-23 |
-| Fase actual | **Fase 4 — Historial, estadísticas y objetivos** |
-| Estado global | Núcleo funcional implementado: persistencia, registro e Inicio. |
+| Fase actual | **Fase 6 — Beta privada (no iniciada; requiere cuentas)** |
+| Estado global | MVP funcional en código y verificado con pruebas automatizadas. **Sin verificación en dispositivo.** |
 | Documento base | [SUMA_MASTER_SPEC.md](../SUMA_MASTER_SPEC.md) v1.0 |
 | Plan vigente | [EXECUTION_PLAN.md](./EXECUTION_PLAN.md) |
 | Arquitectura vigente | [ARCHITECTURE.md](./ARCHITECTURE.md) |
@@ -15,25 +15,28 @@
 
 ## 1. Resumen
 
-- Fases 0 a 3 cerradas: memoria, esqueleto técnico, dominio/persistencia y flujo registro → Inicio.
-- 76 pruebas automatizadas en verde (unitarias, integración con SQLite real y componentes).
-- La app empaqueta para iOS y Android; **no se ha ejecutado en simulador** por la licencia de Xcode.
-- Persistencia verificada con cierre y reapertura de la base en pruebas de integración.
+- Fases 0 a 5 cerradas: memoria, esqueleto técnico, dominio y persistencia, registro e Inicio, historial/estadísticas/objetivos y calidad.
+- **101 pruebas automatizadas en verde** en 20 suites.
+- La app compila el bundle para iOS y Android; **no se ha ejecutado en simulador ni dispositivo** (licencia de Xcode no aceptada; sin JDK/Android SDK).
+- Persistencia real verificada en pruebas con SQLite y reapertura de la base.
+- Exportación JSON, restablecimiento de datos y accesibilidad básica implementados.
 
 ---
 
-## 2. Artefactos
+## 2. Funcionalidades implementadas
 
-```
-app/                          rutas: onboarding, Inicio, Añadir, Historial, Estadísticas, Ajustes, Objetivo
-src/domain/                   dinero, fechas, periodos, cálculos, validación (puro, sin React)
-src/data/                     driver SQL, migración 001, repositorios, base de datos
-src/features/                 AppProvider, formulario de alta, datos de Inicio
-src/components/               UI, feedback, entries, goals
-tests/                        14 suites, 76 pruebas
-docs/                         memoria + 17 ADR
-.github/workflows/ci.yml      pipeline de calidad
-```
+| Área | Estado | Evidencia |
+|---|---|---|
+| Onboarding | Implementado | Moneda, primer día de semana, persistencia |
+| Registro | Implementado | Importe, categoría, nota, fecha, importes rápidos, anti-doble-envío |
+| Inicio | Implementado | Total, hoy, semana, últimos movimientos, objetivo, CTA |
+| Historial | Implementado | Filtros, orden, paginación, edición, borrado confirmado |
+| Estadísticas | Implementado | Día/semana/mes/año, comparación, promedios, mejor día, categorías |
+| Gráficas | Implementado | Barras, línea y barras horizontales accesibles |
+| Objetivos | Implementado | Un objetivo activo, crear/editar/borrar, progreso |
+| Ajustes | Implementado | Moneda bloqueada con registros, semana, exportación JSON, reset |
+| Persistencia | Implementado | SQLite, migración 001, transacciones, reapertura |
+| Calidad | Implementado | TypeScript estricto, lint, formato, 101 pruebas, CI |
 
 ---
 
@@ -49,7 +52,7 @@ docs/                         memoria + 17 ADR
 | JDK / Android SDK | Ausentes |
 | Red npm | Correcta |
 
-Nota de sandbox: Expo se ejecuta con `HOME=$PWD/.home` y `EXPO_NO_TELEMETRY=1`; los comandos se lanzan con `node node_modules/expo/bin/cli` porque el home del usuario no es escribible en este entorno. En CI o en una máquina normal no hace falta.
+Nota de sandbox: los comandos de Expo se ejecutan con `HOME=$PWD/.home`, `EXPO_NO_TELEMETRY=1` y `node node_modules/expo/bin/cli`, porque el home del usuario no es escribible aquí. No es necesario en CI ni en una máquina normal.
 
 ---
 
@@ -58,39 +61,55 @@ Nota de sandbox: Expo se ejecuta con `HOME=$PWD/.home` y `EXPO_NO_TELEMETRY=1`; 
 | Fase | Estado | Evidencia |
 |---|---|---|
 | 0 — Preparación | Cerrada | 13 documentos, 17 ADR, repositorio |
-| 1 — Esqueleto técnico | Cerrada (nativa pendiente) | 9 pruebas, doctor 20/20, bundles |
-| 2 — Dominio y persistencia | Cerrada | 58 pruebas, SQLite real, reapertura |
-| 3 — Registro e Inicio | Cerrada | 76 pruebas, formulario, Inicio, onboarding, ajustes |
-| 4 — Historial, estadísticas y objetivos | En curso | — |
-| 5 — Calidad y accesibilidad | No iniciada | — |
-| 6 — Beta | No iniciada (bloqueada) | — |
-| 7 — Monetización | No iniciada | — |
+| 1 — Esqueleto técnico | Cerrada (nativa pendiente) | Doctor 20/20, bundles, pruebas |
+| 2 — Dominio y persistencia | Cerrada | SQLite real, migraciones, reapertura |
+| 3 — Registro e Inicio | Cerrada | Formulario, Inicio, onboarding, ajustes |
+| 4 — Historial, estadísticas y objetivos | Cerrada | Pantallas, gráficas y pruebas |
+| 5 — Calidad y accesibilidad | Cerrada (dispositivo pendiente) | 101 pruebas, exportación, rendimiento |
+| 6 — Beta privada | No iniciada (bloqueada) | Requiere cuentas y builds |
+| 7 — Monetización y lanzamiento | No iniciada | Requiere beta |
 
-Progreso: **4 de 8 fases cerradas**. Tareas: **27 de 54 cerradas**, 3 parciales, 1 bloqueada. Criterios de aceptación con evidencia automatizada: 10 de 35 (falta validación en dispositivo).
+Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales, 1 bloqueada. Criterios de aceptación con evidencia: **31 de 35**; los criterios 21 y 24 requieren dispositivo y 28–29 no aplican sin backend.
 
 ---
 
-## 5. Pruebas ejecutadas
+## 5. Pruebas ejecutadas (evidencia real)
 
-| Comprobación | Resultado |
-|---|---|
-| `pnpm format:check` | Correcto |
-| `pnpm lint` | 0 errores, 0 avisos |
-| `pnpm typecheck` | 0 errores |
-| `pnpm exec jest --runInBand` | 14 suites, 76/76 |
-| `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
-| Expo Doctor | 20/20 |
-| Bundle iOS | 5,2 MB |
-| Bundle Android | 5,2 MB |
-| Simulador | Bloqueado por licencia |
+| Comprobación | Comando | Resultado |
+|---|---|---|
+| Formato | `pnpm format:check` | Correcto |
+| Lint | `pnpm lint` | 0 errores, 0 avisos |
+| TypeScript | `pnpm typecheck` | 0 errores |
+| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 101/101 |
+| Rendimiento | semilla de 10.000 registros (sql.js) | seed 192 ms; suma 2 ms; página 3 ms |
+| Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
+| Expo Doctor | `node node_modules/expo-doctor/bin/expo-doctor.js` | 20/20 |
+| Bundle iOS | `expo export --platform ios` | 5,1 MB |
+| Bundle Android | `expo export --platform android` | 5,1 MB |
+| Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 
-Cobertura funcional de las pruebas: dinero (parseo/formato/límites), fechas y DST, periodos y comparaciones, agregados, objetivos, migraciones, CRUD, restricciones, persistencia, reapertura, transacciones, preparación del alta, componentes y accesibilidad básica.
+Cobertura: dinero y límites, fechas y DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación JSON, preparación de formularios, componentes y accesibilidad básica.
+
+No ejecutadas y motivo:
+
+- E2E (Maestro): sin simulador ni dispositivo.
+- Lector de pantalla y tamaño de texto: sin dispositivo.
+- Builds nativos y publicación: sin toolchain ni cuentas.
+- Hoja de compartir real: sin dispositivo.
 
 ---
 
 ## 6. Decisiones
 
-Las 17 decisiones están en [DECISIONS.md](./DECISIONS.md). Supuestos P1–P8 sin cambios: `com.suma.mobile`, español, EUR, sin notificaciones, exportación JSON, un objetivo activo.
+Las 17 decisiones arquitectónicas están en [DECISIONS.md](./DECISIONS.md). Decisiones de implementación relevantes:
+
+- Fecha mediante campo de texto `AAAA-MM-DD` y atajos Hoy/Ayer (sin dependencia de selector nativo).
+- Exportación JSON con la nueva API de `expo-file-system` + `expo-sharing`; no hay importación.
+- La moneda se bloquea en el repositorio de perfil si existe cualquier registro.
+- El objetivo único se garantiza con índice único parcial.
+- Gráficas propias sobre SVG, con resumen accesible y límite de puntos.
+
+Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español, EUR, sin notificaciones, JSON, un objetivo.
 
 ---
 
@@ -98,28 +117,43 @@ Las 17 decisiones están en [DECISIONS.md](./DECISIONS.md). Supuestos P1–P8 si
 
 | ID | Bloqueo | Impacto | Desbloqueo |
 |---|---|---|---|
-| B1 | Licencia de Xcode | Sin simulador, build iOS ni E2E | `sudo xcodebuild -license` |
-| B2 | Sin JDK ni Android SDK | Sin build Android local | Temurin + cmdline-tools o EAS |
-| B3 | Sin cuentas de tienda | Sin distribución | Alta de cuentas |
-| B6 | Sin dispositivo físico | Accesibilidad solo estimada | Prueba manual |
+| B1 | Licencia de Xcode no aceptada | Sin simulador, build iOS ni E2E | `sudo xcodebuild -license` |
+| B2 | Sin JDK ni Android SDK | Sin build Android local | Temurin 17+ y cmdline-tools, o EAS |
+| B3 | Sin cuentas Apple/Google/Expo | Sin distribución ni publicación | Alta de cuentas |
+| B6 | Sin dispositivo físico | Accesibilidad y compartir sin verificar | Prueba manual |
 
 ---
 
-## 8. Próximos pasos
+## 8. Limitaciones conocidas
 
-1. Fase 4: Historial con filtros, edición y borrado.
-2. Fase 4: Estadísticas por periodo con gráficas propias.
-3. Fase 4: Objetivo activo (crear, editar, borrar, progreso).
-4. Fase 5: casos límite, accesibilidad, exportación y documentación final.
+- No hay verificación de ejecución en iOS/Android.
+- El selector de fecha es textual; no es la mejor experiencia.
+- Un solo objetivo; sin asignación de registros por objetivo.
+- Exportación sin importación; sin CSV.
+- Sin notificaciones, cuentas, sincronización, analítica ni modo oscuro.
+- El rendimiento se midió en Node/sql.js, no en dispositivo.
+- La política de privacidad y los términos siguen pendientes de revisión legal.
 
 ---
 
-## 9. Registro de cambios
+## 9. Próximos pasos
+
+1. **Desbloquear el entorno**: aceptar la licencia de Xcode y/o instalar JDK + Android SDK.
+2. **Verificación real**: ejecutar en simulador, probar teclado, tamaños de texto, exportación y reinicio.
+3. **Fase 6**: cuentas EAS/Apple/Google y builds de beta.
+4. **Mejoras opcionales**: selector de fecha nativo, importación JSON, pruebas E2E, más objetivos.
+
+Ninguna de estas acciones se puede completar en este entorno sin intervención externa.
+
+---
+
+## 10. Registro de cambios
 
 | Fecha | Cambio |
 |---|---|
-| 2026-10-23 | Fase 0: memoria y ADR |
-| 2026-10-23 | Fase 1: scaffold, tema, componentes, rutas, CI |
+| 2026-10-23 | Fase 0: memoria y 17 ADR |
+| 2026-10-23 | Fase 1: scaffold, tema, rutas, CI |
 | 2026-10-23 | Fase 2: dominio, SQLite, migraciones, repositorios |
 | 2026-10-23 | Fase 3: AppProvider, onboarding, alta, Inicio, ajustes |
-| 2026-10-23 | Inicio de Fase 4 |
+| 2026-10-23 | Fase 4: historial, estadísticas, gráficas, objetivos |
+| 2026-10-23 | Fase 5: exportación, rendimiento, accesibilidad, documentación |

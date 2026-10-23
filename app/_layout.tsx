@@ -21,6 +21,7 @@ function AppStack() {
       <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />
       <Stack.Screen name="goals" options={{ presentation: 'modal' }} />
       <Stack.Screen name="settings" />
+      <Stack.Screen name="entry/[id]" />
     </Stack>
   );
 }

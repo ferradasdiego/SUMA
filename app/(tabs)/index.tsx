@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
@@ -108,10 +108,28 @@ export default function HomeScreen() {
       </View>
 
       {data.goal && data.goalProgress ? (
-        <View style={styles.section}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Abrir objetivo"
+          onPress={() => router.push('/goals')}
+          style={styles.section}
+        >
           <GoalCard goal={data.goal} progress={data.goalProgress} locale={locale} />
-        </View>
-      ) : null}
+        </Pressable>
+      ) : (
+        <Card style={styles.section}>
+          <AppText variant="label">Sin objetivo activo</AppText>
+          <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+            Un objetivo te ayuda a poner nombre a lo que quieres conseguir.
+          </AppText>
+          <Button
+            label="Crear objetivo"
+            onPress={() => router.push('/goals')}
+            variant="secondary"
+            style={styles.goalCta}
+          />
+        </Card>
+      )}
     </Screen>
   );
 }
@@ -127,4 +145,6 @@ const styles = {
   summaryAmount: { marginTop: spacing.xs },
   cta: { marginTop: spacing.xl },
   section: { marginTop: spacing.xxl },
+  hint: { marginTop: spacing.xs },
+  goalCta: { marginTop: spacing.md },
 };

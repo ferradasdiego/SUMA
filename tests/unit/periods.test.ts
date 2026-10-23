@@ -1,4 +1,4 @@
-import { clampToToday, equivalentPrevious, periodFor } from '@/domain/time/periods';
+import { clampToToday, equivalentPrevious, periodFor, shiftPeriod } from '@/domain/time/periods';
 
 describe('periodos', () => {
   it('construye día, semana, mes y año', () => {
@@ -77,5 +77,22 @@ describe('periodos', () => {
         to: '2026-10-09',
       },
     );
+  });
+});
+
+describe('shiftPeriod', () => {
+  it('desplaza día y semana', () => {
+    expect(shiftPeriod('2026-10-23', 'day', 1)).toBe('2026-10-24');
+    expect(shiftPeriod('2026-10-23', 'week', -1)).toBe('2026-10-16');
+  });
+
+  it('desplaza meses al primer día', () => {
+    expect(shiftPeriod('2026-01-31', 'month', 1)).toBe('2026-02-01');
+    expect(shiftPeriod('2026-01-31', 'month', -1)).toBe('2025-12-01');
+  });
+
+  it('desplaza años', () => {
+    expect(shiftPeriod('2026-10-23', 'year', 1)).toBe('2027-01-01');
+    expect(shiftPeriod('2026-10-23', 'year', -1)).toBe('2025-01-01');
   });
 });

@@ -94,3 +94,25 @@ El pipeline ejecuta formato, lint, TypeScript, unitarias, integración, componen
 - Persistencia y coherencia tras editar y borrar.
 - Formularios utilizables y accesibles.
 - Regresión verde antes de cada integración.
+
+## 9. Resultados de la ejecución real (2026-10-23)
+
+| Comprobación | Comando | Resultado |
+|---|---|---|
+| Formato | `pnpm format:check` | Correcto |
+| Lint | `pnpm lint` | 0 errores, 0 avisos |
+| TypeScript | `pnpm typecheck` | 0 errores |
+| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 101/101 |
+| Rendimiento (sql.js) | semilla de 10.000 registros | seed 192 ms; suma 2 ms; página de 50 en 3 ms |
+| Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
+| Expo Doctor | 20/20 comprobaciones | Correcto |
+| Bundles | iOS y Android | Generados (5,1 MB) |
+
+Cobertura por área: dinero y límites, fechas/DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación JSON, preparación de alta y de objetivo, componentes y accesibilidad básica.
+
+No ejecutadas (y motivo):
+
+- E2E con Maestro: requiere simulador o dispositivo; la licencia de Xcode no está aceptada.
+- Lector de pantalla y tamaño de texto en dispositivo: requiere dispositivo.
+- Builds nativos iOS/Android: falta toolchain o cuentas.
+- Prueba de la hoja de compartir: requiere dispositivo.

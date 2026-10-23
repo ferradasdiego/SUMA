@@ -44,7 +44,18 @@
 
 Si no hay respuesta en la fecha indicada, se aplica el supuesto y se registra aquí con fecha.
 
-## 3. Registro de cambios
+## 3. Decisiones de implementación (MVP)
+
+| ID | Decisión | Motivo | Revisar |
+|---|---|---|---|
+| D-01 | Fecha como texto AAAA-MM-DD con atajos Hoy/Ayer | Evitar una dependencia nativa sin poder verificarla en dispositivo | Fase 6 |
+| D-02 | Exportación JSON con expo-file-system (File/Paths) y expo-sharing | API vigente del SDK 58; sin librerías extra | Si se añade importación |
+| D-03 | Bloqueo de cambio de moneda si existe cualquier registro | Evitar sumar monedas distintas sin conversión | Si se añade multimoneda |
+| D-04 | Un objetivo activo mediante índice único parcial | Garantía en base de datos, no solo en la UI | Si se añaden varios objetivos |
+| D-05 | Gráficas SVG propias limitadas a 12/31 puntos | Control visual y accesible sin dependencias pesadas | Si se necesita más detalle |
+| D-06 | Sin analítica ni notificaciones en el MVP | Privacidad y alcance | Fase 7 |
+
+## 4. Registro de cambios
 
 | Fecha | Decisión | Motivo |
 |---|---|---|

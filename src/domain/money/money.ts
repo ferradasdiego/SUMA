@@ -7,6 +7,11 @@ export interface MoneyOptions {
   readonly locale: string;
 }
 
+export interface ParseAmountOptions extends MoneyOptions {
+  /** Límite en unidades menores; por defecto, el de una decisión. */
+  readonly maxMinor?: number;
+}
+
 const INVISIBLE_SPACES = /[\u00A0\u202F]/g;
 
 function separatorsFor(locale: string): { decimal: string; group: string } {
@@ -38,7 +43,7 @@ function invalidAmount(): Result<number> {
  * Acepta el separador decimal del idioma y tolera el separador alternativo
  * cuando no puede ser de miles (por ejemplo "2.5" en es-ES).
  */
-export function parseAmount(raw: string, options: MoneyOptions): Result<number> {
+export function parseAmount(raw: string, options: ParseAmountOptions): Result<number> {
   if (!isSupportedCurrency(options.currency)) {
     return err(validationError('Moneda no soportada', 'amount'));
   }
@@ -131,7 +136,8 @@ export function parseAmount(raw: string, options: MoneyOptions): Result<number> 
   if (minor <= 0) {
     return err(validationError('El importe debe ser mayor que cero', 'amount'));
   }
-  if (minor > MAX_ENTRY_MINOR) {
+  const maxMinor = options.maxMinor ?? MAX_ENTRY_MINOR;
+  if (minor > maxMinor) {
     return err(validationError('El importe supera el máximo permitido', 'amount'));
   }
 

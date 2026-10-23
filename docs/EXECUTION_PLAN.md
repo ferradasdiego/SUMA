@@ -118,6 +118,8 @@ Regla: no se abre una fase si la anterior no ha cerrado su criterio de salida. S
 
 ## 5. Fases
 
+> El estado real de cada tarea se mantiene en [STATUS.md](./STATUS.md). Las tablas de esta sección conservan el plan y sus criterios de salida; no se reescriben para no perder la referencia original.
+
 Convención de estados: **Hecho**, **Pendiente**, **Bloqueado**, **Parcial**. Las fechas son estimaciones relativas (una sesión = media jornada de trabajo enfocado de un agente); no son compromisos de calendario.
 
 ### Fase 0 — Preparación

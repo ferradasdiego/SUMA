@@ -2,6 +2,8 @@ import type { LocalDate, WeekStartsOn } from '@/domain/entities/types';
 import {
   addDays,
   dayCountInclusive,
+  formatLocalDate,
+  parseLocalDate,
   endOfMonth,
   endOfWeek,
   endOfYear,
@@ -85,4 +87,32 @@ export function equivalentPrevious(
 
 export function isEmptyRange(range: PeriodRange): boolean {
   return range.to < range.from;
+}
+
+/**
+ * Desplaza el ancla un periodo hacia delante o hacia atrás.
+ * En meses y años el ancla resultante es el primer día del periodo.
+ */
+export function shiftPeriod(
+  anchor: LocalDate,
+  kind: StandardPeriodKind,
+  direction: 1 | -1,
+): LocalDate {
+  switch (kind) {
+    case 'day':
+      return addDays(anchor, direction);
+    case 'week':
+      return addDays(anchor, 7 * direction);
+    case 'month': {
+      const parts = parseLocalDate(anchor);
+      if (!parts) return anchor;
+      const shifted = new Date(Date.UTC(parts.year, parts.month - 1 + direction, 1));
+      return formatLocalDate(shifted.getUTCFullYear(), shifted.getUTCMonth() + 1, 1);
+    }
+    case 'year': {
+      const parts = parseLocalDate(anchor);
+      if (!parts) return anchor;
+      return formatLocalDate(parts.year + direction, 1, 1);
+    }
+  }
 }

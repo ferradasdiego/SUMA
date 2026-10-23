@@ -49,6 +49,10 @@ export function migrationError(message: string, cause?: unknown): AppError {
   return { code: 'MIGRATION', message, ...(cause !== undefined ? { cause } : {}) };
 }
 
+export function ioError(message: string, cause?: unknown): AppError {
+  return { code: 'IO', message, ...(cause !== undefined ? { cause } : {}) };
+}
+
 export function unknownError(message: string, cause?: unknown): AppError {
   return { code: 'UNKNOWN', message, ...(cause !== undefined ? { cause } : {}) };
 }

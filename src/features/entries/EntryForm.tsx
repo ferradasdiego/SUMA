@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/incompatible-library -- watch() de React Hook Form no puede memoizarse; el compilador omite este componente de forma segura. */
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { TextInput, View } from 'react-native';
 
@@ -9,26 +9,46 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
-import { useApp } from '@/features/app/AppProvider';
-import { prepareEntry, type EntryFormValues } from '@/features/entries/prepareEntry';
 import type { AppError } from '@/domain/errors/result';
+import type { Entry } from '@/domain/entities/types';
 import { formatAmountInput } from '@/domain/money/money';
 import { addDays, todayLocalDate } from '@/domain/time/calendar';
+import { useApp } from '@/features/app/AppProvider';
+import { prepareEntry, type EntryFormValues } from '@/features/entries/prepareEntry';
 import { categoryLabel, t } from '@/i18n';
-import { deviceTimeZone } from '@/utils/device';
 import { categoryColors, colors, radii, spacing } from '@/theme';
+import { deviceTimeZone } from '@/utils/device';
 
 const QUICK_AMOUNTS = [150, 250, 500, 1000];
-
 type FormField = keyof EntryFormValues;
 
-export function AddEntryForm() {
+function defaultsFor(
+  entry: Entry | undefined,
+  categories: readonly { id: string }[],
+  today: string,
+  locale: string,
+): EntryFormValues {
+  return {
+    amount: entry ? formatAmountInput(entry.amountMinor, { currency: entry.currency, locale }) : '',
+    categoryId: entry?.categoryId ?? categories[0]?.id ?? '',
+    note: entry?.note ?? '',
+    date: entry?.occurredLocalDate ?? today,
+  };
+}
+
+export interface EntryFormProps {
+  entry?: Entry;
+  onSaved?: () => void;
+}
+
+export function EntryForm({ entry, onSaved }: EntryFormProps) {
   const { profile, categories, repositories, invalidate } = useApp();
   const [success, setSuccess] = useState(false);
 
   const today = profile ? todayLocalDate(new Date(), deviceTimeZone()) : '2026-01-01';
   const locale = profile?.locale ?? 'es-ES';
-  const currency = profile?.preferredCurrency ?? 'EUR';
+  const currency = entry?.currency ?? profile?.preferredCurrency ?? 'EUR';
+  const isEditing = entry !== undefined;
 
   const {
     watch,
@@ -39,18 +59,17 @@ export function AddEntryForm() {
     clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<EntryFormValues>({
-    defaultValues: {
-      amount: '',
-      categoryId: categories[0]?.id ?? '',
-      note: '',
-      date: today,
-    },
+    defaultValues: defaultsFor(entry, categories, today, locale),
   });
 
   const amount = watch('amount');
   const categoryId = watch('categoryId');
   const note = watch('note');
   const date = watch('date');
+
+  useEffect(() => {
+    reset(defaultsFor(entry, categories, today, locale));
+  }, [entry, categories, reset, today, locale]);
 
   function applyError(error: AppError) {
     const field = error.field as FormField | undefined;
@@ -83,6 +102,18 @@ export function AddEntryForm() {
       return;
     }
 
+    if (isEditing) {
+      const updated = await repositories.entries.update(entry.id, prepared.value);
+      if (!updated.ok) {
+        applyError(updated.error);
+        return;
+      }
+      invalidate();
+      if (onSaved) onSaved();
+      else router.back();
+      return;
+    }
+
     const created = await repositories.entries.create(prepared.value);
     if (!created.ok) {
       applyError(created.error);
@@ -91,12 +122,7 @@ export function AddEntryForm() {
 
     invalidate();
     setSuccess(true);
-    reset({
-      amount: '',
-      categoryId: categories[0]?.id ?? '',
-      note: '',
-      date: today,
-    });
+    reset(defaultsFor(undefined, categories, today, locale));
   });
 
   if (!profile) return null;
@@ -272,7 +298,7 @@ export function AddEntryForm() {
       ) : null}
 
       <Button
-        label={isSubmitting ? t('add.saving') : t('add.save')}
+        label={isSubmitting ? t('add.saving') : isEditing ? 'Guardar cambios' : t('add.save')}
         onPress={() => {
           void onSubmit();
         }}
@@ -280,6 +306,15 @@ export function AddEntryForm() {
         disabled={isSubmitting}
         style={styles.submit}
       />
+
+      {isEditing ? (
+        <Button
+          label="Cancelar"
+          onPress={() => router.back()}
+          variant="secondary"
+          style={styles.cancel}
+        />
+      ) : null}
 
       <AppText variant="caption" color={colors.textMuted} style={styles.preview}>
         Se registrará como dinero no gastado, no como ahorro disponible.
@@ -326,5 +361,6 @@ const styles = {
   note: { minHeight: 88, textAlignVertical: 'top' as const },
   inputError: { borderColor: colors.danger },
   submit: { marginTop: spacing.xl },
+  cancel: { marginTop: spacing.sm },
   preview: { marginTop: spacing.md, textAlign: 'center' as const },
 };

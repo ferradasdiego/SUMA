@@ -23,9 +23,11 @@ export default function TabsLayout() {
             : {}),
         },
         tabBarLabelStyle: {
-          fontSize: typography.caption.fontSize,
+          fontSize: isWeb ? 11 : typography.caption.fontSize,
           fontWeight: '600',
-          ...(isWeb ? { marginBottom: 2, height: 16, lineHeight: 16, flexShrink: 0 } : {}),
+          ...(isWeb
+            ? { marginBottom: 2, height: 16, lineHeight: 16, flexShrink: 0, letterSpacing: -0.2 }
+            : {}),
         },
       }}
     >

@@ -146,6 +146,19 @@ const cachedPaths = await page.evaluate(async () => {
 });
 console.log('CACHE:', cachedPaths.join(' '));
 check('funciona sin conexión tras la primera visita', offlineText.includes('Tu dinero no gastado'));
+
+// Editar un registro sin conexión (la ruta nunca se abrió antes)
+await page.getByRole('tab', { name: /Historial/ }).click().catch(async () => {
+  await page.getByText('Historial', { exact: true }).last().click();
+});
+await page.getByText('Historial').first().waitFor({ timeout: 10000 });
+await page.waitForTimeout(600);
+await page.getByRole('button', { name: /Editar registro/ }).first().click();
+await page.getByText('Editar registro').waitFor({ timeout: 10000 });
+check('edición sin conexión', true);
+await page.getByText('Volver').click();
+await page.getByText('Historial').first().waitFor({ timeout: 10000 });
+
 await page.screenshot({ path: 'artifacts/web-04-offline.png', fullPage: true });
 await context.setOffline(false);
 

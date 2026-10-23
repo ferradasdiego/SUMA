@@ -333,6 +333,8 @@ Tras la primera visita con conexión, el service worker cachea el shell y los re
 
 Los datos se guardan en el almacenamiento del navegador (OPFS/IndexedDB) y sobreviven a cerrar y reabrir. No se sincronizan con la app nativa.
 
+Con el bundle único de la PWA también funcionan sin conexión las pantallas que no se hayan visitado antes: editar un registro, ajustes y objetivos.
+
 ### 9.7 Dónde están los datos y cómo no perderlos
 
 - Cada **origen** tiene su propia base: `http://localhost:8085`, `https://192.168.1.40:8085` y una URL de túnel son almacenamientos distintos.

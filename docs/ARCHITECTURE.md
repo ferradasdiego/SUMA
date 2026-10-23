@@ -927,6 +927,7 @@ La app puede compilarse también como web instalable. No sustituye a iOS/Android
 - Misma base de código mediante `react-native-web` y Expo Router con `web.output: 'single'`.
 - Persistencia: `expo-sqlite` en web sobre wa-sqlite (WASM) y OPFS. No hay un driver distinto: los repositorios y migraciones se reutilizan.
 - La importación de archivos `.wasm` se habilita en `metro.config.js`.
+- Las rutas asíncronas se desactivan en web (`asyncRoutes: false`): todo el código viaja en el bundle inicial y el service worker puede servirlo sin conexión. Con rutas asíncronas, una pantalla no visitada antes (por ejemplo, editar un registro) no estaba disponible offline.
 - La exportación de datos en web descarga un JSON con `Blob`; en nativo usa la hoja de compartir.
 
 ### 23.2 Requisitos de origen

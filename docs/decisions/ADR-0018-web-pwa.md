@@ -37,6 +37,7 @@ Se añade un canal web/PWA con react-native-web, Expo Router en modo `single`, l
 - Los datos quedan ligados al origen del navegador; no se sincronizan con la app nativa.
 - El service worker requiere estrategia de actualización y versionado.
 - El HTML de la PWA se post-procesa porque `+html.tsx` no se aplica en `output: 'single'`.
+- Se desactivan las rutas asíncronas en web para que toda pantalla funcione sin conexión aunque no se haya visitado antes.
 - Se añade Playwright como herramienta de verificación local, no como dependencia de la app.
 
 ## Riesgos

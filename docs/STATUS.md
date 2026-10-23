@@ -89,7 +89,7 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Bundle iOS | `expo export --platform ios` | 5,2 MB |
 | Bundle Android | `expo export --platform android` | 5,2 MB |
 | Build web | `pnpm web:build` | `dist/` con manifest, service worker e iconos |
-| Smoke PWA | `node scripts/smoke-web.mjs` | 15/15 en HTTP local y HTTPS |
+| Smoke PWA | `node scripts/smoke-web.mjs` | 16/16 en HTTP local y HTTPS |
 | PWA sin conexión | Recarga con red desactivada | Correcta |
 | Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 
@@ -171,3 +171,4 @@ Ninguna de estas acciones se puede completar en este entorno sin intervención e
 | 2026-10-23 | Fase 4: historial, estadísticas, gráficas, objetivos |
 | 2026-10-23 | Fase 5: exportación, rendimiento, accesibilidad, documentación |
 | 2026-10-23 | Canal web/PWA: build estático, SQLite WASM, manifest, service worker, servidor HTTPS local y verificación con Chrome |
+| 2026-10-23 | Fix PWA: input de importe adaptable a pantallas estrechas; rutas web síncronas para que editar funcione sin conexión |

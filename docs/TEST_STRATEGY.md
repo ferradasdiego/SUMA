@@ -105,7 +105,7 @@ pnpm web:serve          # en otra terminal
 node scripts/smoke-web.mjs
 ```
 
-Comprueba 15 puntos: origen aislado, `SharedArrayBuffer`, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas, ausencia de errores en línea y funcionamiento sin conexión. Se ejecutó sobre `http://localhost` y sobre HTTPS con certificado local.
+Comprueba 16 puntos: origen aislado, `SharedArrayBuffer`, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas, ausencia de errores en línea, funcionamiento sin conexión y edición de un registro sin conexión (una ruta que nunca se había abierto). Se ejecutó sobre `http://localhost` y sobre HTTPS con certificado local.
 
 ## 9. Resultados de la ejecución real (2026-10-23)
 
@@ -119,7 +119,7 @@ Comprueba 15 puntos: origen aislado, `SharedArrayBuffer`, onboarding, alta, pers
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | 20/20 comprobaciones | Correcto |
 | Bundles | iOS y Android | Generados (5,2 MB) |
-| PWA | `pnpm web:build` + smoke | 15/15 comprobaciones en HTTP y HTTPS |
+| PWA | `pnpm web:build` + smoke | 16/16 comprobaciones en HTTP y HTTPS |
 
 Cobertura por área: dinero y límites, fechas/DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación JSON, preparación de alta y de objetivo, componentes y accesibilidad básica.
 

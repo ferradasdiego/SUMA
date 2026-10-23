@@ -333,9 +333,15 @@ const styles = {
     paddingHorizontal: spacing.lg,
   },
   label: { marginTop: spacing.md },
-  amountRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: spacing.sm },
+  amountRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    width: '100%' as const,
+  },
   amountInput: {
     flex: 1,
+    minWidth: 0,
     minHeight: 56,
     borderWidth: 1,
     borderColor: colors.border,

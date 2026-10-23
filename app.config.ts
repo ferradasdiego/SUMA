@@ -39,6 +39,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-router',
       {
+        // Sin rutas asíncronas en web: todo el código queda en el bundle inicial
+        // y el service worker puede servirlo sin conexión.
+        asyncRoutes: false,
         headers: {
           'Cross-Origin-Embedder-Policy': 'credentialless',
           'Cross-Origin-Opener-Policy': 'same-origin',

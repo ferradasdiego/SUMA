@@ -9,9 +9,10 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
+import { QuickAmounts } from '@/features/entries/QuickAmounts';
 import type { AppError } from '@/domain/errors/result';
 import type { Entry } from '@/domain/entities/types';
-import { formatAmountInput } from '@/domain/money/money';
+import { formatAmountInput, parseAmount } from '@/domain/money/money';
 import { addDays, todayLocalDate } from '@/domain/time/calendar';
 import { useApp } from '@/features/app/AppProvider';
 import { prepareEntry, type EntryFormValues } from '@/features/entries/prepareEntry';
@@ -19,7 +20,6 @@ import { categoryLabel, t } from '@/i18n';
 import { categoryColors, colors, radii, spacing } from '@/theme';
 import { deviceTimeZone } from '@/utils/device';
 
-const QUICK_AMOUNTS = [150, 250, 500, 1000];
 type FormField = keyof EntryFormValues;
 
 function defaultsFor(
@@ -63,6 +63,8 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
   });
 
   const amount = watch('amount');
+  const parsedAmount = amount.trim() === '' ? null : parseAmount(amount, { currency, locale });
+  const selectedQuickAmount = parsedAmount && parsedAmount.ok ? parsedAmount.value : null;
   const categoryId = watch('categoryId');
   const note = watch('note');
   const date = watch('date');
@@ -177,22 +179,15 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
         </AppText>
       ) : null}
 
-      <AppText variant="label" style={styles.label}>
-        {t('add.quickAmounts')}
-      </AppText>
-      <View style={styles.chips}>
-        {QUICK_AMOUNTS.map((minor) => (
-          <Chip
-            key={minor}
-            label={formatAmountInput(minor, { currency, locale })}
-            selected={amount === formatAmountInput(minor, { currency, locale })}
-            onPress={() => {
-              setValue('amount', formatAmountInput(minor, { currency, locale }));
-              clearErrors('amount');
-            }}
-          />
-        ))}
-      </View>
+      <QuickAmounts
+        currency={currency}
+        locale={locale}
+        selectedAmount={selectedQuickAmount}
+        onPick={(minor) => {
+          setValue('amount', formatAmountInput(minor, { currency, locale }));
+          clearErrors('amount');
+        }}
+      />
 
       <AppText variant="label" style={styles.label}>
         {t('add.category')}

@@ -12,6 +12,7 @@ export interface ExportPayload {
     readonly locale: string;
     readonly weekStartsOn: 0 | 1;
     readonly onboardingCompleted: boolean;
+    readonly quickAmountsMinor: readonly number[];
   };
   readonly categories: readonly Category[];
   readonly entries: readonly Entry[];
@@ -37,6 +38,7 @@ export function buildExportPayload(input: BuildExportInput): ExportPayload {
       locale: input.profile.locale,
       weekStartsOn: input.profile.weekStartsOn,
       onboardingCompleted: input.profile.onboardingCompleted,
+      quickAmountsMinor: [...input.profile.quickAmountsMinor],
     },
     categories: input.categories.map((category) => ({ ...category })),
     entries: input.entries.map((entry) => ({ ...entry })),

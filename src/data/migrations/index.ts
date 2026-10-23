@@ -2,9 +2,10 @@ import type { SqlDriver } from '@/data/local/driver';
 import { err, migrationError, ok, type Result } from '@/domain/errors/result';
 
 import { migration001 } from './001_initial';
+import { migration002 } from './002_quick_amounts';
 import type { Migration } from './types';
 
-export const MIGRATIONS: readonly Migration[] = [migration001];
+export const MIGRATIONS: readonly Migration[] = [migration001, migration002];
 
 export async function migrate(driver: SqlDriver): Promise<Result<void>> {
   try {

@@ -46,7 +46,7 @@ pnpm exec expo-doctor
 ## 2. Opción A — Pruebas automatizadas (sin dispositivo)
 
 ```bash
-pnpm exec jest --runInBand          # 20 suites, 102 pruebas
+pnpm exec jest --runInBand          # 20 suites, 104 pruebas
 pnpm test:integration               # persistencia con SQLite real (sql.js)
 ```
 
@@ -200,6 +200,14 @@ Hazlo en este orden; cada paso tiene un resultado esperado.
 6. Introduce `2,50`, elige Café, nota "Café en casa" → Guardar.
 7. Debe aparecer "Decisión registrada" y el formulario limpio.
 8. Vuelve a Inicio: total 2,50 €, hoy 2,50 €, semana 2,50 €, un movimiento.
+
+### Importes rápidos
+
+8.1 En Añadir, pulsa el lápiz a la izquierda de "Importes rápidos".
+8.2 Toca `1,50`, cámbialo por `4,20` y pulsa Guardar.
+8.3 El chip debe mostrar `4,20`; pulsa el lápiz para salir del modo edición.
+8.4 Recarga la app: el importe `4,20` debe seguir ahí.
+
 9. Añade `8,00` en Comida.
 10. Total 10,50 €.
 

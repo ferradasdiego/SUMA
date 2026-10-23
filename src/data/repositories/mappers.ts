@@ -1,4 +1,5 @@
 import type { Category, Entry, Goal, UserProfile } from '@/domain/entities/types';
+import { DEFAULT_QUICK_AMOUNTS_MINOR } from '@/domain/preferences/quickAmounts';
 import { err, ok, storageError, type Result } from '@/domain/errors/result';
 import {
   categorySchema,
@@ -6,6 +7,7 @@ import {
   firstIssueMessage,
   goalSchema,
   profileSchema,
+  quickAmountsSchema,
 } from '@/domain/validation/schemas';
 
 export interface EntryRow {
@@ -50,6 +52,7 @@ export interface ProfileRow {
   readonly locale: string;
   readonly week_starts_on: number;
   readonly onboarding_completed: number;
+  readonly quick_amounts_minor: string | null;
   readonly created_at: string;
   readonly updated_at: string;
 }
@@ -116,6 +119,17 @@ export function rowToGoal(row: GoalRow): Result<Goal> {
   return ok(parsed.data);
 }
 
+function parseQuickAmounts(raw: string | null): readonly number[] {
+  if (!raw) return DEFAULT_QUICK_AMOUNTS_MINOR;
+
+  try {
+    const parsed = quickAmountsSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : DEFAULT_QUICK_AMOUNTS_MINOR;
+  } catch {
+    return DEFAULT_QUICK_AMOUNTS_MINOR;
+  }
+}
+
 export function rowToProfile(row: ProfileRow): Result<UserProfile> {
   const parsed = profileSchema.safeParse({
     id: row.id,
@@ -124,6 +138,7 @@ export function rowToProfile(row: ProfileRow): Result<UserProfile> {
     locale: row.locale,
     weekStartsOn: row.week_starts_on === 0 ? 0 : 1,
     onboardingCompleted: row.onboarding_completed === 1,
+    quickAmountsMinor: parseQuickAmounts(row.quick_amounts_minor),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   });

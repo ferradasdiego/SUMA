@@ -1,4 +1,6 @@
 import { initializeDatabase } from '@/data/database';
+import { migration001 } from '@/data/migrations/001_initial';
+import { migrate } from '@/data/migrations';
 import { openSqlJsDatabase, type SqlJsDriver } from '@/data/local/sqljsDriver';
 import type { DatabaseContext } from '@/data/repositories/types';
 
@@ -44,12 +46,65 @@ describe('migraciones y semilla', () => {
       expect(profile.value.preferredCurrency).toBe('EUR');
       expect(profile.value.weekStartsOn).toBe(1);
       expect(profile.value.onboardingCompleted).toBe(false);
+      expect(profile.value.quickAmountsMinor).toEqual([150, 250, 500, 1000]);
     }
 
     const migrations = await driver.all<{ version: number }>(
       'SELECT version FROM schema_migrations',
     );
-    expect(migrations).toHaveLength(1);
+    expect(migrations).toHaveLength(2);
+
+    await driver.close();
+  });
+
+  it('actualiza una base v1 sin perder datos', async () => {
+    const driver = await openSqlJsDatabase();
+    const timestamp = '2026-10-23T10:00:00.000Z';
+
+    await driver.exec('PRAGMA foreign_keys = ON');
+    await driver.exec(
+      'CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TEXT NOT NULL)',
+    );
+    await driver.transaction(async (tx) => {
+      await migration001.up(tx);
+      await tx.run('INSERT INTO schema_migrations (version, name, applied_at) VALUES (1, ?, ?)', [
+        'initial_schema',
+        timestamp,
+      ]);
+      await tx.run(
+        "INSERT INTO user_profile (id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, created_at, updated_at) VALUES ('local', NULL, 'EUR', 'es-ES', 1, 1, ?, ?)",
+        [timestamp, timestamp],
+      );
+      await tx.run(
+        'INSERT INTO entries (id, user_id, amount_minor, currency, category_id, note, occurred_at_utc, occurred_local_date, occurred_tz, created_at, updated_at) VALUES (?, NULL, 250, ?, ?, NULL, ?, ?, ?, ?, ?)',
+        [
+          'old-entry',
+          'EUR',
+          'cat_coffee',
+          timestamp,
+          '2026-10-23',
+          'Europe/Madrid',
+          timestamp,
+          timestamp,
+        ],
+      );
+    });
+
+    const result = await migrate(driver);
+    expect(result.ok).toBe(true);
+
+    const versions = await driver.all<{ version: number }>(
+      'SELECT version FROM schema_migrations ORDER BY version',
+    );
+    expect(versions.map((row) => Number(row.version))).toEqual([1, 2]);
+
+    const profiles = await driver.all<{ quick_amounts_minor: string }>(
+      'SELECT quick_amounts_minor FROM user_profile',
+    );
+    expect(JSON.parse(profiles[0]!.quick_amounts_minor)).toEqual([150, 250, 500, 1000]);
+
+    const entries = await driver.all<{ id: string }>('SELECT id FROM entries');
+    expect(entries.map((row) => row.id)).toEqual(['old-entry']);
 
     await driver.close();
   });
@@ -66,7 +121,7 @@ describe('migraciones y semilla', () => {
     const migrations = await driver.all<{ version: number }>(
       'SELECT version FROM schema_migrations',
     );
-    expect(migrations).toHaveLength(1);
+    expect(migrations).toHaveLength(2);
     await driver.close();
   });
 });
@@ -278,6 +333,34 @@ describe('perfil y restablecimiento', () => {
     await driver.close();
   });
 
+  it('guarda los importes rápidos y los recupera', async () => {
+    const { driver, db } = await setup();
+
+    const initial = await db.repositories.profile.get();
+    expect(initial.ok && initial.value.quickAmountsMinor).toEqual([150, 250, 500, 1000]);
+
+    const updated = await db.repositories.profile.update({
+      quickAmountsMinor: [200, 300, 420, 1250],
+    });
+    expect(updated.ok).toBe(true);
+    if (updated.ok) expect(updated.value.quickAmountsMinor).toEqual([200, 300, 420, 1250]);
+
+    const reloaded = await db.repositories.profile.get();
+    expect(reloaded.ok && reloaded.value.quickAmountsMinor).toEqual([200, 300, 420, 1250]);
+
+    const raw = await driver.all<{ quick_amounts_minor: string }>(
+      'SELECT quick_amounts_minor FROM user_profile WHERE id = ?',
+      ['local'],
+    );
+    expect(JSON.parse(raw[0]!.quick_amounts_minor)).toEqual([200, 300, 420, 1250]);
+
+    const invalid = await db.repositories.profile.update({ quickAmountsMinor: [] });
+    expect(invalid.ok).toBe(false);
+    if (!invalid.ok) expect(invalid.error.field).toBe('quickAmountsMinor');
+
+    await driver.close();
+  });
+
   it('restablece registros y objetivos conservando el perfil', async () => {
     const { driver, db } = await setup();
     await db.repositories.entries.create(ENTRY);
@@ -330,7 +413,7 @@ describe('persistencia', () => {
     }
 
     const migrations = await reopened.all('SELECT version FROM schema_migrations');
-    expect(migrations).toHaveLength(1);
+    expect(migrations).toHaveLength(2);
 
     await reopened.close();
   });

@@ -78,6 +78,7 @@ Semilla: café, comida, compras, transporte, ocio, suscripciones, otros.
 | locale | TEXT | No | BCP 47 (es-ES) |
 | week_starts_on | INTEGER | No | 0 = domingo, 1 = lunes |
 | onboarding_completed | INTEGER | No | 0/1 |
+| quick_amounts_minor | TEXT | No | JSON con 1–6 importes rápidos en unidades menores; por defecto `[150,250,500,1000]` |
 | created_at | TEXT | No | ISO-8601 UTC |
 | updated_at | TEXT | No | ISO-8601 UTC |
 
@@ -112,6 +113,7 @@ Semilla: café, comida, compras, transporte, ocio, suscripciones, otros.
 
 - Tabla schema_migrations como fuente de verdad.
 - Migración 001: esquema completo + semilla de categorías.
+- Migración 002: columna `quick_amounts_minor` en `user_profile`, con valores por defecto para filas existentes.
 - Cada migración se ejecuta dentro de una transacción.
 - Se prueban desde base vacía; las futuras, también desde cada versión anterior.
 

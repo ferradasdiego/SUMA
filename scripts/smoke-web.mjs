@@ -50,9 +50,19 @@ await page.getByText('Tu dinero no gastado').waitFor({ timeout: 20000 });
 check('onboarding completado', true);
 
 await page.getByRole('button', { name: 'Registrar una decisión' }).click();
-await page.getByLabel('Importe').waitFor({ timeout: 10000 });
-await page.getByLabel('Importe').fill('2,50');
-await page.getByRole('button', { name: 'Guardar' }).click();
+await page.getByLabel('Importe', { exact: true }).waitFor({ timeout: 10000 });
+
+// Importes rápidos editables: cambiar 1,50 por 4,20
+await page.getByRole('button', { name: 'Editar importes rápidos' }).click();
+await page.getByRole('button', { name: '1,50' }).click();
+await page.getByLabel('Nuevo importe rápido', { exact: true }).fill('4,20');
+await page.getByRole('button', { name: 'Guardar importe', exact: true }).click();
+await page.getByRole('button', { name: '4,20' }).waitFor({ timeout: 10000 });
+check('importe rápido editado', true);
+await page.getByRole('button', { name: 'Terminar de editar importes rápidos' }).click();
+
+await page.getByLabel('Importe', { exact: true }).fill('2,50');
+await page.getByRole('button', { name: 'Guardar', exact: true }).click();
 await page.getByText('Decisión registrada').waitFor({ timeout: 10000 });
 check('registro guardado', true);
 
@@ -68,6 +78,16 @@ await page.reload({ waitUntil: 'domcontentloaded' });
 await page.getByText('Tu dinero no gastado').waitFor({ timeout: 30000 });
 await page.getByText(/2,50/).first().waitFor({ timeout: 15000 });
 check('los datos sobreviven al recargar', true);
+
+// El importe rápido editado sigue ahí
+await page.getByRole('tab', { name: /Añadir/ }).click().catch(async () => {
+  await page.getByText('Añadir', { exact: true }).last().click();
+});
+await page.getByLabel('Importe', { exact: true }).waitFor({ timeout: 10000 });
+await page.getByRole('button', { name: '4,20' }).waitFor({ timeout: 10000 });
+check('importe rápido persiste al recargar', true);
+await page.goto(url, { waitUntil: 'domcontentloaded' });
+await page.getByText('Tu dinero no gastado').waitFor({ timeout: 20000 });
 
 const sw = await page.evaluate(async () => {
   if (!('serviceWorker' in navigator)) return null;

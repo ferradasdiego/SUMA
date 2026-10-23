@@ -9,7 +9,7 @@ Aplicación móvil de ahorro consciente: registra el dinero que decides **no gas
 Implementación del MVP en curso por fases:
 
 - **Fases 0–5 completadas** según el plan: memoria, esqueleto, dominio/persistencia, registro e Inicio, historial/estadísticas/objetivos y calidad.
-- **102 pruebas automatizadas en verde** (unitarias, integración con SQLite real y componentes).
+- **104 pruebas automatizadas en verde** (unitarias, integración con SQLite real y componentes).
 - La aplicación empaqueta para iOS y Android, pero **no se ha ejecutado en simulador ni dispositivo** en este entorno.
 - Bloqueos externos: licencia de Xcode no aceptada, sin JDK/Android SDK y sin cuentas de tienda.
 
@@ -18,7 +18,8 @@ El estado detallado, con evidencias y limitaciones, está en [docs/STATUS.md](do
 ## Funcionalidades
 
 - Onboarding con moneda y primer día de semana.
-- Registro de decisiones con importe, categoría, nota y fecha; importes rápidos.
+- Registro de decisiones con importe, categoría, nota y fecha.
+- Importes rápidos configurables y persistentes: el lápiz permite editar cada importe y se guarda en el dispositivo.
 - Inicio con total acumulado, hoy, semana, últimos movimientos y objetivo.
 - Historial paginado con filtros por categoría y periodo, orden y edición.
 - Edición y eliminación de registros con confirmación.

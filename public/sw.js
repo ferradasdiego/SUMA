@@ -1,6 +1,6 @@
 /* Service worker de SUMA: app shell + cache en tiempo de ejecución. */
 // Sube esta versión al publicar cambios para invalidar la caché anterior.
-const VERSION = 'suma-v2';
+const VERSION = 'suma-v3';
 const SHELL = [
   '/',
   '/index.html',

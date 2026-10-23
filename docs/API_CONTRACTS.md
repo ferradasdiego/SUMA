@@ -87,6 +87,10 @@ interface SqlDriver {
 }
 ```
 
+### Perfil
+
+`ProfilePatch` admite `displayName`, `preferredCurrency`, `locale`, `weekStartsOn`, `onboardingCompleted` y `quickAmountsMinor` (1–6 importes en unidades menores). Los importes rápidos son una preferencia del perfil y se guardan en la misma fila.
+
 ### Repositorios
 
 ```ts

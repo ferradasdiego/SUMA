@@ -466,6 +466,7 @@ CREATE UNIQUE INDEX idx_goals_single_active ON goals (is_active) WHERE is_active
 | Objetivo activo | Índice único parcial | Garantiza la regla del MVP a nivel de base de datos. |
 | Categorías | Semilla con IDs estables y `name_key` i18n | Traducción sin perder identidad (spec §8.2). |
 | Booleanos | `INTEGER` 0/1 con `CHECK` | SQLite no tiene `BOOLEAN`. |
+| Importes rápidos | JSON en `user_profile.quick_amounts_minor` | Preferencia pequeña y editable; no requiere tabla propia. |
 
 ### 7.3 Migraciones
 
@@ -502,6 +503,8 @@ export async function migrate(db: SqlDriver): Promise<Result<void>> {
 ```
 
 Reglas: una migración no se edita una vez aplicada; se añade otra. Las migraciones se prueban desde base vacía y desde cada versión anterior. Si una migración falla, la transacción revierte y la app muestra un error bloqueante comprensible, sin continuar con un esquema parcial.
+
+La migración 002 añade `quick_amounts_minor` (TEXT, JSON, por defecto `[150,250,500,1000]`) al perfil. Los importes rápidos se validan con Zod (1–6 valores enteros positivos) y el repositorio los serializa; una preferencia corrupta cae a los valores por defecto sin bloquear el arranque.
 
 ### 7.4 Semilla de categorías
 

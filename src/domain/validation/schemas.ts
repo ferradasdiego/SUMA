@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { MAX_ENTRY_MINOR, MAX_GOAL_MINOR, isSupportedCurrency } from '@/domain/money/currency';
+import { MAX_QUICK_AMOUNTS, MIN_QUICK_AMOUNTS } from '@/domain/preferences/quickAmounts';
 import { isLocalDate } from '@/domain/time/calendar';
 
 export const currencySchema = z
@@ -77,6 +78,11 @@ export const goalPatchSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+export const quickAmountsSchema = z
+  .array(z.number().int().positive().max(MAX_ENTRY_MINOR))
+  .min(MIN_QUICK_AMOUNTS, 'Añade al menos un importe rápido')
+  .max(MAX_QUICK_AMOUNTS, 'Demasiados importes rápidos');
+
 export const profileSchema = z.object({
   id: z.string().min(1),
   displayName: z.string().max(80).nullable(),
@@ -84,6 +90,7 @@ export const profileSchema = z.object({
   locale: z.string().min(2).max(35),
   weekStartsOn: z.union([z.literal(0), z.literal(1)]),
   onboardingCompleted: z.boolean(),
+  quickAmountsMinor: quickAmountsSchema,
   createdAt: isoDateTimeSchema,
   updatedAt: isoDateTimeSchema,
 });
@@ -94,6 +101,7 @@ export const profilePatchSchema = z.object({
   locale: z.string().min(2).max(35).optional(),
   weekStartsOn: z.union([z.literal(0), z.literal(1)]).optional(),
   onboardingCompleted: z.boolean().optional(),
+  quickAmountsMinor: quickAmountsSchema.optional(),
 });
 
 export function firstIssueMessage(error: z.ZodError, fallback = 'Datos inválidos'): string {

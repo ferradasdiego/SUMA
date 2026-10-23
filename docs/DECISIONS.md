@@ -56,6 +56,7 @@ Si no hay respuesta en la fecha indicada, se aplica el supuesto y se registra aq
 | D-05 | Gráficas SVG propias limitadas a 12/31 puntos | Control visual y accesible sin dependencias pesadas | Si se necesita más detalle |
 | D-06 | Sin analítica ni notificaciones en el MVP | Privacidad y alcance | Fase 7 |
 | D-07 | PWA con SQLite web y servidor HTTPS local | Reutilizar la app sin tiendas | Si cambia el hosting |
+| D-08 | Importes rápidos como JSON en el perfil (migración 002) | Preferencia pequeña, editable y portable en la exportación | Si crecen a una lista gestionada con nombres |
 
 ## 4. Registro de cambios
 

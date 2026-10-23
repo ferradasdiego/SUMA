@@ -13,6 +13,7 @@ const profile: UserProfile = {
   locale: 'es-ES',
   weekStartsOn: 1,
   onboardingCompleted: true,
+  quickAmountsMinor: [150, 250, 500, 1000],
   createdAt: '2026-10-23T10:00:00.000Z',
   updatedAt: '2026-10-23T10:00:00.000Z',
 };
@@ -42,6 +43,7 @@ describe('exportación', () => {
     expect(payload.formatVersion).toBe(EXPORT_FORMAT_VERSION);
     expect(payload.exportedAt).toBe('2026-10-23T12:00:00.000Z');
     expect(payload.profile.preferredCurrency).toBe('EUR');
+    expect(payload.profile.quickAmountsMinor).toEqual([150, 250, 500, 1000]);
     expect(payload.categories).toHaveLength(7);
     expect(payload.entries).toHaveLength(1);
     expect(payload.entries[0]!.note).toBe('Nota personal');

@@ -69,6 +69,7 @@ export interface UserProfile {
   readonly locale: string;
   readonly weekStartsOn: WeekStartsOn;
   readonly onboardingCompleted: boolean;
+  readonly quickAmountsMinor: readonly number[];
   readonly createdAt: IsoDateTime;
   readonly updatedAt: IsoDateTime;
 }
@@ -76,6 +77,11 @@ export interface UserProfile {
 export type ProfilePatch = Partial<
   Pick<
     UserProfile,
-    'displayName' | 'preferredCurrency' | 'locale' | 'weekStartsOn' | 'onboardingCompleted'
+    | 'displayName'
+    | 'preferredCurrency'
+    | 'locale'
+    | 'weekStartsOn'
+    | 'onboardingCompleted'
+    | 'quickAmountsMinor'
   >
 >;

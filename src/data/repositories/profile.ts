@@ -10,6 +10,7 @@ import {
   type Result,
 } from '@/domain/errors/result';
 import { DEFAULT_CURRENCY, DEFAULT_LOCALE, DEFAULT_WEEK_STARTS_ON } from '@/domain/money/currency';
+import { DEFAULT_QUICK_AMOUNTS_MINOR } from '@/domain/preferences/quickAmounts';
 import {
   firstIssueField,
   firstIssueMessage,
@@ -20,7 +21,7 @@ import {
 export const LOCAL_PROFILE_ID = 'local';
 
 const COLUMNS =
-  'id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, created_at, updated_at';
+  'id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, quick_amounts_minor, created_at, updated_at';
 
 export function createProfileRepository(ctx: RepositoryContext): ProfileRepository {
   const get = async (): Promise<Result<UserProfile>> => {
@@ -43,13 +44,14 @@ export function createProfileRepository(ctx: RepositoryContext): ProfileReposito
     const timestamp = ctx.now().toISOString();
     try {
       await ctx.driver.run(
-        'INSERT OR IGNORE INTO user_profile (id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, created_at, updated_at) ' +
-          'VALUES (?, NULL, ?, ?, ?, 0, ?, ?)',
+        'INSERT OR IGNORE INTO user_profile (id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, quick_amounts_minor, created_at, updated_at) ' +
+          'VALUES (?, NULL, ?, ?, ?, 0, ?, ?, ?)',
         [
           LOCAL_PROFILE_ID,
           DEFAULT_CURRENCY,
           DEFAULT_LOCALE,
           DEFAULT_WEEK_STARTS_ON,
+          JSON.stringify(DEFAULT_QUICK_AMOUNTS_MINOR),
           timestamp,
           timestamp,
         ],
@@ -106,6 +108,7 @@ export function createProfileRepository(ctx: RepositoryContext): ProfileReposito
       locale: parsedPatch.data.locale ?? current.locale,
       weekStartsOn: parsedPatch.data.weekStartsOn ?? current.weekStartsOn,
       onboardingCompleted: parsedPatch.data.onboardingCompleted ?? current.onboardingCompleted,
+      quickAmountsMinor: parsedPatch.data.quickAmountsMinor ?? current.quickAmountsMinor,
       updatedAt: timestamp,
     };
 
@@ -118,13 +121,14 @@ export function createProfileRepository(ctx: RepositoryContext): ProfileReposito
 
     try {
       await ctx.driver.run(
-        'UPDATE user_profile SET display_name = ?, preferred_currency = ?, locale = ?, week_starts_on = ?, onboarding_completed = ?, updated_at = ? WHERE id = ?',
+        'UPDATE user_profile SET display_name = ?, preferred_currency = ?, locale = ?, week_starts_on = ?, onboarding_completed = ?, quick_amounts_minor = ?, updated_at = ? WHERE id = ?',
         [
           candidate.displayName,
           candidate.preferredCurrency,
           candidate.locale,
           candidate.weekStartsOn,
           candidate.onboardingCompleted ? 1 : 0,
+          JSON.stringify(candidate.quickAmountsMinor),
           timestamp,
           LOCAL_PROFILE_ID,
         ],

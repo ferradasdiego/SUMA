@@ -1,0 +1,10 @@
+node_modules/
+.expo/
+dist/
+coverage/
+.pnpm-store/
+.home/
+assets/
+docs/
+SUMA_MASTER_SPEC.md
+pnpm-lock.yaml

@@ -83,6 +83,12 @@ No se afirmará cumplimiento legal hasta completar esta revisión.
 4. Documentar en DECISIONS/STATUS.
 5. Si hubiera backend, notificar según normativa.
 
+## 8.1. Avisos de auditoría aceptados
+
+| Fecha | Aviso | Paquete | Decisión |
+|---|---|---|---|
+| 2026-10-23 | CVE-2026-85393 (GHSA-86w9-cpqp-85rv) | node-forge vía expo > @expo/cli | Sin parche disponible. Es una herramienta de compilación, no se incluye en el bundle de la app. CI usa `--ignore-unfixable` y se revisa en cada actualización del SDK. |
+
 ## 9. Limitaciones conocidas
 
 - SQLite local sin cifrado adicional: depende de la protección del dispositivo.

@@ -37,3 +37,8 @@ coverage/
 
 # Artefactos de exportación
 suma-export/
+
+# Entorno local de herramientas (sandbox)
+.home/
+.expo-tmp/
+*.tsbuildinfo

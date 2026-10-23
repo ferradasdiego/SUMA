@@ -646,8 +646,7 @@ export function summarize(
   options: {
     readonly currency: CurrencyCode;
     readonly weekStartsOn: WeekStartsOn;
-    readonly categories: readonly Category[];
-    readonly today: LocalDate;
+    readonly previousEntries?: readonly Entry[];
   }
 ): PeriodSummary;
 ```

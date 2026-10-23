@@ -1,31 +1,155 @@
 import Constants from 'expo-constants';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
+import { ConfirmDialog } from '@/components/feedback/ConfirmDialog';
 import { AppText } from '@/components/ui/AppText';
 import { Card } from '@/components/ui/Card';
+import { Chip } from '@/components/ui/Chip';
+import { Divider } from '@/components/ui/Divider';
 import { Screen } from '@/components/ui/Screen';
+import { useApp } from '@/features/app/AppProvider';
+import type { WeekStartsOn } from '@/domain/entities/types';
+import { t } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export default function SettingsScreen() {
+  const { profile, repositories, updateProfile, invalidate, dataVersion } = useApp();
+  const [entryCount, setEntryCount] = useState<number | null>(null);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      if (!repositories) return;
+      const count = await repositories.entries.count();
+      if (active && count.ok) setEntryCount(count.value);
+    }
+    void load();
+    return () => {
+      active = false;
+    };
+  }, [repositories, dataVersion]);
+
+  if (!profile) return null;
+
+  async function changeWeekStart(next: WeekStartsOn) {
+    const result = await updateProfile({ weekStartsOn: next });
+    setMessage(result.ok ? null : result.error.message);
+  }
+
+  async function resetData() {
+    if (!repositories) return;
+    setSaving(true);
+    const result = await repositories.profile.resetLocalData();
+    setSaving(false);
+    setConfirmVisible(false);
+    if (!result.ok) {
+      setMessage(result.error.message);
+      return;
+    }
+    invalidate();
+    setMessage('Datos restablecidos');
+  }
+
   const version = Constants.expoConfig?.version ?? '0.1.0';
 
   return (
     <Screen scroll>
-      <AppText variant="title" style={{ marginBottom: spacing.lg }}>
-        Ajustes
+      <AppText variant="title" style={styles.title}>
+        {t('settings.title')}
       </AppText>
+
       <Card>
-        <AppText variant="label">Acerca de SUMA</AppText>
-        <AppText variant="body" color={colors.textMuted} style={{ marginTop: spacing.xs }}>
-          Versión {version}
+        <AppText variant="label">{t('settings.currency')}</AppText>
+        <AppText variant="body" color={colors.textMuted} style={styles.value}>
+          {profile.preferredCurrency}
         </AppText>
+        {entryCount !== null && entryCount > 0 ? (
+          <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+            No se puede cambiar de moneda mientras existan registros. Exporta y restablece los datos
+            si necesitas empezar de nuevo.
+          </AppText>
+        ) : null}
       </Card>
-      <View style={{ marginTop: spacing.xxl }}>
-        <AppText variant="caption" color={colors.textMuted} align="center">
-          El importe registrado es una estimación de lo que has decidido no gastar. No implica que
-          el dinero esté apartado.
-        </AppText>
+
+      <Divider />
+
+      <AppText variant="label">{t('settings.weekStart')}</AppText>
+      <View style={styles.chips}>
+        <Chip
+          label={t('settings.monday')}
+          selected={profile.weekStartsOn === 1}
+          onPress={() => {
+            void changeWeekStart(1);
+          }}
+        />
+        <Chip
+          label={t('settings.sunday')}
+          selected={profile.weekStartsOn === 0}
+          onPress={() => {
+            void changeWeekStart(0);
+          }}
+        />
       </View>
+
+      {message ? (
+        <AppText
+          variant="caption"
+          color={colors.primary}
+          accessibilityLiveRegion="polite"
+          style={styles.message}
+        >
+          {message}
+        </AppText>
+      ) : null}
+
+      <Divider />
+
+      <AppText variant="label">{t('settings.data')}</AppText>
+      <AppText
+        variant="body"
+        color={colors.danger}
+        accessibilityRole="button"
+        onPress={() => setConfirmVisible(true)}
+        style={styles.destructive}
+      >
+        {t('settings.reset')}
+      </AppText>
+
+      <Divider />
+
+      <AppText variant="label">Acerca de SUMA</AppText>
+      <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+        Versión {version}
+      </AppText>
+      <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+        El importe registrado es una estimación de lo que has decidido no gastar. No implica que el
+        dinero esté apartado ni que tu patrimonio haya aumentado.
+      </AppText>
+
+      <ConfirmDialog
+        visible={confirmVisible}
+        title={t('settings.resetTitle')}
+        message={t('settings.resetMessage')}
+        confirmLabel={saving ? 'Restableciendo…' : t('common.delete')}
+        destructive
+        onCancel={() => setConfirmVisible(false)}
+        onConfirm={() => {
+          void resetData();
+        }}
+      />
     </Screen>
   );
 }
+
+const styles = {
+  title: { marginBottom: spacing.lg },
+  value: { marginTop: spacing.xs },
+  hint: { marginTop: spacing.xs },
+  chips: { flexDirection: 'row' as const, gap: spacing.sm, marginTop: spacing.sm },
+  message: { marginTop: spacing.sm },
+  destructive: { marginTop: spacing.sm },
+};

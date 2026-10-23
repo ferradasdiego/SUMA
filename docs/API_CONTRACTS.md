@@ -65,7 +65,11 @@ equivalentPrevious(range: PeriodRange, weekStartsOn: WeekStartsOn): PeriodRange;
 
 ```ts
 sum(entries: readonly Entry[], currency: CurrencyCode): number;
-summarize(entries, range, options): PeriodSummary;
+summarize(entries, range, {
+  currency: CurrencyCode;
+  weekStartsOn: WeekStartsOn;
+  previousEntries?: readonly Entry[];
+}): PeriodSummary;
 goalProgress(goal: Goal, entries: readonly Entry[], today: LocalDate): GoalProgress;
 ```
 

@@ -64,6 +64,11 @@ module.exports = defineConfig([
     },
   },
   {
+    // El adaptador nativo es el único punto que puede importar expo-sqlite.
+    files: ['src/data/local/expoDriver.ts'],
+    rules: { 'no-restricted-imports': 'off' },
+  },
+  {
     files: ['src/components/**/*.tsx'],
     rules: {
       'no-restricted-imports': [

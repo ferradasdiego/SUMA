@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, type StyleProp, type ViewStyle } from 're
 import { AppText } from './AppText';
 import { colors, minButtonHeight, radii, typography } from '@/theme';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 export interface ButtonProps {
   label: string;
@@ -21,12 +21,14 @@ const surface: Record<ButtonVariant, ViewStyle> = {
   primary: { backgroundColor: colors.primary },
   secondary: { backgroundColor: colors.primarySoft },
   ghost: { backgroundColor: 'transparent' },
+  danger: { backgroundColor: colors.danger },
 };
 
 const labelColor: Record<ButtonVariant, string> = {
   primary: colors.onPrimary,
   secondary: colors.primary,
   ghost: colors.primary,
+  danger: colors.onPrimary,
 };
 
 export function Button({

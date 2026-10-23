@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog';
 import { AppText } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
@@ -78,21 +79,49 @@ export default function SettingsScreen() {
 
   return (
     <Screen scroll>
+      <BackButton />
       <AppText variant="title" style={styles.title}>
         {t('settings.title')}
       </AppText>
 
       <Card>
         <AppText variant="label">{t('settings.currency')}</AppText>
+        {entryCount === 0 ? (
+          <View style={styles.chips}>
+            {['EUR', 'USD', 'GBP'].map((code) => (
+              <Chip
+                key={code}
+                label={code}
+                selected={profile.preferredCurrency === code}
+                onPress={() => {
+                  void updateProfile({ preferredCurrency: code }).then((result) => {
+                    setMessage(result.ok ? null : result.error.message);
+                  });
+                }}
+              />
+            ))}
+          </View>
+        ) : (
+          <>
+            <AppText variant="body" color={colors.textMuted} style={styles.value}>
+              {profile.preferredCurrency}
+            </AppText>
+            <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+              No se puede cambiar de moneda mientras existan registros. Exporta y restablece los
+              datos si necesitas empezar de nuevo.
+            </AppText>
+          </>
+        )}
+      </Card>
+
+      <Card style={styles.languageCard}>
+        <AppText variant="label">Idioma</AppText>
         <AppText variant="body" color={colors.textMuted} style={styles.value}>
-          {profile.preferredCurrency}
+          Español
         </AppText>
-        {entryCount !== null && entryCount > 0 ? (
-          <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-            No se puede cambiar de moneda mientras existan registros. Exporta y restablece los datos
-            si necesitas empezar de nuevo.
-          </AppText>
-        ) : null}
+        <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+          El inglés llegará en una versión posterior.
+        </AppText>
       </Card>
 
       <Divider />
@@ -154,6 +183,14 @@ export default function SettingsScreen() {
 
       <Divider />
 
+      <AppText variant="label">Legal</AppText>
+      <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+        La política de privacidad y las condiciones de uso se publicarán antes del lanzamiento y
+        requieren revisión legal.
+      </AppText>
+
+      <Divider />
+
       <AppText variant="label">Acerca de SUMA</AppText>
       <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
         Versión {version}
@@ -183,6 +220,7 @@ const styles = {
   value: { marginTop: spacing.xs },
   hint: { marginTop: spacing.xs },
   chips: { flexDirection: 'row' as const, gap: spacing.sm, marginTop: spacing.sm },
+  languageCard: { marginTop: spacing.md },
   message: { marginTop: spacing.sm },
   exportButton: { marginTop: spacing.sm },
   destructive: { marginTop: spacing.sm },

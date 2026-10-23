@@ -141,7 +141,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
             label={t('add.goHome')}
             onPress={() => {
               setSuccess(false);
-              router.push('/(tabs)');
+              router.replace('/');
             }}
             variant="secondary"
             style={styles.successAction}

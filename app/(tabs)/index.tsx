@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
@@ -43,10 +44,23 @@ export default function HomeScreen() {
 
   return (
     <Screen scroll>
-      <AppText variant="title">{t('home.title')}</AppText>
-      <AppText variant="body" color={colors.textMuted}>
-        {t('home.subtitle')}
-      </AppText>
+      <View style={styles.header}>
+        <View>
+          <AppText variant="title">{t('home.title')}</AppText>
+          <AppText variant="body" color={colors.textMuted}>
+            {t('home.subtitle')}
+          </AppText>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Abrir ajustes"
+          onPress={() => router.push('/settings')}
+          hitSlop={8}
+          style={styles.settingsButton}
+        >
+          <Ionicons name="settings-outline" size={24} color={colors.textMuted} />
+        </Pressable>
+      </View>
 
       <View style={styles.total}>
         <AppText variant="caption" color={colors.textMuted}>
@@ -135,6 +149,12 @@ export default function HomeScreen() {
 }
 
 const styles = {
+  header: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'flex-start' as const,
+  },
+  settingsButton: { padding: spacing.xs },
   total: { marginTop: spacing.lg, gap: spacing.xs },
   summaryRow: {
     flexDirection: 'row' as const,

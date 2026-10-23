@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import { AppText } from '@/components/ui/AppText';
+import { BackButton } from '@/components/ui/BackButton';
 import { Screen } from '@/components/ui/Screen';
 import type { Entry } from '@/domain/entities/types';
 import { useApp } from '@/features/app/AppProvider';
@@ -78,6 +79,7 @@ export default function EditEntryScreen() {
 
   return (
     <Screen scroll>
+      <BackButton />
       <AppText variant="title" style={{ marginBottom: spacing.lg }}>
         Editar registro
       </AppText>

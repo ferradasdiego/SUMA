@@ -34,7 +34,7 @@
 | Estadísticas | Implementado | Día/semana/mes/año, comparación, promedios, mejor día, categorías |
 | Gráficas | Implementado | Barras, línea y barras horizontales accesibles |
 | Objetivos | Implementado | Un objetivo activo, crear/editar/borrar, progreso |
-| Ajustes | Implementado | Moneda bloqueada con registros, semana, exportación JSON, reset |
+| Ajustes | Implementado | Moneda (editable sin registros), semana, exportación JSON, legal, reset |
 | Persistencia | Implementado | SQLite, migración 001, transacciones, reapertura |
 | Calidad | Implementado | TypeScript estricto, lint, formato, 101 pruebas, CI |
 
@@ -84,8 +84,8 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Rendimiento | semilla de 10.000 registros (sql.js) | seed 192 ms; suma 2 ms; página 3 ms |
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | `node node_modules/expo-doctor/bin/expo-doctor.js` | 20/20 |
-| Bundle iOS | `expo export --platform ios` | 5,1 MB |
-| Bundle Android | `expo export --platform android` | 5,1 MB |
+| Bundle iOS | `expo export --platform ios` | 5,2 MB |
+| Bundle Android | `expo export --platform android` | 5,2 MB |
 | Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 
 Cobertura: dinero y límites, fechas y DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación JSON, preparación de formularios, componentes y accesibilidad básica.

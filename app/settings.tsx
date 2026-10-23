@@ -107,8 +107,8 @@ export default function SettingsScreen() {
               {profile.preferredCurrency}
             </AppText>
             <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-              No se puede cambiar de moneda mientras existan registros. Exporta y restablece los
-              datos si necesitas empezar de nuevo.
+              No se puede cambiar de moneda mientras existan registros u objetivos. Exporta y
+              restablece los datos si necesitas empezar de nuevo.
             </AppText>
           </>
         )}

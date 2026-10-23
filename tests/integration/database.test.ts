@@ -246,6 +246,22 @@ describe('perfil y restablecimiento', () => {
     await driver.close();
   });
 
+  it('bloquea el cambio de moneda si existe un objetivo', async () => {
+    const { driver, db } = await setup();
+    await db.repositories.goals.create({
+      title: 'Objetivo',
+      targetAmountMinor: 1000,
+      currency: 'EUR',
+      startDate: '2026-10-01',
+      targetDate: null,
+    });
+
+    const blocked = await db.repositories.profile.update({ preferredCurrency: 'USD' });
+    expect(blocked.ok).toBe(false);
+
+    await driver.close();
+  });
+
   it('permite cambiar de moneda sin registros', async () => {
     const { driver, db } = await setup();
     const updated = await db.repositories.profile.update({

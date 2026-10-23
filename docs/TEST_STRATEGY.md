@@ -102,7 +102,7 @@ El pipeline ejecuta formato, lint, TypeScript, unitarias, integración, componen
 | Formato | `pnpm format:check` | Correcto |
 | Lint | `pnpm lint` | 0 errores, 0 avisos |
 | TypeScript | `pnpm typecheck` | 0 errores |
-| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 101/101 |
+| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 102/102 |
 | Rendimiento (sql.js) | semilla de 10.000 registros | seed 192 ms; suma 2 ms; página de 50 en 3 ms |
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | 20/20 comprobaciones | Correcto |

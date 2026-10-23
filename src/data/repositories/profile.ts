@@ -77,13 +77,15 @@ export function createProfileRepository(ctx: RepositoryContext): ProfileReposito
       parsedPatch.data.preferredCurrency !== current.preferredCurrency
     ) {
       try {
-        const rows = await ctx.driver.all<{ total: number }>(
-          'SELECT COUNT(*) AS total FROM entries',
+        const rows = await ctx.driver.all<{ entries: number; goals: number }>(
+          'SELECT (SELECT COUNT(*) FROM entries) AS entries, (SELECT COUNT(*) FROM goals) AS goals',
         );
-        if (Number(rows[0]?.total ?? 0) > 0) {
+        const entries = Number(rows[0]?.entries ?? 0);
+        const goals = Number(rows[0]?.goals ?? 0);
+        if (entries > 0 || goals > 0) {
           return err(
             validationError(
-              'No puedes cambiar de moneda mientras existan registros. Exporta y restablece los datos.',
+              'No puedes cambiar de moneda mientras existan registros u objetivos. Exporta y restablece los datos.',
               'preferredCurrency',
             ),
           );

@@ -16,7 +16,7 @@
 ## 1. Resumen
 
 - Fases 0 a 5 cerradas: memoria, esqueleto técnico, dominio y persistencia, registro e Inicio, historial/estadísticas/objetivos y calidad.
-- **101 pruebas automatizadas en verde** en 20 suites.
+- **102 pruebas automatizadas en verde** en 20 suites.
 - La app compila el bundle para iOS y Android; **no se ha ejecutado en simulador ni dispositivo** (licencia de Xcode no aceptada; sin JDK/Android SDK).
 - Persistencia real verificada en pruebas con SQLite y reapertura de la base.
 - Exportación JSON, restablecimiento de datos y accesibilidad básica implementados.
@@ -36,7 +36,7 @@
 | Objetivos | Implementado | Un objetivo activo, crear/editar/borrar, progreso |
 | Ajustes | Implementado | Moneda (editable sin registros), semana, exportación JSON, legal, reset |
 | Persistencia | Implementado | SQLite, migración 001, transacciones, reapertura |
-| Calidad | Implementado | TypeScript estricto, lint, formato, 101 pruebas, CI |
+| Calidad | Implementado | TypeScript estricto, lint, formato, 102 pruebas, CI |
 
 ---
 
@@ -65,7 +65,7 @@ Nota de sandbox: los comandos de Expo se ejecutan con `HOME=$PWD/.home`, `EXPO_N
 | 2 — Dominio y persistencia | Cerrada | SQLite real, migraciones, reapertura |
 | 3 — Registro e Inicio | Cerrada | Formulario, Inicio, onboarding, ajustes |
 | 4 — Historial, estadísticas y objetivos | Cerrada | Pantallas, gráficas y pruebas |
-| 5 — Calidad y accesibilidad | Cerrada (dispositivo pendiente) | 101 pruebas, exportación, rendimiento |
+| 5 — Calidad y accesibilidad | Cerrada (dispositivo pendiente) | 102 pruebas, exportación, rendimiento |
 | 6 — Beta privada | No iniciada (bloqueada) | Requiere cuentas y builds |
 | 7 — Monetización y lanzamiento | No iniciada | Requiere beta |
 
@@ -80,7 +80,7 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Formato | `pnpm format:check` | Correcto |
 | Lint | `pnpm lint` | 0 errores, 0 avisos |
 | TypeScript | `pnpm typecheck` | 0 errores |
-| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 101/101 |
+| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 102/102 |
 | Rendimiento | semilla de 10.000 registros (sql.js) | seed 192 ms; suma 2 ms; página 3 ms |
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | `node node_modules/expo-doctor/bin/expo-doctor.js` | 20/20 |

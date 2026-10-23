@@ -12,6 +12,8 @@ module.exports = defineConfig([
       '.pnpm-store/**',
       '.home/**',
       'assets/**',
+      'public/**',
+      'scripts/**',
     ],
   },
   {

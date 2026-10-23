@@ -4,7 +4,7 @@
 |---|---|
 | Última actualización | 2026-10-23 |
 | Fase actual | **Fase 6 — Beta privada (no iniciada; requiere cuentas)** |
-| Estado global | MVP funcional en código y verificado con pruebas automatizadas. **Sin verificación en dispositivo.** |
+| Estado global | MVP funcional en código y verificado con pruebas automatizadas. Variante web/PWA instalable. **Sin verificación en dispositivo nativo.** |
 | Documento base | [SUMA_MASTER_SPEC.md](../SUMA_MASTER_SPEC.md) v1.0 |
 | Plan vigente | [EXECUTION_PLAN.md](./EXECUTION_PLAN.md) |
 | Arquitectura vigente | [ARCHITECTURE.md](./ARCHITECTURE.md) |
@@ -20,6 +20,7 @@
 - La app compila el bundle para iOS y Android; **no se ha ejecutado en simulador ni dispositivo** (licencia de Xcode no aceptada; sin JDK/Android SDK).
 - Persistencia real verificada en pruebas con SQLite y reapertura de la base.
 - Exportación JSON, restablecimiento de datos y accesibilidad básica implementados.
+- **Canal web/PWA adicional**: la app se sirve desde el Mac, se instala en el móvil y funciona sin conexión. Verificado en Chrome sobre HTTP local y HTTPS.
 
 ---
 
@@ -37,6 +38,7 @@
 | Ajustes | Implementado | Moneda (editable sin registros), semana, exportación JSON, legal, reset |
 | Persistencia | Implementado | SQLite, migración 001, transacciones, reapertura |
 | Calidad | Implementado | TypeScript estricto, lint, formato, 102 pruebas, CI |
+| Web/PWA | Implementado | Manifest, service worker, SQLite WASM, offline, prueba con Chrome |
 
 ---
 
@@ -86,6 +88,9 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Expo Doctor | `node node_modules/expo-doctor/bin/expo-doctor.js` | 20/20 |
 | Bundle iOS | `expo export --platform ios` | 5,2 MB |
 | Bundle Android | `expo export --platform android` | 5,2 MB |
+| Build web | `pnpm web:build` | `dist/` con manifest, service worker e iconos |
+| Smoke PWA | `node scripts/smoke-web.mjs` | 15/15 en HTTP local y HTTPS |
+| PWA sin conexión | Recarga con red desactivada | Correcta |
 | Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 
 Cobertura: dinero y límites, fechas y DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación JSON, preparación de formularios, componentes y accesibilidad básica.
@@ -101,13 +106,15 @@ No ejecutadas y motivo:
 
 ## 6. Decisiones
 
-Las 17 decisiones arquitectónicas están en [DECISIONS.md](./DECISIONS.md). Decisiones de implementación relevantes:
+Las 18 decisiones arquitectónicas están en [DECISIONS.md](./DECISIONS.md) (ADR-0018: canal web/PWA). Decisiones de implementación relevantes:
 
 - Fecha mediante campo de texto `AAAA-MM-DD` y atajos Hoy/Ayer (sin dependencia de selector nativo).
 - Exportación JSON con la nueva API de `expo-file-system` + `expo-sharing`; no hay importación.
 - La moneda se bloquea en el repositorio de perfil si existe cualquier registro.
 - El objetivo único se garantiza con índice único parcial.
 - Gráficas propias sobre SVG, con resumen accesible y límite de puntos.
+- La PWA usa la implementación web oficial de `expo-sqlite` (wa-sqlite/WASM) y requiere COOP/COEP y HTTPS en el móvil.
+- El HTML de la PWA se post-procesa porque `+html.tsx` no aplica con `output: 'single'`.
 
 Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español, EUR, sin notificaciones, JSON, un objetivo.
 
@@ -133,12 +140,14 @@ Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español, EUR, sin notificac
 - Sin notificaciones, cuentas, sincronización, analítica ni modo oscuro.
 - El rendimiento se midió en Node/sql.js, no en dispositivo.
 - La política de privacidad y los términos siguen pendientes de revisión legal.
+- En la PWA, los datos pertenecen al origen del navegador, no se sincronizan con la app nativa y pueden perderse si se borra el sitio; iOS puede desalojar almacenamiento.
+- La instalación de la PWA en el móvil requiere HTTPS con un certificado local confiado.
 
 ---
 
 ## 9. Cómo probar en local
 
-Sigue [LOCAL_TESTING.md](./LOCAL_TESTING.md): pruebas automatizadas, Expo Go en teléfono, simulador iOS, emulador Android o EAS Build, con checklist manual y solución de problemas.
+Sigue [LOCAL_TESTING.md](./LOCAL_TESTING.md): pruebas automatizadas, Expo Go en teléfono, simulador iOS, emulador Android, EAS Build o **PWA servida desde el Mac** (incluye HTTPS con mkcert e instalación en el móvil).
 
 ## 10. Próximos pasos
 
@@ -161,3 +170,4 @@ Ninguna de estas acciones se puede completar en este entorno sin intervención e
 | 2026-10-23 | Fase 3: AppProvider, onboarding, alta, Inicio, ajustes |
 | 2026-10-23 | Fase 4: historial, estadísticas, gráficas, objetivos |
 | 2026-10-23 | Fase 5: exportación, rendimiento, accesibilidad, documentación |
+| 2026-10-23 | Canal web/PWA: build estático, SQLite WASM, manifest, service worker, servidor HTTPS local y verificación con Chrome |

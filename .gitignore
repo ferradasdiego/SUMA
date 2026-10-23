@@ -42,3 +42,7 @@ suma-export/
 .home/
 .expo-tmp/
 *.tsbuildinfo
+
+# Web/PWA
+.certs/
+artifacts/

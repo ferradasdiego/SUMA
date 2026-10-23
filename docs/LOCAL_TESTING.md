@@ -19,6 +19,7 @@ Este documento explica las formas de ejecutar y probar SUMA en un Mac, de la má
 | C. Simulador iOS | Xcode + licencia aceptada | App en iOS sin teléfono |
 | D. Emulador Android | JDK + Android SDK | App en Android sin teléfono |
 | E. EAS Build (nube) | Cuenta Expo (+ Apple para iOS) | Build instalable sin toolchain local |
+| F. PWA servida desde el Mac | Build web + HTTPS | App instalable en el móvil, con datos locales |
 
 La opción B es la más rápida para probar la app de verdad si tienes un teléfono a mano.
 
@@ -253,7 +254,122 @@ Hazlo en este orden; cada paso tiene un resultado esperado.
 
 ---
 
-## 9. Problemas frecuentes
+## 9. PWA: servir la app desde este equipo e instalarla en el móvil
+
+La app también se compila como aplicación web instalable. Usa el mismo código (React Native Web), SQLite en el navegador (wa-sqlite/WASM) y un service worker para abrir sin conexión.
+
+### 9.1 Requisito importante: HTTPS
+
+SQLite web necesita `SharedArrayBuffer`, que solo está disponible en un **contexto seguro**:
+
+- `http://localhost` y `http://127.0.0.1` sí son contextos seguros.
+- `http://192.168.x.x:8085` **no** lo es: la app no arrancará en el móvil por HTTP.
+- Por eso, para el teléfono hay que servir con HTTPS y un certificado en el que confíe el dispositivo.
+
+### 9.2 Probar en este Mac
+
+```bash
+pnpm web:build
+pnpm web:serve
+```
+
+Abre `http://localhost:8085`. En la consola del navegador debe aparecer `crossOriginIsolated === true`.
+
+Prueba automatizada (Chrome instalado, servidor arrancado):
+
+```bash
+pnpm web:smoke
+```
+
+Comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión.
+
+### 9.3 HTTPS para el móvil con mkcert
+
+```bash
+brew install mkcert
+mkcert -install
+pnpm web:cert
+pnpm web:serve:https
+```
+
+`pnpm web:cert` crea `.certs/cert.pem` y `.certs/key.pem` para `localhost`, `127.0.0.1`, la IP local del Mac y `suma.local`. El servidor escucha en el puerto **8085**.
+
+La salida de `pnpm web:serve:https` muestra la URL de red, por ejemplo `https://192.168.1.40:8085`.
+
+### 9.4 Confiar en el certificado en el móvil
+
+El móvil debe confiar en la autoridad local de mkcert (`rootCA.pem`). Está en la carpeta que indica `mkcert -CAROOT`.
+
+**iPhone/iPad**
+
+1. Envía `rootCA.pem` al iPhone (AirDrop, correo o archivo).
+2. Ajustes → Perfil descargado → Instalar.
+3. Ajustes → General → Información → Ajustes de confianza de certificados → activa la confianza total para el certificado de mkcert.
+4. Abre la URL HTTPS en Safari.
+
+**Android**
+
+1. Copia `rootCA.pem` al teléfono.
+2. Ajustes → Seguridad y privacidad → Más ajustes de seguridad → Cifrado y credenciales → Instalar un certificado → Certificado de CA.
+3. Selecciona el archivo y confirma.
+4. Abre la URL HTTPS en Chrome.
+
+> El certificado solo sirve para tu red local. No lo compartas ni lo uses en producción.
+
+### 9.5 Instalar la PWA
+
+- **iPhone/iPad (Safari)**: botón Compartir → "Añadir a pantalla de inicio".
+- **Android (Chrome)**: menú ⋮ → "Instalar aplicación" o "Añadir a pantalla de inicio".
+
+Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker, `display: standalone`, nombre y colores.
+
+### 9.6 Sin conexión
+
+Tras la primera visita con conexión, el service worker cachea el shell y los recursos usados. Después:
+
+1. Activa el modo avión.
+2. Abre la app desde el icono de la pantalla de inicio.
+3. Debe cargar y conservar los registros.
+
+Los datos se guardan en el almacenamiento del navegador (OPFS/IndexedDB) y sobreviven a cerrar y reabrir. No se sincronizan con la app nativa.
+
+### 9.7 Dónde están los datos y cómo no perderlos
+
+- Cada **origen** tiene su propia base: `http://localhost:8085`, `https://192.168.1.40:8085` y una URL de túnel son almacenamientos distintos.
+- Si cambia la IP del Mac o la URL del túnel, la PWA instalada apuntará a otro origen y verás datos vacíos.
+- Para conservar datos: Ajustes → Exportar datos (JSON) y guarda el archivo.
+- Borrar datos del sitio en el navegador o desinstalar la PWA puede eliminar los registros.
+- iOS puede desalojar almacenamiento de sitios poco usados; exporta periódicamente si son datos importantes.
+
+### 9.8 Actualizar la PWA
+
+```bash
+pnpm web:build
+```
+
+El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo y recarga.
+
+### 9.9 Alternativa rápida: túnel HTTPS
+
+Si no quieres instalar certificados, puedes exponer el servidor local con un túnel HTTPS:
+
+```bash
+pnpm web:build
+pnpm web:serve
+npx localtunnel --port 8085
+```
+
+Abre la URL `https://...loca.lt` en el móvil. Sirve para probar, pero la URL cambia y los datos quedan asociados a ese origen. Mantén el túnel abierto solo mientras pruebas.
+
+### 9.10 Limitaciones de la PWA
+
+- No hay notificaciones push ni sincronización.
+- La instalación y el service worker requieren HTTPS (o localhost).
+- El comportamiento offline depende de haber cargado la app al menos una vez.
+- El rendimiento y el almacenamiento dependen del navegador; no es la app nativa.
+- En iOS, la PWA no tiene acceso a todas las capacidades de una app nativa.
+
+## 10. Problemas frecuentes
 
 | Síntoma | Causa probable | Solución |
 |---|---|---|
@@ -272,7 +388,7 @@ Si ejecutas los comandos dentro de un entorno que no permite escribir en `~/.exp
 
 ---
 
-## 10. Qué no se puede probar todavía
+## 11. Qué no se puede probar todavía
 
 - Publicación en App Store o Google Play.
 - Compras o suscripciones (no implementadas).

@@ -80,6 +80,7 @@ Versiones consultadas en el registro de npm el 2026-10-23. Se fijan en el lockfi
 | Runtime | Expo SDK | 58.0.x | Multiplataforma, actualizaciones OTA, EAS. |
 | UI | React Native | 0.88.0 | Versión del template oficial de SDK 58. |
 | UI | React | 19.3.0 | Versión del template oficial. |
+| Web (canal adicional) | react-native-web + react-dom | ~0.21.4 / 19.3.0 | PWA instalable con el mismo código. |
 | Lenguaje | TypeScript | ~6.0.3 (`strict`) | Versión que trae el template de SDK 58. TS 7.0.2 existe, pero no es la base soportada por el SDK. |
 | Navegación | expo-router | ~58.0.25 | Rutas por archivos, tipadas, deep links. |
 | Persistencia | expo-sqlite | ~58.0.13 | SQLite nativo, transacciones, API asíncrona. |
@@ -917,7 +918,58 @@ Si no hay respuesta antes de la fecha indicada, se aplica la propuesta y se docu
 
 ---
 
-## 23. Trazabilidad con la especificación
+## 23. Canal web / PWA (adicional al MVP móvil)
+
+La app puede compilarse también como web instalable. No sustituye a iOS/Android: es un canal adicional para probar y usar SUMA sin tienda.
+
+### 23.1 Arquitectura
+
+- Misma base de código mediante `react-native-web` y Expo Router con `web.output: 'single'`.
+- Persistencia: `expo-sqlite` en web sobre wa-sqlite (WASM) y OPFS. No hay un driver distinto: los repositorios y migraciones se reutilizan.
+- La importación de archivos `.wasm` se habilita en `metro.config.js`.
+- La exportación de datos en web descarga un JSON con `Blob`; en nativo usa la hoja de compartir.
+
+### 23.2 Requisitos de origen
+
+SQLite web usa `SharedArrayBuffer`, disponible solo en contextos seguros y con el origen aislado:
+
+```
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Embedder-Policy: credentialless
+```
+
+- `http://localhost` es contexto seguro; una IP de la red local por HTTP **no** lo es.
+- Para el móvil se sirve por HTTPS con un certificado local (mkcert) o un túnel HTTPS.
+- El servidor de desarrollo aplica las cabeceras; el servidor de producción (`scripts/serve-web.mjs`) también.
+
+### 23.3 PWA
+
+- `public/manifest.webmanifest`: nombre, iconos 192/512/maskable, `display: standalone`, colores.
+- `public/sw.js`: cachea el shell y los recursos en tiempo de ejecución; navegación con fallback a `index.html`.
+- `scripts/patch-web-html.mjs`: inyecta manifest, metadatos iOS y registro del service worker en el HTML exportado (el `+html` de Expo Router no se aplica en `output: 'single'`).
+- Iconos generados en `public/icons/`, servidos desde el mismo origen.
+
+### 23.4 Limitaciones
+
+- Los datos están asociados al **origen**: localhost, IP local y túnel son almacenamientos distintos.
+- iOS puede desalojar datos de sitios poco usados; la exportación JSON es la copia de seguridad.
+- Sin notificaciones push, sincronización ni acceso a todas las capacidades nativas.
+- La instalación y el service worker requieren HTTPS (o localhost).
+- No se ejecuta E2E de la PWA en CI; se verifica en local con Chrome headless.
+
+### 23.5 Verificación
+
+`pnpm web:build` genera `dist/`. `pnpm web:serve` sirve la PWA con COOP/COEP. `node scripts/smoke-web.mjs` comprueba en Chrome:
+
+- origen aislado y `SharedArrayBuffer`;
+- onboarding, alta y persistencia al recargar;
+- service worker y manifest;
+- historial y estadísticas;
+- funcionamiento sin conexión.
+
+También se ha probado sobre HTTPS con certificado local.
+
+## 24. Trazabilidad con la especificación
 
 | Sección del spec | Dónde se resuelve |
 |---|---|

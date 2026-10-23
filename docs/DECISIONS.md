@@ -28,6 +28,7 @@
 | [ADR-0015](./decisions/ADR-0015-agregados-sql.md) | Agregados SQL con equivalencia | Aceptada |
 | [ADR-0016](./decisions/ADR-0016-sin-orm.md) | Sin ORM; SQL + mappers Zod | Aceptada |
 | [ADR-0017](./decisions/ADR-0017-driver-sql-test.md) | Driver abstracto con sql.js | Aceptada |
+| [ADR-0018](./decisions/ADR-0018-web-pwa.md) | Canal web/PWA adicional | Aceptada |
 
 ## 2. Decisiones de producto pendientes
 
@@ -54,6 +55,7 @@ Si no hay respuesta en la fecha indicada, se aplica el supuesto y se registra aq
 | D-04 | Un objetivo activo mediante índice único parcial | Garantía en base de datos, no solo en la UI | Si se añaden varios objetivos |
 | D-05 | Gráficas SVG propias limitadas a 12/31 puntos | Control visual y accesible sin dependencias pesadas | Si se necesita más detalle |
 | D-06 | Sin analítica ni notificaciones en el MVP | Privacidad y alcance | Fase 7 |
+| D-07 | PWA con SQLite web y servidor HTTPS local | Reutilizar la app sin tiendas | Si cambia el hosting |
 
 ## 4. Registro de cambios
 

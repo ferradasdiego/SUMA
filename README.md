@@ -71,6 +71,30 @@ En el entorno actual `ios` y `android` no pueden completarse: falta aceptar la l
 pnpm exec expo export --platform ios --platform android
 ```
 
+## Versión web / PWA
+
+La misma aplicación se puede servir como PWA y añadir a la pantalla de inicio del móvil. Usa `react-native-web`, SQLite en el navegador (WASM) y un service worker para funcionar sin conexión.
+
+```bash
+pnpm web:build          # genera dist/ (HTML, JS, manifest, service worker, iconos)
+pnpm web:serve          # http://localhost:8085 (para probar en este Mac)
+pnpm web:smoke          # prueba automatizada con Chrome (servidor ya arrancado)
+```
+
+Para abrirla en el móvil hace falta **HTTPS**, porque SQLite web necesita `SharedArrayBuffer` y un origen aislado:
+
+```bash
+brew install mkcert && mkcert -install
+pnpm web:cert           # certificado local para localhost y la IP del Mac
+pnpm web:serve:https    # https://<ip-del-mac>:8085
+```
+
+Después, en el móvil: abrir la URL, confiar en el certificado local (instrucciones en la guía), y usar "Añadir a pantalla de inicio" (iOS) o "Instalar app" (Android).
+
+![SUMA en la web](docs/assets/web-home.png)
+
+Limitaciones: los datos de la PWA viven en el navegador de ese origen y son independientes de la app nativa; si cambia la URL (IP o túnel) cambia el almacenamiento. La guía completa está en [docs/LOCAL_TESTING.md](docs/LOCAL_TESTING.md).
+
 ## Scripts
 
 | Comando                             | Descripción                     |

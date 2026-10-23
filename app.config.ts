@@ -30,7 +30,22 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
   },
-  plugins: ['expo-router'],
+  web: {
+    bundler: 'metro',
+    output: 'single',
+    favicon: './assets/favicon.png',
+  },
+  plugins: [
+    [
+      'expo-router',
+      {
+        headers: {
+          'Cross-Origin-Embedder-Policy': 'credentialless',
+          'Cross-Origin-Opener-Policy': 'same-origin',
+        },
+      },
+    ],
+  ],
   experiments: {
     typedRoutes: false,
   },

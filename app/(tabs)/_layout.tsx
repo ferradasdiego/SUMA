@@ -1,9 +1,14 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
+import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, typography } from '@/theme';
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+  const isWeb = Platform.OS === 'web';
+
   return (
     <Tabs
       screenOptions={{
@@ -13,8 +18,15 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
+          ...(isWeb
+            ? { height: 70 + insets.bottom, paddingTop: 8, paddingBottom: 10 + insets.bottom }
+            : {}),
         },
-        tabBarLabelStyle: { fontSize: typography.caption.fontSize, fontWeight: '600' },
+        tabBarLabelStyle: {
+          fontSize: typography.caption.fontSize,
+          fontWeight: '600',
+          ...(isWeb ? { marginBottom: 2, height: 16, lineHeight: 16, flexShrink: 0 } : {}),
+        },
       }}
     >
       <Tabs.Screen

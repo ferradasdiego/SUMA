@@ -1,8 +1,9 @@
-import { File, Paths } from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+/* eslint-disable @typescript-eslint/no-require-imports -- los módulos nativos se cargan solo cuando Platform.OS no es web. */
+import { Platform } from 'react-native';
 
+import { serializeExport, type ExportPayload } from '@/data/export/exportData';
+import { buildExportPayload } from '@/data/export/exportData';
 import type { Repositories } from '@/data/repositories/types';
-import { buildExportPayload, serializeExport, type ExportPayload } from '@/data/export/exportData';
 import type { UserProfile } from '@/domain/entities/types';
 import { err, ioError, ok, type Result } from '@/domain/errors/result';
 
@@ -31,9 +32,29 @@ export async function collectExportData(
   );
 }
 
-/** Escribe el JSON en la caché y abre la hoja de compartir del sistema. */
-export async function shareExport(payload: ExportPayload): Promise<Result<void>> {
+function shareExportOnWeb(payload: ExportPayload): Result<void> {
   try {
+    const blob = new Blob([serializeExport(payload)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'suma-export-' + payload.exportedAt.slice(0, 10) + '.json';
+    anchor.rel = 'noopener';
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return ok(undefined);
+  } catch (error) {
+    return err(ioError('No se pudo descargar la exportación', error));
+  }
+}
+
+async function shareExportOnNative(payload: ExportPayload): Promise<Result<void>> {
+  try {
+    const { File, Paths } = require('expo-file-system') as typeof import('expo-file-system');
+    const Sharing = require('expo-sharing') as typeof import('expo-sharing');
+
     const file = new File(Paths.cache, 'suma-export-' + payload.exportedAt.slice(0, 10) + '.json');
     file.create({ overwrite: true });
     await file.write(serializeExport(payload));
@@ -51,4 +72,10 @@ export async function shareExport(payload: ExportPayload): Promise<Result<void>>
   } catch (error) {
     return err(ioError('No se pudo generar el archivo de exportación', error));
   }
+}
+
+/** En web descarga un JSON; en iOS/Android abre la hoja de compartir. */
+export async function shareExport(payload: ExportPayload): Promise<Result<void>> {
+  if (Platform.OS === 'web') return shareExportOnWeb(payload);
+  return shareExportOnNative(payload);
 }

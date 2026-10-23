@@ -8,3 +8,6 @@ assets/
 docs/
 SUMA_MASTER_SPEC.md
 pnpm-lock.yaml
+
+public/
+scripts/

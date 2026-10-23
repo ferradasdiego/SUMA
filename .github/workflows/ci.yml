@@ -56,3 +56,6 @@ jobs:
 
       - name: Empaquetado iOS y Android
         run: pnpm exec expo export --platform ios --platform android --output-dir dist
+
+      - name: Build web (PWA)
+        run: pnpm web:build

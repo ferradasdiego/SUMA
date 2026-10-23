@@ -20,17 +20,20 @@ export function GoalCard({ goal, progress, locale }: GoalCardProps) {
   return (
     <Card>
       <AppText variant="caption" color={colors.textMuted}>
-        {t('home.goal')}
+        {t('goals.title')}
       </AppText>
       <View style={styles.header}>
         <AppText variant="section">{goal.title}</AppText>
         <AppText variant="label" color={progress.isReached ? colors.primary : colors.textMuted}>
-          {progress.isReached ? 'Conseguido' : percentLabel(progress.ratio)}
+          {progress.isReached ? t('goals.reached') : percentLabel(progress.ratio)}
         </AppText>
       </View>
       <ProgressBar
         ratio={progress.ratio}
-        accessibilityLabel={'Progreso de ' + goal.title + ': ' + percentLabel(progress.ratio)}
+        accessibilityLabel={t('goals.progressA11y', {
+          title: goal.title,
+          percent: Math.round(progress.ratio * 100),
+        })}
       />
       <View style={styles.amounts}>
         <AmountText
@@ -41,7 +44,7 @@ export function GoalCard({ goal, progress, locale }: GoalCardProps) {
           color={colors.text}
         />
         <AppText variant="caption" color={colors.textMuted}>
-          de{' '}
+          {t('goals.of')}{' '}
           <AmountText
             minor={goal.targetAmountMinor}
             currency={goal.currency}
@@ -52,8 +55,7 @@ export function GoalCard({ goal, progress, locale }: GoalCardProps) {
         </AppText>
       </View>
       <AppText variant="caption" color={colors.textMuted} style={styles.note}>
-        El progreso se calcula con tus registros del periodo. No implica que el dinero esté
-        apartado.
+        {t('goals.cardNote')}
       </AppText>
     </Card>
   );

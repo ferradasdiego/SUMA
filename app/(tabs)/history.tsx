@@ -21,14 +21,14 @@ import {
   type HistoryOrder,
   type HistoryRange,
 } from '@/features/history/useHistory';
-import { categoryLabel, t } from '@/i18n';
+import { categoryLabel, t, translateError, type TranslationKey } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
-const RANGES: { value: HistoryRange; label: string }[] = [
-  { value: 'all', label: 'Todo' },
-  { value: '30d', label: '30 días' },
-  { value: 'month', label: 'Este mes' },
-  { value: 'year', label: 'Este año' },
+const RANGES: { value: HistoryRange; labelKey: TranslationKey }[] = [
+  { value: 'all', labelKey: 'history.rangeAll' },
+  { value: '30d', labelKey: 'history.range30' },
+  { value: 'month', labelKey: 'history.rangeMonth' },
+  { value: 'year', labelKey: 'history.rangeYear' },
 ];
 
 export default function HistoryScreen() {
@@ -52,7 +52,7 @@ export default function HistoryScreen() {
     if (!pendingDelete || !repositories) return;
     const result = await repositories.entries.remove(pendingDelete.id);
     if (!result.ok) {
-      setDeleteError(result.error.message);
+      setDeleteError(translateError(result.error));
       return;
     }
     setPendingDelete(null);
@@ -68,7 +68,11 @@ export default function HistoryScreen() {
       </AppText>
 
       <View style={styles.filters}>
-        <Chip label="Todas" selected={categoryId === null} onPress={() => setCategoryId(null)} />
+        <Chip
+          label={t('history.all')}
+          selected={categoryId === null}
+          onPress={() => setCategoryId(null)}
+        />
         {categories.map((category) => (
           <Chip
             key={category.id}
@@ -83,7 +87,7 @@ export default function HistoryScreen() {
         {RANGES.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={t(option.labelKey)}
             selected={range === option.value}
             onPress={() => setRange(option.value)}
           />
@@ -92,22 +96,20 @@ export default function HistoryScreen() {
 
       <View style={styles.orderRow}>
         <AppText variant="caption" color={colors.textMuted}>
-          {history.items.length} registro{history.items.length === 1 ? '' : 's'}
+          {t(history.items.length === 1 ? 'history.countOne' : 'history.countOther', {
+            count: history.items.length,
+          })}
         </AppText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={
-            order === 'desc'
-              ? 'Ordenar de más antiguo a más reciente'
-              : 'Ordenar de más reciente a más antiguo'
-          }
+          accessibilityLabel={order === 'desc' ? t('history.orderToAsc') : t('history.orderToDesc')}
           onPress={() => setOrder(order === 'desc' ? 'asc' : 'desc')}
           hitSlop={8}
           style={styles.orderButton}
         >
           <Ionicons name="swap-vertical" size={16} color={colors.primary} />
           <AppText variant="label" color={colors.primary}>
-            {order === 'desc' ? 'Recientes' : 'Antiguos'}
+            {order === 'desc' ? t('history.orderRecent') : t('history.orderOldest')}
           </AppText>
         </Pressable>
       </View>
@@ -121,14 +123,17 @@ export default function HistoryScreen() {
       {history.status === 'loading' && history.items.length === 0 ? <LoadingState /> : null}
 
       {history.status === 'error' ? (
-        <ErrorState onRetry={history.reload} description={history.error?.message} />
+        <ErrorState
+          onRetry={history.reload}
+          description={history.error ? translateError(history.error) : undefined}
+        />
       ) : null}
 
       {history.status === 'ready' && history.items.length === 0 ? (
         <EmptyState
           icon="time-outline"
-          title="Sin movimientos"
-          description="No hay registros con estos filtros."
+          title={t('history.emptyTitle')}
+          description={t('history.emptyDescription')}
           actionLabel={t('home.cta')}
           onAction={() => router.push('/add')}
         />
@@ -139,10 +144,12 @@ export default function HistoryScreen() {
           <Pressable
             style={styles.rowMain}
             accessibilityRole="button"
-            accessibilityLabel={
-              'Editar registro de ' +
-              formatAmount(entry.amountMinor, { currency: entry.currency, locale: profile.locale })
-            }
+            accessibilityLabel={t('history.editA11y', {
+              amount: formatAmount(entry.amountMinor, {
+                currency: entry.currency,
+                locale: profile.locale,
+              }),
+            })}
             onPress={() => router.push('/entry/' + entry.id)}
           >
             <EntryRow
@@ -153,7 +160,7 @@ export default function HistoryScreen() {
           </Pressable>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Eliminar registro"
+            accessibilityLabel={t('history.deleteA11y')}
             onPress={() => {
               setDeleteError(null);
               setPendingDelete(entry);
@@ -168,7 +175,7 @@ export default function HistoryScreen() {
 
       {history.hasMore ? (
         <Button
-          label={history.isFetching ? 'Cargando…' : 'Cargar más'}
+          label={history.isFetching ? t('history.loadingMore') : t('history.loadMore')}
           onPress={history.loadMore}
           variant="secondary"
           loading={history.isFetching}
@@ -179,8 +186,8 @@ export default function HistoryScreen() {
 
       <ConfirmDialog
         visible={pendingDelete !== null}
-        title="¿Eliminar este registro?"
-        message="El importe dejará de contar en tus totales. Esta acción no se puede deshacer."
+        title={t('history.deleteTitle')}
+        message={t('history.deleteMessage')}
         confirmLabel={t('common.delete')}
         destructive
         onCancel={() => setPendingDelete(null)}

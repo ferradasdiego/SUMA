@@ -19,16 +19,16 @@ import { shiftPeriod } from '@/domain/time/periods';
 import { useApp } from '@/features/app/AppProvider';
 import { buildPeriodPoints } from '@/features/statistics/buildChartData';
 import { useStatistics, type StatisticsKind } from '@/features/statistics/useStatistics';
-import { categoryLabel, t } from '@/i18n';
+import { categoryLabel, t, translateError, type TranslationKey } from '@/i18n';
 import { deviceTimeZone } from '@/utils/device';
 import { formatDateLabel, formatRangeLabel } from '@/utils/format';
 import { categoryColors, colors, spacing } from '@/theme';
 
-const KINDS: { value: StatisticsKind; label: string }[] = [
-  { value: 'day', label: 'Día' },
-  { value: 'week', label: 'Semana' },
-  { value: 'month', label: 'Mes' },
-  { value: 'year', label: 'Año' },
+const KINDS: { value: StatisticsKind; labelKey: TranslationKey }[] = [
+  { value: 'day', labelKey: 'stats.day' },
+  { value: 'week', labelKey: 'stats.week' },
+  { value: 'month', labelKey: 'stats.month' },
+  { value: 'year', labelKey: 'stats.year' },
 ];
 
 export default function StatisticsScreen() {
@@ -45,14 +45,14 @@ export default function StatisticsScreen() {
   return (
     <Screen scroll>
       <AppText variant="title" style={{ marginBottom: spacing.lg }}>
-        {t('statistics.title')}
+        {t('stats.title')}
       </AppText>
 
       <View style={styles.chips}>
         {KINDS.map((option) => (
           <Chip
             key={option.value}
-            label={option.label}
+            label={t(option.labelKey)}
             selected={kind === option.value}
             onPress={() => {
               setKind(option.value);
@@ -65,7 +65,7 @@ export default function StatisticsScreen() {
       <View style={styles.navigation}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Periodo anterior"
+          accessibilityLabel={t('stats.previousA11y')}
           onPress={() => setAnchor(shiftPeriod(anchor, kind, -1))}
           hitSlop={8}
           style={styles.arrow}
@@ -79,7 +79,7 @@ export default function StatisticsScreen() {
 
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Periodo siguiente"
+          accessibilityLabel={t('stats.nextA11y')}
           accessibilityState={{ disabled: !canGoForward }}
           disabled={!canGoForward}
           onPress={() => setAnchor(shiftPeriod(anchor, kind, 1))}
@@ -93,7 +93,7 @@ export default function StatisticsScreen() {
       {state.status === 'loading' ? <LoadingState /> : null}
 
       {state.status === 'error' ? (
-        <ErrorState onRetry={refresh} description={state.error.message} />
+        <ErrorState onRetry={refresh} description={translateError(state.error)} />
       ) : null}
 
       {state.status === 'ready' ? (
@@ -101,7 +101,7 @@ export default function StatisticsScreen() {
           <View style={styles.grid}>
             <Card style={styles.card}>
               <AppText variant="caption" color={colors.textMuted}>
-                Total del periodo
+                {t('stats.total')}
               </AppText>
               <AmountText
                 minor={state.data.summary.totalMinor}
@@ -113,7 +113,7 @@ export default function StatisticsScreen() {
             </Card>
             <Card style={styles.card}>
               <AppText variant="caption" color={colors.textMuted}>
-                Decisiones
+                {t('stats.decisions')}
               </AppText>
               <AppText variant="section" style={styles.cardAmount}>
                 {state.data.summary.entryCount}
@@ -121,7 +121,7 @@ export default function StatisticsScreen() {
             </Card>
             <Card style={styles.card}>
               <AppText variant="caption" color={colors.textMuted}>
-                Promedio diario
+                {t('stats.average')}
               </AppText>
               <AmountText
                 minor={state.data.summary.averagePerCalendarDayMinor}
@@ -133,7 +133,7 @@ export default function StatisticsScreen() {
             </Card>
             <Card style={styles.card}>
               <AppText variant="caption" color={colors.textMuted}>
-                Mejor día
+                {t('stats.bestDay')}
               </AppText>
               {state.data.summary.bestDay ? (
                 <>
@@ -160,7 +160,9 @@ export default function StatisticsScreen() {
             {state.data.summary.comparison ? (
               <>
                 <AppText variant="caption" color={colors.textMuted}>
-                  vs. {formatRangeLabel(state.data.summary.comparison.range, locale)}
+                  {t('stats.vs', {
+                    range: formatRangeLabel(state.data.summary.comparison.range, locale),
+                  })}
                 </AppText>
                 <View style={styles.comparisonRow}>
                   <AmountText
@@ -187,13 +189,14 @@ export default function StatisticsScreen() {
                   ) : null}
                 </View>
                 <AppText variant="caption" color={colors.textMuted}>
-                  {state.data.summary.comparison.deltaMinor >= 0 ? 'Más' : 'Menos'} que el tramo
-                  anterior
+                  {state.data.summary.comparison.deltaMinor >= 0
+                    ? t('stats.more')
+                    : t('stats.less')}
                 </AppText>
               </>
             ) : (
               <AppText variant="caption" color={colors.textMuted}>
-                Sin datos suficientes para comparar con el periodo anterior.
+                {t('stats.noComparison')}
               </AppText>
             )}
           </Card>
@@ -201,42 +204,40 @@ export default function StatisticsScreen() {
           {state.data.summary.entryCount === 0 ? (
             <EmptyState
               icon="stats-chart-outline"
-              title="Sin registros en este periodo"
-              description="Cuando registres decisiones, verás aquí tu evolución."
+              title={t('stats.emptyTitle')}
+              description={t('stats.emptyDescription')}
             />
           ) : (
             <>
               {kind !== 'day' ? (
                 <View style={styles.section}>
-                  <AppText variant="section">Evolución</AppText>
+                  <AppText variant="section">{t('stats.evolution')}</AppText>
                   {kind === 'year' ? (
                     <LineChart
                       data={buildPeriodPoints(state.data.entries, state.data.range, locale)}
-                      accessibilityLabel={
-                        'Evolución del año. Total ' +
-                        formatAmount(state.data.summary.totalMinor, {
+                      accessibilityLabel={t('stats.yearChartA11y', {
+                        total: formatAmount(state.data.summary.totalMinor, {
                           currency: profile.preferredCurrency,
                           locale,
-                        })
-                      }
+                        }),
+                      })}
                     />
                   ) : (
                     <BarChart
                       data={buildPeriodPoints(state.data.entries, state.data.range, locale)}
-                      accessibilityLabel={
-                        'Evolución del periodo. Total ' +
-                        formatAmount(state.data.summary.totalMinor, {
+                      accessibilityLabel={t('stats.chartA11y', {
+                        total: formatAmount(state.data.summary.totalMinor, {
                           currency: profile.preferredCurrency,
                           locale,
-                        })
-                      }
+                        }),
+                      })}
                     />
                   )}
                 </View>
               ) : null}
 
               <View style={styles.section}>
-                <AppText variant="section">Por categoría</AppText>
+                <AppText variant="section">{t('stats.byCategory')}</AppText>
                 <CategoryBars
                   data={state.data.summary.byCategory.map<CategoryBarItem>((item) => {
                     const category = categories.find(

@@ -775,13 +775,15 @@ La auditoría formal con lector de pantalla se ejecuta en Fase 5 y requiere disp
 
 ## 15. Internacionalización
 
-- Español (`es-ES`) en el MVP. Estructura preparada para inglés sin reescribir pantallas.
-- Diccionario tipado `src/i18n/es.ts` con claves planas (`home.total`); función `t(key, params)`.
-- Sin i18next hasta que exista una segunda lengua; añadir una dependencia no aporta valor todavía.
-- Categorías: `name_key` estable en base de datos; el nombre visible se traduce.
-- Fechas e importes con `Intl`, usando `profile.locale`.
-- Plurales mediante claves explícitas (`entries.count.one`, `entries.count.other`) para no introducir una librería de plurales.
-- Formatos de fecha y primer día de semana configurables en el perfil.
+- Cinco idiomas: español (`es-ES`), inglés (`en-GB`), gallego (`gl-ES`), catalán (`ca-ES`) y portugués (`pt-PT`).
+- El idioma se elige en el onboarding y en Ajustes con un selector de banderas vectoriales; se guarda en `profile.locale`.
+- Diccionarios tipados en `src/i18n/locales/`. `TranslationKey` se deriva del español y el resto de diccionarios se declaran como `Record<TranslationKey, string>`, de modo que TypeScript detecta una clave ausente.
+- `t(key, params)` interpola parámetros y usa el locale activo. `AppProvider` llama a `setActiveLocale` al cargar o actualizar el perfil; las pantallas se vuelven a renderizar con el contexto.
+- `categoryLabel(nameKey)` traduce las categorías usando su `name_key` estable.
+- Los errores de dominio conservan mensajes técnicos en español; `translateError(error)` los mapea a claves traducidas. Un error desconocido cae a un mensaje genérico del idioma activo para no mezclar idiomas.
+- Fechas e importes usan `Intl` con `profile.locale`. Los importes rápidos se guardan como unidades menores y no se convierten al cambiar de idioma.
+- Plurales mediante claves explícitas; los resúmenes de importación usan etiquetas con contador para evitar concordancias incorrectas.
+- Sin i18next: cinco diccionarios pequeños y una función propia cubren el MVP sin añadir dependencias.
 
 ---
 
@@ -932,6 +934,10 @@ La app puede compilarse también como web instalable. No sustituye a iOS/Android
 - La importación de archivos `.wasm` se habilita en `metro.config.js`.
 - Las rutas asíncronas se desactivan en web (`asyncRoutes: false`): todo el código viaja en el bundle inicial y el service worker puede servirlo sin conexión. Con rutas asíncronas, una pantalla no visitada antes (por ejemplo, editar un registro) no estaba disponible offline.
 - La exportación de datos en web descarga un JSON con `Blob`; en nativo usa la hoja de compartir.
+- La importación usa `expo-document-picker` en ambas plataformas. En web lee `asset.file` o el blob; en nativo usa `File` de `expo-file-system`.
+- `src/data/export/importData.ts` valida el JSON con Zod y comprueba invariantes: versión 1, identificadores únicos, categorías existentes, una sola moneda y como máximo un objetivo activo.
+- `src/data/import/importService.ts` ejecuta la importación en una transacción. **Fusionar** inserta categorías con `INSERT OR IGNORE`, registros y objetivos por identificador (omite los existentes), conserva el perfil local y exige la misma moneda. **Reemplazar** borra registros, objetivos, categorías y perfil, y restaura la copia completa, incluidos idioma, moneda e importes rápidos.
+- La UI de importación muestra el resumen de la copia y pide elegir entre fusionar o reemplazar; el reemplazo tiene una segunda confirmación destructiva.
 
 ### 23.2 Requisitos de origen
 
@@ -950,7 +956,9 @@ Cross-Origin-Embedder-Policy: credentialless
 
 - `public/manifest.webmanifest`: nombre, iconos 192/512/maskable, `display: standalone`, colores.
 - `public/sw.js`: cachea el shell y los recursos en tiempo de ejecución; navegación con fallback a `index.html`.
-- `scripts/patch-web-html.mjs`: inyecta manifest, metadatos iOS y registro del service worker en el HTML exportado (el `+html` de Expo Router no se aplica en `output: 'single'`).
+- `scripts/patch-web-html.mjs`: inyecta manifest, metadatos iOS, fondo sólido y registro del service worker en el HTML exportado (el `+html` de Expo Router no se aplica en `output: 'single'`).
+- El viewport **no** usa `viewport-fit=cover`. Así el contenido queda dentro del área segura y no se dibuja bajo la barra de estado translúcida de iOS 26, que producía un blur superior. El HTML fija `background-color`, `overscroll-behavior-y: none` y `theme-color: #FFFFFF`.
+- El service worker usa `suma-v4`.
 - Iconos generados en `public/icons/`, servidos desde el mismo origen.
 
 ### 23.4 Limitaciones
@@ -969,7 +977,8 @@ Cross-Origin-Embedder-Policy: credentialless
 - onboarding, alta y persistencia al recargar;
 - service worker y manifest;
 - historial y estadísticas;
-- funcionamiento sin conexión.
+- funcionamiento sin conexión;
+- importación JSON con fusión y reemplazo, idioma persistente y selector de banderas.
 
 También se ha probado sobre HTTPS con certificado local.
 

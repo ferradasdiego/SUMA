@@ -4,16 +4,17 @@ import { View } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
+import { LanguagePicker } from '@/components/ui/LanguagePicker';
 import { Screen } from '@/components/ui/Screen';
 import { useApp } from '@/features/app/AppProvider';
 import type { WeekStartsOn } from '@/domain/entities/types';
-import { t } from '@/i18n';
+import { t, translateError } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 const CURRENCIES = ['EUR', 'USD', 'GBP'] as const;
 
 export default function OnboardingScreen() {
-  const { profile, completeOnboarding } = useApp();
+  const { profile, completeOnboarding, updateProfile } = useApp();
   const [currency, setCurrency] = useState<string>(profile?.preferredCurrency ?? 'EUR');
   const [weekStartsOn, setWeekStartsOn] = useState<WeekStartsOn>(profile?.weekStartsOn ?? 1);
   const [saving, setSaving] = useState(false);
@@ -23,7 +24,7 @@ export default function OnboardingScreen() {
     setSaving(true);
     setError(null);
     const result = await completeOnboarding({ preferredCurrency: currency, weekStartsOn });
-    if (!result.ok) setError(result.error.message);
+    if (!result.ok) setError(translateError(result.error));
     setSaving(false);
   }
 
@@ -31,17 +32,29 @@ export default function OnboardingScreen() {
     <Screen scroll>
       <View style={styles.hero}>
         <AppText variant="display">SUMA</AppText>
-        <AppText variant="title" style={styles.claim}>
-          Cada decisión cuenta
-        </AppText>
+      </View>
+
+      <AppText variant="label" style={styles.label}>
+        {t('onboarding.language')}
+      </AppText>
+      <LanguagePicker
+        locale={profile?.locale ?? 'es-ES'}
+        onSelect={(locale) => {
+          void updateProfile({ locale }).then((result) => {
+            setError(result.ok ? null : translateError(result.error));
+          });
+        }}
+      />
+
+      <View style={styles.claimBlock}>
+        <AppText variant="title">{t('onboarding.claim')}</AppText>
         <AppText variant="body" color={colors.textMuted} style={styles.description}>
-          Registra el dinero que decides no gastar y mira cómo crece tu progreso. No es una cuenta
-          bancaria: es tu hábito, en cifras.
+          {t('onboarding.description')}
         </AppText>
       </View>
 
       <AppText variant="label" style={styles.label}>
-        Moneda
+        {t('onboarding.currency')}
       </AppText>
       <View style={styles.chips}>
         {CURRENCIES.map((code) => (
@@ -55,7 +68,7 @@ export default function OnboardingScreen() {
       </View>
 
       <AppText variant="label" style={styles.label}>
-        {t('settings.weekStart')}
+        {t('onboarding.weekStart')}
       </AppText>
       <View style={styles.chips}>
         <Chip
@@ -77,7 +90,7 @@ export default function OnboardingScreen() {
       ) : null}
 
       <Button
-        label="Empezar"
+        label={t('onboarding.start')}
         onPress={() => {
           void start();
         }}
@@ -87,16 +100,15 @@ export default function OnboardingScreen() {
       />
 
       <AppText variant="caption" color={colors.textMuted} style={styles.note}>
-        Podrás cambiar estas preferencias más adelante. La moneda no se puede cambiar mientras
-        existan registros.
+        {t('onboarding.note')}
       </AppText>
     </Screen>
   );
 }
 
 const styles = {
-  hero: { marginTop: spacing.xxxl, marginBottom: spacing.xxl },
-  claim: { marginTop: spacing.sm },
+  hero: { marginTop: spacing.xxxl, marginBottom: spacing.lg },
+  claimBlock: { marginTop: spacing.lg },
   description: { marginTop: spacing.md },
   label: { marginTop: spacing.lg, marginBottom: spacing.sm },
   chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: spacing.sm },

@@ -91,6 +91,25 @@ interface SqlDriver {
 
 `ProfilePatch` admite `displayName`, `preferredCurrency`, `locale`, `weekStartsOn`, `onboardingCompleted` y `quickAmountsMinor` (1–6 importes en unidades menores). Los importes rápidos son una preferencia del perfil y se guardan en la misma fila.
 
+### Importación
+
+```ts
+type ImportMode = 'merge' | 'replace';
+
+interface ImportSummary {
+  mode: ImportMode;
+  importedEntries: number;
+  skippedEntries: number;
+  importedGoals: number;
+  skippedGoals: number;
+  importedCategories: number;
+}
+
+importData({ driver, now }, payload, mode): Promise<Result<ImportSummary>>;
+```
+
+`parseImportPayload(text)` valida el JSON antes de escribir. `merge` conserva el perfil local, omite identificadores existentes y exige la misma moneda; `replace` restaura el perfil incluido en la copia y sustituye todos los datos. Ambas operaciones son transaccionales.
+
 ### Repositorios
 
 ```ts
@@ -121,12 +140,16 @@ Contratos de error:
 interface AppContextValue {
   status: 'booting' | 'ready' | 'failed';
   profile: UserProfile | null;
+  categories: readonly Category[];
+  repositories: Repositories | null;
   dataVersion: number;
   error: AppError | null;
   completeOnboarding(input: OnboardingInput): Promise<Result<void>>;
   updateProfile(patch: ProfilePatch): Promise<Result<void>>;
+  importData(payload: ExportPayload, mode: ImportMode): Promise<Result<ImportSummary>>;
+  refresh(): Promise<void>;
   invalidate(): void;
-  retryBootstrap(): void;
+  retry(): void;
 }
 ```
 
@@ -136,7 +159,7 @@ Reglas: ninguna mutación puede terminar sin llamar a invalidate(); el contexto 
 
 - Componentes UI: props tipadas, sin acceso a datos.
 - Formularios: React Hook Form + esquema Zod compartido con el dominio.
-- i18n: t(key, params) con claves tipadas y diccionario es.
+- i18n: `t(key, params)` con claves tipadas y diccionarios ES/EN/GL/CA/PT; `translateError(error)` para errores de dominio.
 - Tema: tokens; prohibido el hex en componentes.
 
 ## 6. Backend futuro (no implementado)

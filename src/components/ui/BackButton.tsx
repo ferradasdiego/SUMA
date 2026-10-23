@@ -3,13 +3,14 @@ import { router } from 'expo-router';
 import { Pressable } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
+import { t } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export interface BackButtonProps {
   label?: string;
 }
 
-export function BackButton({ label = 'Volver' }: BackButtonProps) {
+export function BackButton({ label = t('common.back') }: BackButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"

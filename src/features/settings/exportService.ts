@@ -6,6 +6,7 @@ import { buildExportPayload } from '@/data/export/exportData';
 import type { Repositories } from '@/data/repositories/types';
 import type { UserProfile } from '@/domain/entities/types';
 import { err, ioError, ok, type Result } from '@/domain/errors/result';
+import { t } from '@/i18n';
 
 export async function collectExportData(
   repositories: Repositories,
@@ -65,7 +66,7 @@ async function shareExportOnNative(payload: ExportPayload): Promise<Result<void>
 
     await Sharing.shareAsync(file.uri, {
       mimeType: 'application/json',
-      dialogTitle: 'Exportar datos de SUMA',
+      dialogTitle: t('settings.export'),
     });
 
     return ok(undefined);

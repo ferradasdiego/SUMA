@@ -46,14 +46,14 @@ export default function HomeScreen() {
     <Screen scroll>
       <View style={styles.header}>
         <View>
-          <AppText variant="title">{t('home.title')}</AppText>
+          <AppText variant="title">SUMA</AppText>
           <AppText variant="body" color={colors.textMuted}>
             {t('home.subtitle')}
           </AppText>
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Abrir ajustes"
+          accessibilityLabel={t('home.openSettings')}
           onPress={() => router.push('/settings')}
           hitSlop={8}
           style={styles.settingsButton}
@@ -107,7 +107,7 @@ export default function HomeScreen() {
         <SectionHeader title={t('home.recent')} />
         {data.recent.length === 0 ? (
           <AppText variant="body" color={colors.textMuted}>
-            Aún no has registrado ninguna decisión.
+            {t('home.noEntries')}
           </AppText>
         ) : (
           data.recent.map((entry) => (
@@ -124,7 +124,7 @@ export default function HomeScreen() {
       {data.goal && data.goalProgress ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Abrir objetivo"
+          accessibilityLabel={t('home.openGoal')}
           onPress={() => router.push('/goals')}
           style={styles.section}
         >
@@ -132,12 +132,12 @@ export default function HomeScreen() {
         </Pressable>
       ) : (
         <Card style={styles.section}>
-          <AppText variant="label">Sin objetivo activo</AppText>
+          <AppText variant="label">{t('home.noGoalTitle')}</AppText>
           <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-            Un objetivo te ayuda a poner nombre a lo que quieres conseguir.
+            {t('home.noGoalDescription')}
           </AppText>
           <Button
-            label="Crear objetivo"
+            label={t('home.createGoal')}
             onPress={() => router.push('/goals')}
             variant="secondary"
             style={styles.goalCta}

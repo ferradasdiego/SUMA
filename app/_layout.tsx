@@ -7,6 +7,7 @@ import { ErrorState } from '@/components/feedback/ErrorState';
 import { LoadingState } from '@/components/feedback/LoadingState';
 import { Screen } from '@/components/ui/Screen';
 import { AppProvider, useApp } from '@/features/app/AppProvider';
+import { t } from '@/i18n';
 import { colors } from '@/theme';
 
 function AppStack() {
@@ -27,13 +28,13 @@ function AppStack() {
 }
 
 function RootNavigator() {
-  const { status, profile, error, retry } = useApp();
+  const { status, profile, retry } = useApp();
   const pathname = usePathname();
 
   if (status === 'booting') {
     return (
       <Screen>
-        <LoadingState label="Preparando SUMA…" />
+        <LoadingState label={t('app.preparing')} />
       </Screen>
     );
   }
@@ -42,10 +43,8 @@ function RootNavigator() {
     return (
       <Screen>
         <ErrorState
-          title="No se pudo iniciar SUMA"
-          description={
-            error?.message ?? 'Revisa el almacenamiento del dispositivo e inténtalo de nuevo.'
-          }
+          title={t('app.startErrorTitle')}
+          description={t('app.startErrorDescription')}
           onRetry={retry}
         />
       </Screen>

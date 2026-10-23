@@ -9,7 +9,7 @@ Aplicación móvil de ahorro consciente: registra el dinero que decides **no gas
 Implementación del MVP en curso por fases:
 
 - **Fases 0–5 completadas** según el plan: memoria, esqueleto, dominio/persistencia, registro e Inicio, historial/estadísticas/objetivos y calidad.
-- **104 pruebas automatizadas en verde** (unitarias, integración con SQLite real y componentes).
+- **122 pruebas automatizadas en verde** (unitarias, integración con SQLite real y componentes).
 - La aplicación empaqueta para iOS y Android, pero **no se ha ejecutado en simulador ni dispositivo** en este entorno.
 - Bloqueos externos: licencia de Xcode no aceptada, sin JDK/Android SDK y sin cuentas de tienda.
 
@@ -17,7 +17,8 @@ El estado detallado, con evidencias y limitaciones, está en [docs/STATUS.md](do
 
 ## Funcionalidades
 
-- Onboarding con moneda y primer día de semana.
+- Onboarding con **idioma, moneda y primer día de semana**.
+- **Cinco idiomas** (español, inglés, gallego, catalán y portugués) con banderas, seleccionables al empezar o desde Ajustes.
 - Registro de decisiones con importe, categoría, nota y fecha.
 - Importes rápidos configurables y persistentes: el lápiz permite editar cada importe y se guarda en el dispositivo.
 - Inicio con total acumulado, hoy, semana, últimos movimientos y objetivo.
@@ -26,8 +27,9 @@ El estado detallado, con evidencias y limitaciones, está en [docs/STATUS.md](do
 - Estadísticas por día, semana, mes y año con comparación, promedios, mejor día y distribución por categorías.
 - Gráficas propias (barras, línea y barras de categorías) accesibles.
 - Un objetivo activo con progreso calculado desde los registros.
-- Ajustes: moneda, primer día de semana, exportación JSON y restablecimiento de datos.
+- Ajustes: idioma, moneda, primer día de semana, exportación e **importación JSON** (fusionar o reemplazar) y restablecimiento de datos.
 - Persistencia local SQLite con migraciones, transacciones y reapertura segura.
+- Importación de copias JSON con validación previa, fusión sin duplicados o reemplazo transaccional.
 
 Fuera del MVP: cuentas, sincronización, notificaciones, analítica, IA, varios objetivos, categorías personalizadas, modo oscuro, pagos y publicación.
 
@@ -98,15 +100,17 @@ Limitaciones: los datos de la PWA viven en el navegador de ese origen y son inde
 
 ## Scripts
 
-| Comando                             | Descripción                     |
-| ----------------------------------- | ------------------------------- |
-| `pnpm start`                        | Servidor de desarrollo          |
-| `pnpm typecheck`                    | TypeScript estricto, sin emitir |
-| `pnpm lint`                         | ESLint                          |
-| `pnpm format` / `pnpm format:check` | Prettier                        |
-| `pnpm test`                         | Jest (20 suites)                |
-| `pnpm test:integration`             | Pruebas de persistencia         |
-| `pnpm export:check`                 | Exporta bundles iOS/Android     |
+| Comando                             | Descripción                        |
+| ----------------------------------- | ---------------------------------- |
+| `pnpm start`                        | Servidor de desarrollo             |
+| `pnpm typecheck`                    | TypeScript estricto, sin emitir    |
+| `pnpm lint`                         | ESLint                             |
+| `pnpm format` / `pnpm format:check` | Prettier                           |
+| `pnpm test`                         | Jest (24 suites, 122 pruebas)      |
+| `pnpm test:integration`             | Pruebas de persistencia            |
+| `pnpm export:check`                 | Exporta bundles iOS/Android        |
+| `pnpm web:build` / `pnpm web:serve` | PWA estática y servidor local      |
+| `pnpm web:smoke` / `web:smoke:i18n` | Smoke de PWA e idiomas/importación |
 
 > Con pnpm, usa `pnpm exec jest --runInBand` para pasar argumentos a Jest (el separador `--` no se reenvía).
 
@@ -115,11 +119,11 @@ Limitaciones: los datos de la PWA viven en el navegador de ese origen y son inde
 ```
 app/                    rutas Expo Router
 src/domain/             entidades, dinero, fechas, cálculos, validación (puro)
-src/data/               driver SQL, migraciones, repositorios, exportación
+src/data/               driver SQL, migraciones, repositorios, exportación e importación
 src/features/           casos de uso y pantallas por dominio
 src/components/         UI, feedback, entries, goals, charts
 src/theme/              tokens de diseño
-src/i18n/               textos en español
+src/i18n/               diccionarios ES/EN/GL/CA/PT y locale activo
 tests/                  unitarias, integración y componentes
 docs/                   memoria del proyecto y ADR
 ```
@@ -142,7 +146,7 @@ Más detalle en [docs/SECURITY.md](docs/SECURITY.md).
 pnpm exec jest --runInBand
 ```
 
-Cubren dinero y redondeos, fechas y cambios de hora, periodos y comparaciones, migraciones, CRUD, restricciones, persistencia tras reapertura, transacciones, preparación de formularios, objetivos, componentes y accesibilidad básica. Ver [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md).
+Cubren dinero y redondeos, fechas y cambios de hora, periodos y comparaciones, migraciones, CRUD, restricciones, persistencia tras reapertura, transacciones, importación/exportación JSON, preparación de formularios, objetivos, diccionarios y selector de idioma, componentes y accesibilidad básica. Ver [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md).
 
 No se han ejecutado pruebas E2E ni de lector de pantalla: requieren simulador o dispositivo.
 
@@ -151,7 +155,7 @@ No se han ejecutado pruebas E2E ni de lector de pantalla: requieren simulador o 
 - Verificación nativa pendiente (licencia de Xcode, ausencia de Android SDK).
 - La fecha se introduce como texto `AAAA-MM-DD` con atajos Hoy/Ayer; no hay selector nativo.
 - Un único objetivo activo; sin asignación de registros por objetivo.
-- Exportación solo JSON; no hay importación todavía.
+- Importación y exportación solo JSON; sin CSV.
 - Modo oscuro, notificaciones, cuentas y sincronización fuera del MVP.
 - El rendimiento medido corresponde a Node/sql.js; debe validarse en dispositivo.
 

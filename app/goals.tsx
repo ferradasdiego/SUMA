@@ -12,6 +12,7 @@ import { Screen } from '@/components/ui/Screen';
 import { useApp } from '@/features/app/AppProvider';
 import { GoalForm } from '@/features/goals/GoalForm';
 import { useActiveGoal } from '@/features/goals/useActiveGoal';
+import { t, translateError } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export default function GoalsScreen() {
@@ -32,7 +33,7 @@ export default function GoalsScreen() {
   if (state.status === 'error') {
     return (
       <Screen>
-        <ErrorState onRetry={refresh} description={state.error.message} />
+        <ErrorState onRetry={refresh} description={translateError(state.error)} />
       </Screen>
     );
   }
@@ -47,7 +48,7 @@ export default function GoalsScreen() {
     const result = await repositories.goals.remove(goal.id);
     setConfirmVisible(false);
     if (!result.ok) {
-      setMessage(result.error.message);
+      setMessage(translateError(result.error));
       return;
     }
     invalidate();
@@ -59,7 +60,7 @@ export default function GoalsScreen() {
     <Screen scroll>
       <BackButton />
       <AppText variant="title" style={{ marginBottom: spacing.lg }}>
-        {editing ? 'Editar objetivo' : goal ? 'Objetivo' : 'Nuevo objetivo'}
+        {editing ? t('goals.edit') : goal ? t('goals.title') : t('goals.new')}
       </AppText>
 
       {showForm ? (
@@ -74,7 +75,7 @@ export default function GoalsScreen() {
             <GoalCard goal={goal} progress={state.progress} locale={profile.locale} />
           ) : null}
 
-          <Button label="Editar objetivo" onPress={() => setEditing(true)} variant="secondary" />
+          <Button label={t('goals.edit')} onPress={() => setEditing(true)} variant="secondary" />
 
           <AppText
             variant="label"
@@ -83,12 +84,11 @@ export default function GoalsScreen() {
             onPress={() => setConfirmVisible(true)}
             style={{ textAlign: 'center' }}
           >
-            Eliminar objetivo
+            {t('goals.delete')}
           </AppText>
 
           <AppText variant="caption" color={colors.textMuted}>
-            El progreso se calcula sumando los registros desde la fecha de inicio del objetivo. No
-            implica que el dinero esté apartado ni disponible.
+            {t('goals.explanation')}
           </AppText>
         </View>
       )}
@@ -101,9 +101,9 @@ export default function GoalsScreen() {
 
       <ConfirmDialog
         visible={confirmVisible}
-        title="¿Eliminar el objetivo?"
-        message="El objetivo dejará de mostrarse en Inicio. Tus registros no se modifican."
-        confirmLabel="Eliminar"
+        title={t('goals.deleteTitle')}
+        message={t('goals.deleteMessage')}
+        confirmLabel={t('common.delete')}
         destructive
         onCancel={() => setConfirmVisible(false)}
         onConfirm={() => {

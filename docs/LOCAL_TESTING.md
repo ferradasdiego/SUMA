@@ -46,7 +46,7 @@ pnpm exec expo-doctor
 ## 2. Opción A — Pruebas automatizadas (sin dispositivo)
 
 ```bash
-pnpm exec jest --runInBand          # 20 suites, 104 pruebas
+pnpm exec jest --runInBand          # 24 suites, 122 pruebas
 pnpm test:integration               # persistencia con SQLite real (sql.js)
 ```
 
@@ -191,8 +191,10 @@ Hazlo en este orden; cada paso tiene un resultado esperado.
 
 1. Abre SUMA por primera vez.
 2. Debe aparecer la bienvenida, no Inicio.
-3. Elige EUR y "Lunes" → Empezar.
-4. Inicio debe mostrar 0,00 €, Hoy 0,00 € y Esta semana 0,00 €.
+2.1. Prueba el selector de idioma: English → Galego → Català → Português. La bienvenida, la moneda y el botón deben cambiar de idioma, y la bandera elegida debe quedar marcada.
+2.2. Vuelve a Español, elige EUR y "Lunes" → Empezar.
+3. Inicio debe mostrar 0,00 €, Hoy 0,00 € y Esta semana 0,00 €.
+4. Ajustes → Idioma: cambia a English. Toda la interfaz, incluida la barra inferior, debe pasar a inglés; vuelve a Español.
 
 ### Registro
 
@@ -245,9 +247,13 @@ Hazlo en este orden; cada paso tiene un resultado esperado.
 
 29. Ajustes: cambia el primer día de semana y comprueba que la semana de Inicio se recalcula.
 30. Con registros, la moneda debe estar bloqueada.
-31. Exporta datos: debe abrirse la hoja de compartir con un JSON.
-32. Restablece datos, confirma: registros y objetivos desaparecen; el perfil se conserva.
-33. Sin registros, la moneda debe poder cambiarse.
+31.1. Exporta datos: en web se descarga un JSON; en nativo se abre la hoja de compartir.
+31.2. Importa ese mismo JSON y elige **Fusionar**: debe indicar 0 añadidos y 1 ya existente; el historial no se duplica.
+31.3. Restablece datos y confirma: registros y objetivos desaparecen; el perfil se conserva.
+31.4. Importa de nuevo el JSON y elige **Reemplazar todo** → confirma el aviso destructivo: el registro vuelve y el perfil se restaura.
+31.5. Importa un archivo ajeno (por ejemplo, un JSON cualquiera): debe mostrar un error legible y no modificar los datos.
+32. Restablece de nuevo; sin registros, la moneda debe poder cambiarse.
+33. Añade un registro y comprueba que la moneda vuelve a bloquearse. (La fusión de una copia con otra moneda se rechaza en las pruebas automatizadas).
 
 ### Accesibilidad
 
@@ -287,9 +293,10 @@ Prueba automatizada (Chrome instalado, servidor arrancado):
 
 ```bash
 pnpm web:smoke
+pnpm web:smoke:i18n
 ```
 
-Comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión.
+`web:smoke` comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión. `web:smoke:i18n` recorre onboarding multiidioma, cambio a catalán, exportación, fusión, restablecimiento, reemplazo y recuperación del registro, y falla si hay errores de consola.
 
 ### 9.3 HTTPS para el móvil con mkcert
 
@@ -329,7 +336,9 @@ El móvil debe confiar en la autoridad local de mkcert (`rootCA.pem`). Está en 
 - **iPhone/iPad (Safari)**: botón Compartir → "Añadir a pantalla de inicio".
 - **Android (Chrome)**: menú ⋮ → "Instalar aplicación" o "Añadir a pantalla de inicio".
 
-Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker, `display: standalone`, nombre y colores.
+Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker `suma-v4`, `display: standalone`, nombre y colores.
+
+El viewport no usa `viewport-fit=cover`: el contenido queda dentro del área segura y la barra de estado translúcida de iOS 26 ya no difumina la parte superior. Si la PWA instalada conserva el HTML anterior, ciérrala, ábrela con conexión y recarga.
 
 ### 9.6 Sin conexión
 
@@ -357,7 +366,7 @@ Con el bundle único de la PWA también funcionan sin conexión las pantallas qu
 pnpm web:build
 ```
 
-El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo y recarga.
+El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo con conexión y recarga. La versión actual es `suma-v4`.
 
 ### 9.9 Alternativa rápida: túnel HTTPS
 

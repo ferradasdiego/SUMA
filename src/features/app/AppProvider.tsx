@@ -11,9 +11,16 @@ import {
 } from 'react';
 
 import { initializeDatabase } from '@/data/database';
+import type { ExportPayload } from '@/data/export/exportData';
+import {
+  importData as importPayloadData,
+  type ImportMode,
+  type ImportSummary,
+} from '@/data/import/importService';
 import { openExpoDatabase } from '@/data/local/expoDriver';
 import type { SqlDriver } from '@/data/local/driver';
 import type { Repositories } from '@/data/repositories/types';
+import { setActiveLocale } from '@/i18n';
 import type { Category, ProfilePatch, UserProfile, WeekStartsOn } from '@/domain/entities/types';
 import { err, ok, unknownError, type AppError, type Result } from '@/domain/errors/result';
 
@@ -33,6 +40,8 @@ export interface AppContextValue {
   readonly error: AppError | null;
   updateProfile(patch: ProfilePatch): Promise<Result<void>>;
   completeOnboarding(input: OnboardingInput): Promise<Result<void>>;
+  importData(payload: ExportPayload, mode: ImportMode): Promise<Result<ImportSummary>>;
+  refresh(): Promise<void>;
   invalidate(): void;
   retry(): void;
 }
@@ -93,6 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      setActiveLocale(profileResult.value.locale);
       setRepositories(initialized.value.repositories);
       setCategories(categoriesResult.value);
       setProfile(profileResult.value);
@@ -124,11 +134,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const updated = await repositories.profile.update(patch);
       if (!updated.ok) return err(updated.error);
 
+      setActiveLocale(updated.value.locale);
       setProfile(updated.value);
       setDataVersion((version) => version + 1);
       return ok(undefined);
     },
     [repositories],
+  );
+
+  const refresh = useCallback(async () => {
+    if (!repositories) return;
+
+    const [profileResult, categoriesResult] = await Promise.all([
+      repositories.profile.get(),
+      repositories.categories.list(),
+    ]);
+
+    if (!profileResult.ok || !categoriesResult.ok) return;
+
+    setActiveLocale(profileResult.value.locale);
+    setProfile(profileResult.value);
+    setCategories(categoriesResult.value);
+    setDataVersion((version) => version + 1);
+  }, [repositories]);
+
+  const importData = useCallback(
+    async (payload: ExportPayload, mode: ImportMode): Promise<Result<ImportSummary>> => {
+      if (!driverRef.current) {
+        return err({ code: 'STORAGE', message: 'La base de datos todavía no está lista' });
+      }
+
+      const result = await importPayloadData(
+        { driver: driverRef.current, now: () => new Date() },
+        payload,
+        mode,
+      );
+
+      if (!result.ok) return result;
+
+      await refresh();
+      return result;
+    },
+    [refresh],
   );
 
   const completeOnboarding = useCallback(
@@ -151,6 +198,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       error,
       updateProfile,
       completeOnboarding,
+      importData,
+      refresh,
       invalidate,
       retry: () => {
         void bootstrap();
@@ -165,6 +214,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       error,
       updateProfile,
       completeOnboarding,
+      importData,
+      refresh,
       invalidate,
       bootstrap,
     ],

@@ -3,9 +3,13 @@ import { Tabs } from 'expo-router';
 import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { useApp } from '@/features/app/AppProvider';
+import { t } from '@/i18n';
 import { colors, typography } from '@/theme';
 
 export default function TabsLayout() {
+  // Suscribe la barra de pestañas al cambio de idioma del perfil.
+  useApp();
   const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === 'web';
 
@@ -34,7 +38,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Inicio',
+          title: t('nav.home'),
           tabBarIcon: ({ size, focused }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
@@ -47,7 +51,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="add"
         options={{
-          title: 'Añadir',
+          title: t('nav.add'),
           tabBarIcon: ({ size, focused }) => (
             <Ionicons
               name={focused ? 'add-circle' : 'add-circle-outline'}
@@ -60,7 +64,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: 'Historial',
+          title: t('nav.history'),
           tabBarIcon: ({ size, focused }) => (
             <Ionicons
               name={focused ? 'time' : 'time-outline'}
@@ -73,7 +77,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="statistics"
         options={{
-          title: 'Estadísticas',
+          title: t('nav.statistics'),
           tabBarIcon: ({ size, focused }) => (
             <Ionicons
               name={focused ? 'stats-chart' : 'stats-chart-outline'}

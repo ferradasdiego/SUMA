@@ -16,7 +16,7 @@ import { formatAmountInput, parseAmount } from '@/domain/money/money';
 import { addDays, todayLocalDate } from '@/domain/time/calendar';
 import { useApp } from '@/features/app/AppProvider';
 import { prepareEntry, type EntryFormValues } from '@/features/entries/prepareEntry';
-import { categoryLabel, t } from '@/i18n';
+import { categoryLabel, t, translateError } from '@/i18n';
 import { categoryColors, colors, radii, spacing } from '@/theme';
 import { deviceTimeZone } from '@/utils/device';
 
@@ -76,17 +76,17 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
   function applyError(error: AppError) {
     const field = error.field as FormField | undefined;
     if (field && ['amount', 'categoryId', 'note', 'date'].includes(field)) {
-      setError(field, { type: 'validate', message: error.message });
+      setError(field, { type: 'validate', message: translateError(error) });
       return;
     }
-    setError('root', { message: error.message });
+    setError('root', { message: translateError(error) });
   }
 
   const onSubmit = handleSubmit(async (values) => {
     setSuccess(false);
 
     if (!profile || !repositories) {
-      setError('root', { message: 'La aplicación todavía no está lista' });
+      setError('root', { message: t('app.notReady') });
       return;
     }
 
@@ -137,7 +137,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
             {t('add.success')}
           </AppText>
           <AppText variant="caption" color={colors.textMuted} style={styles.successText}>
-            Puedes registrar otra decisión o volver al inicio.
+            {t('add.successHelp')}
           </AppText>
           <Button
             label={t('add.goHome')}
@@ -163,7 +163,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
             setSuccess(false);
           }}
           keyboardType="decimal-pad"
-          placeholder="0,00"
+          placeholder={t('add.amountPlaceholder')}
           placeholderTextColor={colors.textMuted}
           style={[styles.amountInput, errors.amount ? styles.inputError : undefined]}
           accessibilityLabel={t('add.amount')}
@@ -252,10 +252,10 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
           setValue('date', text);
           clearErrors('date');
         }}
-        placeholder="AAAA-MM-DD"
+        placeholder={t('goals.targetDatePlaceholder')}
         placeholderTextColor={colors.textMuted}
         style={[styles.input, errors.date ? styles.inputError : undefined]}
-        accessibilityLabel="Fecha en formato año-mes-día"
+        accessibilityLabel={t('add.dateA11y')}
         autoCapitalize="none"
       />
       {errors.date ? (
@@ -273,7 +273,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
           setValue('note', text);
           clearErrors('note');
         }}
-        placeholder="Ej. Café preparado en casa"
+        placeholder={t('add.notePlaceholder')}
         placeholderTextColor={colors.textMuted}
         style={[styles.input, styles.note, errors.note ? styles.inputError : undefined]}
         multiline
@@ -293,7 +293,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
       ) : null}
 
       <Button
-        label={isSubmitting ? t('add.saving') : isEditing ? 'Guardar cambios' : t('add.save')}
+        label={isSubmitting ? t('add.saving') : isEditing ? t('add.saveChanges') : t('add.save')}
         onPress={() => {
           void onSubmit();
         }}
@@ -304,7 +304,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
 
       {isEditing ? (
         <Button
-          label="Cancelar"
+          label={t('common.cancel')}
           onPress={() => router.back()}
           variant="secondary"
           style={styles.cancel}
@@ -312,7 +312,7 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
       ) : null}
 
       <AppText variant="caption" color={colors.textMuted} style={styles.preview}>
-        Se registrará como dinero no gastado, no como ahorro disponible.
+        {t('add.disclaimer')}
       </AppText>
     </View>
   );

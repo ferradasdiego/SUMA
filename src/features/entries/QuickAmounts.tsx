@@ -8,7 +8,7 @@ import { Chip } from '@/components/ui/Chip';
 import { formatAmountInput, parseAmount } from '@/domain/money/money';
 import { resolveQuickAmounts } from '@/domain/preferences/quickAmounts';
 import { useApp } from '@/features/app/AppProvider';
-import { t } from '@/i18n';
+import { t, translateError } from '@/i18n';
 import { colors, radii, spacing } from '@/theme';
 
 export interface QuickAmountsProps {
@@ -51,7 +51,7 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
 
     const parsed = parseAmount(draft, { currency, locale });
     if (!parsed.ok) {
-      setError(parsed.error.message);
+      setError(translateError(parsed.error));
       return;
     }
 
@@ -62,7 +62,7 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
     setSaving(false);
 
     if (!result.ok) {
-      setError(result.error.message);
+      setError(translateError(result.error));
       return;
     }
 
@@ -75,9 +75,7 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={
-            editing ? 'Terminar de editar importes rápidos' : 'Editar importes rápidos'
-          }
+          accessibilityLabel={editing ? t('add.quickDone') : t('add.quickEdit')}
           accessibilityState={{ selected: editing }}
           onPress={() => setEditing((current) => !current)}
           hitSlop={10}
@@ -94,8 +92,7 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
 
       {editing ? (
         <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-          Toca un importe para cambiarlo. Se guardará en este dispositivo para tus próximos
-          registros.
+          {t('add.quickHint')}
         </AppText>
       ) : null}
 
@@ -122,15 +119,19 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
         animationType="fade"
         onRequestClose={closeEditor}
       >
-        <Pressable style={styles.overlay} onPress={closeEditor} accessibilityLabel="Cerrar">
+        <Pressable
+          style={styles.overlay}
+          onPress={closeEditor}
+          accessibilityLabel={t('common.close')}
+        >
           <Pressable style={styles.card} onPress={(event) => event.stopPropagation()}>
-            <AppText variant="section">Editar importe rápido</AppText>
+            <AppText variant="section">{t('add.quickDialogTitle')}</AppText>
             <AppText variant="caption" color={colors.textMuted} style={styles.dialogHint}>
-              Se guardará en este dispositivo para tus próximos registros.
+              {t('add.quickDialogHint')}
             </AppText>
 
             <AppText variant="label" style={styles.dialogLabel}>
-              Importe
+              {t('add.amount')}
             </AppText>
             <TextInput
               value={draft}
@@ -139,10 +140,10 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
                 setError(null);
               }}
               keyboardType="decimal-pad"
-              placeholder="0,00"
+              placeholder={t('add.amountPlaceholder')}
               placeholderTextColor={colors.textMuted}
               style={[styles.input, error ? styles.inputError : undefined]}
-              accessibilityLabel="Nuevo importe rápido"
+              accessibilityLabel={t('add.quickInputA11y')}
               autoFocus
               maxLength={12}
             />
@@ -154,15 +155,15 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
 
             <View style={styles.actions}>
               <Button
-                label="Cancelar"
+                label={t('common.cancel')}
                 onPress={closeEditor}
                 variant="secondary"
                 disabled={saving}
                 style={styles.action}
               />
               <Button
-                label="Guardar"
-                accessibilityLabel="Guardar importe"
+                label={t('add.quickSave')}
+                accessibilityLabel={t('add.quickSaveA11y')}
                 onPress={() => {
                   void save();
                 }}

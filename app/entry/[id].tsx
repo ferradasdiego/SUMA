@@ -9,6 +9,7 @@ import { Screen } from '@/components/ui/Screen';
 import type { Entry } from '@/domain/entities/types';
 import { useApp } from '@/features/app/AppProvider';
 import { EntryForm } from '@/features/entries/EntryForm';
+import { t } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export default function EditEntryScreen() {
@@ -48,7 +49,7 @@ export default function EditEntryScreen() {
     return (
       <Screen>
         <ErrorState
-          title="No se pudo cargar el registro"
+          title={t('add.loadErrorTitle')}
           onRetry={() => {
             setFailed(false);
             router.replace('/(tabs)/history');
@@ -61,9 +62,9 @@ export default function EditEntryScreen() {
   if (missing) {
     return (
       <Screen>
-        <AppText variant="title">Registro no encontrado</AppText>
+        <AppText variant="title">{t('add.notFoundTitle')}</AppText>
         <AppText variant="body" color={colors.textMuted} style={{ marginTop: spacing.sm }}>
-          Puede que ya se haya eliminado.
+          {t('add.notFoundDescription')}
         </AppText>
       </Screen>
     );
@@ -81,7 +82,7 @@ export default function EditEntryScreen() {
     <Screen scroll>
       <BackButton />
       <AppText variant="title" style={{ marginBottom: spacing.lg }}>
-        Editar registro
+        {t('add.editTitle')}
       </AppText>
       <EntryForm entry={entry} onSaved={() => router.back()} />
     </Screen>

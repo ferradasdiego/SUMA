@@ -123,12 +123,28 @@ El JSON de exportación incluye:
 
 - versión del formato (1).
 - exported_at.
-- profile (sin secretos).
+- profile (sin secretos), incluidos `locale` y `quickAmountsMinor`.
 - categories.
 - entries (todos los campos, incluida la nota).
 - goals.
 
 No se exportan tokens, credenciales ni metadatos del dispositivo.
+
+### 8.1 Importación
+
+La importación acepta únicamente copias con `formatVersion: 1` y valida el archivo completo antes de abrir la transacción:
+
+- identificadores únicos dentro de categorías, registros y objetivos;
+- categorías referenciadas por los registros;
+- una sola moneda, igual a la del perfil;
+- como máximo un objetivo activo;
+- importes, fechas y notas dentro de los límites del esquema.
+
+**Fusionar** conserva el perfil local y la moneda existente. Inserta categorías que falten, registros y objetivos cuyo identificador no exista; si ya existe, lo omite. Si ya hay un objetivo activo, los objetivos importados se guardan inactivos.
+
+**Reemplazar** borra registros, objetivos, categorías y perfil, y restaura la copia completa, incluidos locale, moneda e importes rápidos. Todo ocurre en una transacción: si falla una inserción, no se modifica nada.
+
+La importación no crea columnas ni tablas nuevas.
 
 ## 9. Lo que no se guarda
 

@@ -107,6 +107,8 @@ node scripts/smoke-web.mjs
 
 Comprueba 18 puntos: origen aislado, `SharedArrayBuffer`, onboarding, edición y persistencia de un importe rápido, alta, persistencia al recargar, service worker, manifest, historial, estadísticas, ausencia de errores en línea, funcionamiento sin conexión y edición de un registro sin conexión (una ruta que nunca se había abierto). Se ejecutó sobre `http://localhost` y sobre HTTPS con certificado local.
 
+Además se verificó en Chrome un flujo manual automatizado de idioma e importación (`pnpm web:smoke:i18n`): onboarding en español → English, alta de un registro, cambio a catalán en Ajustes, exportación, fusión (0 añadidos, 1 existente), restablecimiento, reemplazo y recuperación del registro. Sin errores de consola.
+
 ## 9. Resultados de la ejecución real (2026-10-23)
 
 | Comprobación | Comando | Resultado |
@@ -114,14 +116,14 @@ Comprueba 18 puntos: origen aislado, `SharedArrayBuffer`, onboarding, edición y
 | Formato | `pnpm format:check` | Correcto |
 | Lint | `pnpm lint` | 0 errores, 0 avisos |
 | TypeScript | `pnpm typecheck` | 0 errores |
-| Pruebas | `pnpm exec jest --runInBand` | 20 suites, 104/104 |
+| Pruebas | `pnpm exec jest --runInBand` | 24 suites, 122/122 |
 | Rendimiento (sql.js) | semilla de 10.000 registros | seed 192 ms; suma 2 ms; página de 50 en 3 ms |
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | 20/20 comprobaciones | Correcto |
 | Bundles | iOS y Android | Generados (5,2 MB) |
 | PWA | `pnpm web:build` + smoke | 18/18 comprobaciones en HTTP y HTTPS |
 
-Cobertura por área: dinero y límites, fechas/DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación JSON, preparación de alta y de objetivo, importes rápidos persistentes, componentes y accesibilidad básica.
+Cobertura por área: dinero y límites, fechas/DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación e importación JSON (validación, fusión y reemplazo), preparación de alta y de objetivo, importes rápidos persistentes, diccionarios completos (claves y marcadores), selector de idioma, componentes y accesibilidad básica.
 
 No ejecutadas (y motivo):
 

@@ -29,6 +29,8 @@
 | [ADR-0016](./decisions/ADR-0016-sin-orm.md) | Sin ORM; SQL + mappers Zod | Aceptada |
 | [ADR-0017](./decisions/ADR-0017-driver-sql-test.md) | Driver abstracto con sql.js | Aceptada |
 | [ADR-0018](./decisions/ADR-0018-web-pwa.md) | Canal web/PWA adicional | Aceptada |
+| [ADR-0019](./decisions/ADR-0019-importacion-json.md) | Importación JSON con fusión o reemplazo | Aceptada |
+| [ADR-0020](./decisions/ADR-0020-idiomas.md) | Cinco idiomas con selector de banderas | Aceptada |
 
 ## 2. Decisiones de producto pendientes
 
@@ -50,17 +52,22 @@ Si no hay respuesta en la fecha indicada, se aplica el supuesto y se registra aq
 | ID | Decisión | Motivo | Revisar |
 |---|---|---|---|
 | D-01 | Fecha como texto AAAA-MM-DD con atajos Hoy/Ayer | Evitar una dependencia nativa sin poder verificarla en dispositivo | Fase 6 |
-| D-02 | Exportación JSON con expo-file-system (File/Paths) y expo-sharing | API vigente del SDK 58; sin librerías extra | Si se añade importación |
+| D-02 | Exportación JSON con expo-file-system (File/Paths) y expo-sharing; importación con expo-document-picker | API vigente del SDK 58; sin librerías extra | Si cambia el formato |
 | D-03 | Bloqueo de cambio de moneda si existe cualquier registro | Evitar sumar monedas distintas sin conversión | Si se añade multimoneda |
 | D-04 | Un objetivo activo mediante índice único parcial | Garantía en base de datos, no solo en la UI | Si se añaden varios objetivos |
 | D-05 | Gráficas SVG propias limitadas a 12/31 puntos | Control visual y accesible sin dependencias pesadas | Si se necesita más detalle |
 | D-06 | Sin analítica ni notificaciones en el MVP | Privacidad y alcance | Fase 7 |
 | D-07 | PWA con SQLite web y servidor HTTPS local | Reutilizar la app sin tiendas | Si cambia el hosting |
 | D-08 | Importes rápidos como JSON en el perfil (migración 002) | Preferencia pequeña, editable y portable en la exportación | Si crecen a una lista gestionada con nombres |
+| D-09 | Importación JSON validada, con fusión por identificador o reemplazo transaccional | Evitar duplicados y bases a medias; el reemplazo cubre la restauración total | Si se añade multimoneda o fusión de perfiles |
+| D-10 | Diccionarios propios tipados y banderas SVG | Cinco idiomas sin dependencia de i18n; Galicia/Cataluña no tienen emoji de bandera | Si crece el número de idiomas o se necesita revisión profesional |
 
 ## 4. Registro de cambios
 
 | Fecha | Decisión | Motivo |
 |---|---|---|
 | 2026-10-23 | Se aprueban ADR-0001 a ADR-0017 | Fase 0: reducir incertidumbre antes de implementar |
+| 2026-10-23 | ADR-0018: canal web/PWA | Uso e instalación sin tiendas |
+| 2026-10-23 | ADR-0019: importación JSON con fusión/reemplazo | Restauración segura y recuperación total |
+| 2026-10-23 | ADR-0020: cinco idiomas con banderas | Alcance internacional solicitado |
 | 2026-10-23 | Se aplican supuestos P1–P8 | Evitar bloqueo; pendientes de confirmación |

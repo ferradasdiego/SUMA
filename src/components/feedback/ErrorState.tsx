@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
+import { t } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export interface ErrorStateProps {
@@ -12,8 +13,8 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = 'Algo no ha ido bien',
-  description = 'No se pudieron cargar los datos. Inténtalo de nuevo.',
+  title = t('feedback.errorTitle'),
+  description = t('feedback.errorDescription'),
   onRetry,
 }: ErrorStateProps) {
   return (
@@ -26,7 +27,12 @@ export function ErrorState({
         {description}
       </AppText>
       {onRetry ? (
-        <Button label="Reintentar" onPress={onRetry} variant="secondary" style={styles.action} />
+        <Button
+          label={t('feedback.retry')}
+          onPress={onRetry}
+          variant="secondary"
+          style={styles.action}
+        />
       ) : null}
     </View>
   );

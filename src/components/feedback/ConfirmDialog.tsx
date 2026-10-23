@@ -2,6 +2,7 @@ import { Modal, Pressable, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
+import { t } from '@/i18n';
 import { colors, radii, spacing } from '@/theme';
 
 export interface ConfirmDialogProps {
@@ -19,15 +20,19 @@ export function ConfirmDialog({
   visible,
   title,
   message,
-  confirmLabel = 'Confirmar',
-  cancelLabel = 'Cancelar',
+  confirmLabel = t('common.confirm'),
+  cancelLabel = t('common.cancel'),
   destructive = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
-      <Pressable style={styles.overlay} onPress={onCancel} accessibilityLabel="Cerrar diálogo">
+      <Pressable
+        style={styles.overlay}
+        onPress={onCancel}
+        accessibilityLabel={t('feedback.closeDialog')}
+      >
         <Pressable style={styles.card} onPress={(event) => event.stopPropagation()}>
           <AppText variant="section">{title}</AppText>
           <AppText variant="body" color={colors.textMuted} style={styles.message}>

@@ -9,20 +9,29 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chip } from '@/components/ui/Chip';
 import { Divider } from '@/components/ui/Divider';
+import { LanguagePicker } from '@/components/ui/LanguagePicker';
 import { Screen } from '@/components/ui/Screen';
 import { useApp } from '@/features/app/AppProvider';
+import { ImportDialog } from '@/features/settings/ImportDialog';
 import { collectExportData, shareExport } from '@/features/settings/exportService';
+import { pickImportFile } from '@/features/settings/importFile';
+import type { ExportPayload } from '@/data/export/exportData';
+import type { ImportMode } from '@/data/import/importService';
 import type { WeekStartsOn } from '@/domain/entities/types';
-import { t } from '@/i18n';
+import { t, translateError } from '@/i18n';
 import { colors, spacing } from '@/theme';
 
 export default function SettingsScreen() {
-  const { profile, repositories, updateProfile, invalidate, dataVersion } = useApp();
+  const { profile, repositories, updateProfile, importData, invalidate, dataVersion } = useApp();
   const [entryCount, setEntryCount] = useState<number | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [importCandidate, setImportCandidate] = useState<ExportPayload | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importMessage, setImportMessage] = useState<string | null>(null);
+  const [importError, setImportError] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -41,7 +50,7 @@ export default function SettingsScreen() {
 
   async function changeWeekStart(next: WeekStartsOn) {
     const result = await updateProfile({ weekStartsOn: next });
-    setMessage(result.ok ? null : result.error.message);
+    setMessage(result.ok ? null : translateError(result.error));
   }
 
   async function exportData() {
@@ -51,14 +60,59 @@ export default function SettingsScreen() {
 
     const collected = await collectExportData(repositories, profile);
     if (!collected.ok) {
-      setMessage(collected.error.message);
+      setMessage(translateError(collected.error));
       setExporting(false);
       return;
     }
 
     const shared = await shareExport(collected.value);
     setExporting(false);
-    setMessage(shared.ok ? 'Exportación preparada' : shared.error.message);
+    setMessage(shared.ok ? t('settings.exportReady') : translateError(shared.error));
+  }
+
+  async function chooseImportFile() {
+    setImporting(true);
+    setImportError(false);
+    setImportMessage(null);
+
+    const picked = await pickImportFile();
+    setImporting(false);
+
+    if (!picked.ok) {
+      setImportError(true);
+      setImportMessage(translateError(picked.error));
+      return;
+    }
+    if (picked.value) setImportCandidate(picked.value);
+  }
+
+  async function runImport(mode: ImportMode) {
+    if (!importCandidate) return;
+
+    setImporting(true);
+    const result = await importData(importCandidate, mode);
+    setImporting(false);
+
+    if (!result.ok) {
+      setImportCandidate(null);
+      setImportError(true);
+      setImportMessage(translateError(result.error));
+      return;
+    }
+
+    setImportCandidate(null);
+    setImportError(false);
+    setImportMessage(
+      mode === 'merge'
+        ? t('import.successMerge', {
+            entries: result.value.importedEntries,
+            skipped: result.value.skippedEntries,
+          })
+        : t('import.successReplace', {
+            entries: result.value.importedEntries,
+            goals: result.value.importedGoals,
+          }),
+    );
   }
 
   async function resetData() {
@@ -68,11 +122,11 @@ export default function SettingsScreen() {
     setSaving(false);
     setConfirmVisible(false);
     if (!result.ok) {
-      setMessage(result.error.message);
+      setMessage(translateError(result.error));
       return;
     }
     invalidate();
-    setMessage('Datos restablecidos');
+    setMessage(t('settings.resetDone'));
   }
 
   const version = Constants.expoConfig?.version ?? '0.1.0';
@@ -95,7 +149,7 @@ export default function SettingsScreen() {
                 selected={profile.preferredCurrency === code}
                 onPress={() => {
                   void updateProfile({ preferredCurrency: code }).then((result) => {
-                    setMessage(result.ok ? null : result.error.message);
+                    setMessage(result.ok ? null : translateError(result.error));
                   });
                 }}
               />
@@ -107,21 +161,29 @@ export default function SettingsScreen() {
               {profile.preferredCurrency}
             </AppText>
             <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-              No se puede cambiar de moneda mientras existan registros u objetivos. Exporta y
-              restablece los datos si necesitas empezar de nuevo.
+              {t('settings.currencyLocked')}
             </AppText>
           </>
         )}
       </Card>
 
       <Card style={styles.languageCard}>
-        <AppText variant="label">Idioma</AppText>
-        <AppText variant="body" color={colors.textMuted} style={styles.value}>
-          Español
-        </AppText>
+        <AppText variant="label">{t('settings.language')}</AppText>
         <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-          El inglés llegará en una versión posterior.
+          {t('settings.languageHelp')}
         </AppText>
+        <View style={styles.languagePicker}>
+          <LanguagePicker
+            locale={profile.locale}
+            onSelect={(locale) => {
+              setMessage(null);
+              setImportMessage(null);
+              void updateProfile({ locale }).then((result) => {
+                setMessage(result.ok ? null : translateError(result.error));
+              });
+            }}
+          />
+        </View>
       </Card>
 
       <Divider />
@@ -159,7 +221,7 @@ export default function SettingsScreen() {
 
       <AppText variant="label">{t('settings.data')}</AppText>
       <Button
-        label={exporting ? 'Exportando…' : 'Exportar datos (JSON)'}
+        label={exporting ? t('settings.exporting') : t('settings.export')}
         onPress={() => {
           void exportData();
         }}
@@ -169,8 +231,33 @@ export default function SettingsScreen() {
         style={styles.exportButton}
       />
       <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-        El archivo incluye tus registros y notas personales. Compártelo solo con quien tú decidas.
+        {t('settings.exportHint')}
       </AppText>
+
+      <Button
+        label={importing ? t('settings.importingFile') : t('settings.import')}
+        onPress={() => {
+          void chooseImportFile();
+        }}
+        variant="secondary"
+        loading={importing}
+        disabled={importing}
+        style={styles.importButton}
+      />
+      <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+        {t('settings.importHint')}
+      </AppText>
+
+      {importMessage ? (
+        <AppText
+          variant="caption"
+          color={importError ? colors.danger : colors.primary}
+          accessibilityLiveRegion="polite"
+          style={styles.hint}
+        >
+          {importMessage}
+        </AppText>
+      ) : null}
       <AppText
         variant="body"
         color={colors.danger}
@@ -183,28 +270,37 @@ export default function SettingsScreen() {
 
       <Divider />
 
-      <AppText variant="label">Legal</AppText>
+      <AppText variant="label">{t('settings.legal')}</AppText>
       <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-        La política de privacidad y las condiciones de uso se publicarán antes del lanzamiento y
-        requieren revisión legal.
+        {t('settings.legalPending')}
       </AppText>
 
       <Divider />
 
-      <AppText variant="label">Acerca de SUMA</AppText>
+      <AppText variant="label">{t('settings.about')}</AppText>
       <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-        Versión {version}
+        {t('common.version', { version })}
       </AppText>
       <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
-        El importe registrado es una estimación de lo que has decidido no gastar. No implica que el
-        dinero esté apartado ni que tu patrimonio haya aumentado.
+        {t('settings.disclaimer')}
       </AppText>
+
+      <ImportDialog
+        key={importCandidate?.exportedAt ?? 'closed'}
+        payload={importCandidate}
+        locale={profile.locale}
+        busy={importing}
+        onCancel={() => setImportCandidate(null)}
+        onImport={(mode) => {
+          void runImport(mode);
+        }}
+      />
 
       <ConfirmDialog
         visible={confirmVisible}
         title={t('settings.resetTitle')}
         message={t('settings.resetMessage')}
-        confirmLabel={saving ? 'Restableciendo…' : t('common.delete')}
+        confirmLabel={saving ? t('common.loading') : t('common.delete')}
         destructive
         onCancel={() => setConfirmVisible(false)}
         onConfirm={() => {
@@ -221,7 +317,9 @@ const styles = {
   hint: { marginTop: spacing.xs },
   chips: { flexDirection: 'row' as const, gap: spacing.sm, marginTop: spacing.sm },
   languageCard: { marginTop: spacing.md },
+  languagePicker: { marginTop: spacing.md },
   message: { marginTop: spacing.sm },
   exportButton: { marginTop: spacing.sm },
+  importButton: { marginTop: spacing.sm },
   destructive: { marginTop: spacing.sm },
 };

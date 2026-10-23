@@ -11,7 +11,7 @@ import { formatAmountInput } from '@/domain/money/money';
 import { todayLocalDate } from '@/domain/time/calendar';
 import { useApp } from '@/features/app/AppProvider';
 import { prepareGoal, type GoalFormValues } from '@/features/goals/prepareGoal';
-import { t } from '@/i18n';
+import { t, translateError } from '@/i18n';
 import { colors, radii, spacing } from '@/theme';
 import { deviceTimeZone } from '@/utils/device';
 
@@ -61,15 +61,15 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
   function applyError(error: AppError) {
     const field = error.field as FormField | undefined;
     if (field && ['title', 'amount', 'targetDate'].includes(field)) {
-      setError(field, { type: 'validate', message: error.message });
+      setError(field, { type: 'validate', message: translateError(error) });
       return;
     }
-    setError('root', { message: error.message });
+    setError('root', { message: translateError(error) });
   }
 
   const onSubmit = handleSubmit(async (values) => {
     if (!profile || !repositories) {
-      setError('root', { message: 'La aplicación todavía no está lista' });
+      setError('root', { message: t('app.notReady') });
       return;
     }
 
@@ -113,18 +113,18 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
 
   return (
     <View style={styles.container}>
-      <AppText variant="label">Nombre del objetivo</AppText>
+      <AppText variant="label">{t('goals.name')}</AppText>
       <TextInput
         value={title}
         onChangeText={(text) => {
           setValue('title', text);
           clearErrors('title');
         }}
-        placeholder="Ej. Viaje de verano"
+        placeholder={t('goals.namePlaceholder')}
         placeholderTextColor={colors.textMuted}
         maxLength={80}
         style={[styles.input, errors.title ? styles.inputError : undefined]}
-        accessibilityLabel="Nombre del objetivo"
+        accessibilityLabel={t('goals.nameA11y')}
       />
       {errors.title ? (
         <AppText variant="caption" color={colors.danger}>
@@ -133,7 +133,7 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
       ) : null}
 
       <AppText variant="label" style={styles.label}>
-        Cantidad objetivo
+        {t('goals.target')}
       </AppText>
       <View style={styles.amountRow}>
         <TextInput
@@ -143,11 +143,11 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
             clearErrors('amount');
           }}
           keyboardType="decimal-pad"
-          placeholder="0,00"
+          placeholder={t('add.amountPlaceholder')}
           placeholderTextColor={colors.textMuted}
           maxLength={12}
           style={[styles.input, styles.amountInput, errors.amount ? styles.inputError : undefined]}
-          accessibilityLabel="Cantidad objetivo"
+          accessibilityLabel={t('goals.targetA11y')}
         />
         <AppText variant="section" color={colors.textMuted}>
           {currency}
@@ -160,7 +160,7 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
       ) : null}
 
       <AppText variant="label" style={styles.label}>
-        Fecha objetivo (opcional)
+        {t('goals.targetDate')}
       </AppText>
       <TextInput
         value={targetDate}
@@ -168,11 +168,11 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
           setValue('targetDate', text);
           clearErrors('targetDate');
         }}
-        placeholder="AAAA-MM-DD"
+        placeholder={t('goals.targetDatePlaceholder')}
         placeholderTextColor={colors.textMuted}
         autoCapitalize="none"
         style={[styles.input, errors.targetDate ? styles.inputError : undefined]}
-        accessibilityLabel="Fecha objetivo en formato año-mes-día"
+        accessibilityLabel={t('goals.targetDateA11y')}
       />
       {errors.targetDate ? (
         <AppText variant="caption" color={colors.danger}>
@@ -187,7 +187,7 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
       ) : null}
 
       <Button
-        label={isSubmitting ? t('add.saving') : isEditing ? 'Guardar cambios' : 'Crear objetivo'}
+        label={isSubmitting ? t('add.saving') : isEditing ? t('goals.save') : t('goals.create')}
         onPress={() => {
           void onSubmit();
         }}
@@ -196,7 +196,12 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
         style={styles.submit}
       />
       {onCancel ? (
-        <Button label="Cancelar" onPress={onCancel} variant="secondary" style={styles.cancel} />
+        <Button
+          label={t('common.cancel')}
+          onPress={onCancel}
+          variant="secondary"
+          style={styles.cancel}
+        />
       ) : null}
     </View>
   );

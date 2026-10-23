@@ -858,27 +858,27 @@ La medición se instrumenta en desarrollo (`performance.now`) y se documenta con
 
 ## 20. Registro de decisiones (ADR)
 
-Los ADR individuales se crean en `docs/decisions/ADR-XXXX.md` en la tarea T0.6 con este índice como base.
+Los ADR individuales están publicados en `docs/decisions/` (tarea T0.6 completada el 2026-10-23) y enlazados desde este índice.
 
 | ID | Decisión | Alternativa descartada | Consecuencia principal | Estado |
 |---|---|---|---|---|
-| ADR-0001 | React Native + Expo + TypeScript | Flutter; nativo | Un código para iOS/Android; límites del runtime JS | Aprobada |
-| ADR-0002 | SQLite (`expo-sqlite`) como persistencia | AsyncStorage, MMKV, ficheros | Requiere migraciones y SQL; datos relacionales y transaccionales | Aprobada |
-| ADR-0003 | Modo local sin cuenta obligatoria | Registro obligatorio | Sin copia remota en el MVP; exportación como control del usuario | Aprobada |
-| ADR-0004 | Sin backend en el MVP; Supabase cuando haga falta | Backend propio ahora | Esquema preparado con `user_id`; RLS se prueba al activarlo | Aprobada (revisión en Fase 6) |
-| ADR-0005 | Importes en unidades menores enteras | `number` decimal, `Decimal` | Precisión exacta; toda la UI pasa por parse/format central | Aprobada |
-| ADR-0006 | `occurred_local_date` como clave temporal + UTC | Solo instantes UTC; solo hora local | Agrupación correcta y estable ante cambios de zona horaria | Aprobada |
-| ADR-0007 | Context + `dataVersion` para estado | Zustand; Redux; TanStack Query | Menos dependencias; disciplina de invalidación manual | Aprobada |
-| ADR-0008 | Gráficas propias con `react-native-svg` | Victory Native, gifted-charts, Skia | Control visual y accesible; hay que construir 3 gráficas | Aprobada |
-| ADR-0009 | Sincronización diferida; esquema preparado | Sync multi-dispositivo ahora | Sin conflictos en el MVP; se añadirán tumbas y outbox | Aprobada (diferida) |
-| ADR-0010 | Monetización diferida a Fase 7; RevenueCat | Suscripciones ahora | El núcleo gratuito se valida antes de cobrar | Aprobada |
-| ADR-0011 | Jest + jest-expo + RNTL + sql.js; Maestro después | Detox; Vitest | Pruebas ejecutables en CI; E2E bloqueado sin simulador | Aprobada |
-| ADR-0012 | Sin telemetría de terceros en el MVP | Firebase Analytics; Sentry | Menos datos recogidos; sin informe de fallos remoto | Aprobada |
-| ADR-0013 | Borrado físico y exportación JSON | Borrado lógico; CSV | Simplicidad; las tumbas llegan con la sincronización | Aprobada |
-| ADR-0014 | Una moneda por perfil en el MVP | Multimoneda con conversión | No se suman monedas distintas; cambio de moneda bloqueado con registros | Aprobada (provisional) |
-| ADR-0015 | Agregados SQL con prueba de equivalencia | Tabla de totales; solo cálculo en memoria | Rendimiento sin segunda fuente de verdad | Aprobada |
-| ADR-0016 | Sin ORM; SQL tipado con mappers Zod | Drizzle; Prisma | Menos dependencias y control del SQL; más código de mapeo | Aprobada |
-| ADR-0017 | Driver SQL abstracto con implementación sql.js para tests | Mock del repositorio; build nativo en CI | Pruebas de persistencia reales sin compilar nativo | Aprobada |
+| [ADR-0001](./decisions/ADR-0001-expo-react-native.md) | React Native + Expo + TypeScript | Flutter; nativo | Un código para iOS/Android; límites del runtime JS | Aprobada |
+| [ADR-0002](./decisions/ADR-0002-sqlite-local.md) | SQLite (`expo-sqlite`) como persistencia | AsyncStorage, MMKV, ficheros | Requiere migraciones y SQL; datos relacionales y transaccionales | Aprobada |
+| [ADR-0003](./decisions/ADR-0003-modo-local.md) | Modo local sin cuenta obligatoria | Registro obligatorio | Sin copia remota en el MVP; exportación como control del usuario | Aprobada |
+| [ADR-0004](./decisions/ADR-0004-backend-diferido.md) | Sin backend en el MVP; Supabase cuando haga falta | Backend propio ahora | Esquema preparado con `user_id`; RLS se prueba al activarlo | Aprobada (revisión en Fase 6) |
+| [ADR-0005](./decisions/ADR-0005-unidades-menores.md) | Importes en unidades menores enteras | `number` decimal, `Decimal` | Precisión exacta; toda la UI pasa por parse/format central | Aprobada |
+| [ADR-0006](./decisions/ADR-0006-fechas-zonas-horarias.md) | `occurred_local_date` como clave temporal + UTC | Solo instantes UTC; solo hora local | Agrupación correcta y estable ante cambios de zona horaria | Aprobada |
+| [ADR-0007](./decisions/ADR-0007-gestion-estado.md) | Context + `dataVersion` para estado | Zustand; Redux; TanStack Query | Menos dependencias; disciplina de invalidación manual | Aprobada |
+| [ADR-0008](./decisions/ADR-0008-graficas.md) | Gráficas propias con `react-native-svg` | Victory Native, gifted-charts, Skia | Control visual y accesible; hay que construir 3 gráficas | Aprobada |
+| [ADR-0009](./decisions/ADR-0009-sincronizacion.md) | Sincronización diferida; esquema preparado | Sync multi-dispositivo ahora | Sin conflictos en el MVP; se añadirán tumbas y outbox | Aprobada (diferida) |
+| [ADR-0010](./decisions/ADR-0010-suscripciones.md) | Monetización diferida a Fase 7; RevenueCat | Suscripciones ahora | El núcleo gratuito se valida antes de cobrar | Aprobada |
+| [ADR-0011](./decisions/ADR-0011-testing.md) | Jest + jest-expo + RNTL + sql.js; Maestro después | Detox; Vitest | Pruebas ejecutables en CI; E2E bloqueado sin simulador | Aprobada |
+| [ADR-0012](./decisions/ADR-0012-telemetria.md) | Sin telemetría de terceros en el MVP | Firebase Analytics; Sentry | Menos datos recogidos; sin informe de fallos remoto | Aprobada |
+| [ADR-0013](./decisions/ADR-0013-borrado-exportacion.md) | Borrado físico y exportación JSON | Borrado lógico; CSV | Simplicidad; las tumbas llegan con la sincronización | Aprobada |
+| [ADR-0014](./decisions/ADR-0014-moneda-unica.md) | Una moneda por perfil en el MVP | Multimoneda con conversión | No se suman monedas distintas; cambio de moneda bloqueado con registros | Aprobada (provisional) |
+| [ADR-0015](./decisions/ADR-0015-agregados-sql.md) | Agregados SQL con prueba de equivalencia | Tabla de totales; solo cálculo en memoria | Rendimiento sin segunda fuente de verdad | Aprobada |
+| [ADR-0016](./decisions/ADR-0016-sin-orm.md) | Sin ORM; SQL tipado con mappers Zod | Drizzle; Prisma | Menos dependencias y control del SQL; más código de mapeo | Aprobada |
+| [ADR-0017](./decisions/ADR-0017-driver-sql-test.md) | Driver SQL abstracto con implementación sql.js para tests | Mock del repositorio; build nativo en CI | Pruebas de persistencia reales sin compilar nativo | Aprobada |
 
 ---
 

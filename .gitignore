@@ -1,0 +1,39 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+expo-env.d.ts
+
+# Builds nativos
+ios/
+android/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Pruebas y cobertura
+coverage/
+*.snap
+
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+*.pem
+
+# Sistema y editores
+.DS_Store
+*.log
+.idea/
+.vscode/
+*.swp
+
+# Artefactos de exportación
+suma-export/

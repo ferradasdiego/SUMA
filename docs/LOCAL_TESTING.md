@@ -295,9 +295,10 @@ Prueba automatizada (Chrome instalado, servidor arrancado):
 pnpm web:smoke
 pnpm web:smoke:i18n
 pnpm web:smoke:offline
+pnpm web:smoke:first-load
 ```
 
-`web:smoke` comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión. `web:smoke:i18n` recorre onboarding multiidioma, cambio a catalán, exportación, fusión, restablecimiento, reemplazo y recuperación del registro. `web:smoke:offline` verifica el fallback `offline.html` cuando falta el shell cacheado.
+`web:smoke` comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión. `web:smoke:i18n` recorre onboarding multiidioma, cambio a catalán, exportación, fusión, restablecimiento, reemplazo y recuperación del registro. `web:smoke:offline` verifica el fallback `offline.html` cuando falta el shell cacheado. `web:smoke:first-load` simula el caso real: una sola apertura online, red desactivada y recarga; comprueba que el bundle JS y SQLite WASM quedaron precargados.
 
 ### 9.3 HTTPS para el móvil con mkcert
 
@@ -337,11 +338,13 @@ El móvil debe confiar en la autoridad local de mkcert (`rootCA.pem`). Está en 
 - **iPhone/iPad (Safari)**: botón Compartir → "Añadir a pantalla de inicio".
 - **Android (Chrome)**: menú ⋮ → "Instalar aplicación" o "Añadir a pantalla de inicio".
 
-Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker `suma-v5`, `display: standalone`, nombre y colores.
+Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker `suma-v6`, `display: standalone`, nombre y colores.
 
 El viewport no usa `viewport-fit=cover`: el contenido queda dentro del área segura y la barra de estado translúcida de iOS 26 ya no difumina la parte superior. Si la PWA instalada conserva el HTML anterior, ciérrala, ábrela con conexión y recarga.
 
-### 9.6 Sin conexión
+### 9.6 Sin conexión y sin servidor
+
+El service worker precarga **todos** los recursos del build. La secuencia para no depender del PC es: abrir en Safari → Añadir a pantalla de inicio → **abrir el icono una vez con el servidor encendido** → esperar → probar modo avión → apagar el servidor. Ver [PWA_OFFLINE.md](./PWA_OFFLINE.md).
 
 Tras la primera visita con conexión, el service worker cachea el shell y los recursos usados. Después:
 
@@ -367,7 +370,7 @@ Con el bundle único de la PWA también funcionan sin conexión las pantallas qu
 pnpm web:build
 ```
 
-El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo con conexión y recarga. La versión actual es `suma-v5`.
+El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo con conexión y recarga. La versión actual es `suma-v6`.
 
 ### 9.9 Alternativa rápida: túnel HTTPS
 

@@ -16,13 +16,14 @@
     "test:integration": "jest tests/integration",
     "export:check": "expo export --platform ios --platform android",
     "web:dev": "expo start --web",
-    "web:build": "expo export --platform web && node scripts/patch-web-html.mjs",
+    "web:build": "expo export --platform web && node scripts/patch-web-html.mjs && node scripts/build-sw.mjs",
     "web:serve": "node scripts/serve-web.mjs",
     "web:serve:https": "node scripts/serve-web.mjs --https",
     "web:cert": "bash scripts/make-cert.sh",
     "web:smoke": "node scripts/smoke-web.mjs",
     "web:smoke:i18n": "node scripts/smoke-i18n-import.mjs",
-    "web:smoke:offline": "node scripts/smoke-offline-fallback.mjs"
+    "web:smoke:offline": "node scripts/smoke-offline-fallback.mjs",
+    "web:smoke:first-load": "node scripts/smoke-offline-first-load.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.15",

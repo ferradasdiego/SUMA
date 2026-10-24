@@ -114,7 +114,7 @@ pnpm web:build
 # vuelve a arrastrar dist a Netlify/Cloudflare o despliega con Vercel
 ```
 
-En el iPhone: abre la PWA con conexión, ciérrala y vuelve a abrirla; si sigue la versión anterior, repite una vez. El service worker actual es `suma-v5`.
+En el iPhone: abre la PWA con conexión, ciérrala y vuelve a abrirla; si sigue la versión anterior, repite una vez. El service worker actual es `suma-v6`.
 
 No cambies de dominio ni de subdominio: sería otro origen, con otra base vacía.
 

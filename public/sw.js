@@ -1,6 +1,6 @@
 /* Service worker de SUMA: app shell + cache en tiempo de ejecución. */
 // Sube esta versión al publicar cambios para invalidar la caché anterior.
-const VERSION = 'suma-v5';
+const VERSION = 'suma-v6';
 const SHELL = [
   '/',
   '/index.html',
@@ -11,11 +11,15 @@ const SHELL = [
   '/offline.html',
 ];
 
+// build-sw.mjs sustituye este array por todos los recursos del build.
+// Así una sola apertura online deja la app completa disponible sin conexión.
+const PRECACHE = [];
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(VERSION)
-      .then((cache) => cache.addAll(SHELL))
+      .then((cache) => cache.addAll([...new Set([...SHELL, ...PRECACHE])]))
       .then(() => self.skipWaiting()),
   );
 });

@@ -959,8 +959,9 @@ Cross-Origin-Embedder-Policy: credentialless
 - `public/_headers` y `public/_redirects`: cabeceras COOP/COEP y fallback SPA para Netlify/Cloudflare Pages. `vercel.json` contiene el equivalente para Vercel.
 - `public/sw.js`: cachea el shell y los recursos en tiempo de ejecución; navegación con fallback a `index.html`.
 - `scripts/patch-web-html.mjs`: inyecta manifest, metadatos iOS, fondo sólido y registro del service worker en el HTML exportado (el `+html` de Expo Router no se aplica en `output: 'single'`).
+- `scripts/build-sw.mjs`: recorre `dist/` después del export y sustituye `PRECACHE` en `sw.js` por la lista completa de recursos (bundle JS, workers, WASM de SQLite, fuente, iconos, manifest y `offline.html`). Así el `install` del service worker deja la app completa disponible tras una sola apertura online, sin depender de que el usuario recargue para cachear el bundle.
 - El viewport **no** usa `viewport-fit=cover`. Así el contenido queda dentro del área segura y no se dibuja bajo la barra de estado translúcida de iOS 26, que producía un blur superior. El HTML fija `background-color`, `overscroll-behavior-y: none` y `theme-color: #FFFFFF`.
-- El service worker usa `suma-v5`. Si una navegación recibe un archivo vacío o no-HTML (por ejemplo, un túnel caído), sirve el shell cacheado o `offline.html` en lugar de descargar el archivo.
+- El service worker usa `suma-v6`. Si una navegación recibe un archivo vacío o no-HTML (por ejemplo, un túnel caído), sirve el shell cacheado o `offline.html` en lugar de descargar el archivo.
 - Para uso sin PC, `dist/` se puede publicar en Netlify, Cloudflare Pages o Vercel. `public/_headers` y `vercel.json` configuran COOP/COEP; sin esas cabeceras SQLite WASM no arranca. Ver [DEPLOY_STATIC.md](./DEPLOY_STATIC.md).
 - Iconos generados en `public/icons/`, servidos desde el mismo origen.
 

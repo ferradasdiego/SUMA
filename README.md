@@ -78,7 +78,7 @@ pnpm exec expo export --platform ios --platform android
 
 La misma aplicación se puede servir como PWA y añadir a la pantalla de inicio del móvil. Usa `react-native-web`, SQLite en el navegador (WASM) y un service worker para funcionar sin conexión.
 
-Para usarla **sin depender del PC** (túnel o servidor local apagados), publica `dist/` en un hosting estático HTTPS con COOP/COEP. Guía paso a paso: [docs/DEPLOY_STATIC.md](docs/DEPLOY_STATIC.md).
+Para usarla **sin depender del PC**, ábrela una vez desde el icono con el servidor encendido y espera a que el service worker precargue todo. Guía: [docs/PWA_OFFLINE.md](docs/PWA_OFFLINE.md). También puedes publicar `dist/` en un hosting estático HTTPS con COOP/COEP: [docs/DEPLOY_STATIC.md](docs/DEPLOY_STATIC.md).
 
 ```bash
 pnpm web:build          # genera dist/ (HTML, JS, manifest, service worker, iconos)
@@ -165,7 +165,8 @@ No se han ejecutado pruebas E2E ni de lector de pantalla: requieren simulador o 
 ## Documentación
 
 - [Cómo probar en local](docs/LOCAL_TESTING.md)
-- [Usar en el iPhone sin el PC](docs/DEPLOY_STATIC.md)
+- [Instalar y usar sin el PC](docs/PWA_OFFLINE.md)
+- [Desplegar en un hosting estático](docs/DEPLOY_STATIC.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Plan de ejecución](docs/EXECUTION_PLAN.md)
 - [Estado](docs/STATUS.md)

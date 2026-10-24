@@ -1,6 +1,6 @@
 /* Service worker de SUMA: app shell + cache en tiempo de ejecución. */
 // Sube esta versión al publicar cambios para invalidar la caché anterior.
-const VERSION = 'suma-v4';
+const VERSION = 'suma-v5';
 const SHELL = [
   '/',
   '/index.html',
@@ -8,6 +8,7 @@ const SHELL = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
+  '/offline.html',
 ];
 
 self.addEventListener('install', (event) => {
@@ -28,6 +29,14 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+async function offlineShell() {
+  return (
+    (await caches.match('/index.html')) ||
+    (await caches.match('/')) ||
+    (await caches.match('/offline.html'))
+  );
+}
+
 function isCacheable(url) {
   return (
     url.pathname.startsWith('/_expo/') ||
@@ -47,13 +56,31 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
+      (async () => {
+        try {
+          const response = await fetch(request);
+          const type = response.headers.get('content-type') ?? '';
+
+          // Un túnel caído puede devolver un archivo vacío en lugar de HTML.
+          // En ese caso se sirve la copia cacheada, nunca el archivo.
+          if (!response.ok || !type.includes('text/html')) {
+            return (await offlineShell()) ?? response;
+          }
+
           const copy = response.clone();
-          caches.open(VERSION).then((cache) => cache.put('/index.html', copy));
+          const cache = await caches.open(VERSION);
+          await cache.put('/index.html', copy);
           return response;
-        })
-        .catch(async () => (await caches.match('/index.html')) || caches.match('/')),
+        } catch {
+          const cached = await offlineShell();
+          if (cached) return cached;
+
+          return new Response(
+            '<!doctype html><meta charset="utf-8"><title>SUMA</title><p>No se pudo cargar SUMA. Abre la app con conexión una vez.</p>',
+            { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
+          );
+        }
+      })(),
     );
     return;
   }

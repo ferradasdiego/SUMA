@@ -294,9 +294,10 @@ Prueba automatizada (Chrome instalado, servidor arrancado):
 ```bash
 pnpm web:smoke
 pnpm web:smoke:i18n
+pnpm web:smoke:offline
 ```
 
-`web:smoke` comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión. `web:smoke:i18n` recorre onboarding multiidioma, cambio a catalán, exportación, fusión, restablecimiento, reemplazo y recuperación del registro, y falla si hay errores de consola.
+`web:smoke` comprueba origen aislado, arranque, onboarding, alta, persistencia al recargar, service worker, manifest, historial, estadísticas y funcionamiento sin conexión. `web:smoke:i18n` recorre onboarding multiidioma, cambio a catalán, exportación, fusión, restablecimiento, reemplazo y recuperación del registro. `web:smoke:offline` verifica el fallback `offline.html` cuando falta el shell cacheado.
 
 ### 9.3 HTTPS para el móvil con mkcert
 
@@ -336,7 +337,7 @@ El móvil debe confiar en la autoridad local de mkcert (`rootCA.pem`). Está en 
 - **iPhone/iPad (Safari)**: botón Compartir → "Añadir a pantalla de inicio".
 - **Android (Chrome)**: menú ⋮ → "Instalar aplicación" o "Añadir a pantalla de inicio".
 
-Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker `suma-v4`, `display: standalone`, nombre y colores.
+Requisitos que ya cumple el build: manifest con iconos 192/512 y maskable, service worker `suma-v5`, `display: standalone`, nombre y colores.
 
 El viewport no usa `viewport-fit=cover`: el contenido queda dentro del área segura y la barra de estado translúcida de iOS 26 ya no difumina la parte superior. Si la PWA instalada conserva el HTML anterior, ciérrala, ábrela con conexión y recarga.
 
@@ -366,7 +367,7 @@ Con el bundle único de la PWA también funcionan sin conexión las pantallas qu
 pnpm web:build
 ```
 
-El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo con conexión y recarga. La versión actual es `suma-v4`.
+El servidor sirve los archivos nuevos. Si el service worker conserva una versión antigua, sube `VERSION` en `public/sw.js`, vuelve a compilar y recarga. Para forzar la actualización en el móvil: cierra la PWA, ábrela de nuevo con conexión y recarga. La versión actual es `suma-v5`.
 
 ### 9.9 Alternativa rápida: túnel HTTPS
 
@@ -380,7 +381,11 @@ npx localtunnel --port 8085
 
 Abre la URL `https://...loca.lt` en el móvil. Sirve para probar, pero la URL cambia y los datos quedan asociados a ese origen. Mantén el túnel abierto solo mientras pruebas.
 
-### 9.10 Limitaciones de la PWA
+### 9.10 Usar la PWA sin el PC
+
+Un túnel o un servidor local dejan de responder al cerrar el puerto. Para usar SUMA como app local autónoma, publica `dist/` en un hosting HTTPS estable con COOP/COEP. Sigue [DEPLOY_STATIC.md](./DEPLOY_STATIC.md): incluye Netlify Drop, Cloudflare Pages, migración de datos por JSON y comprobación de cabeceras.
+
+### 9.11 Limitaciones de la PWA
 
 - No hay notificaciones push ni sincronización.
 - La instalación y el service worker requieren HTTPS (o localhost).

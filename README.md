@@ -78,6 +78,8 @@ pnpm exec expo export --platform ios --platform android
 
 La misma aplicación se puede servir como PWA y añadir a la pantalla de inicio del móvil. Usa `react-native-web`, SQLite en el navegador (WASM) y un service worker para funcionar sin conexión.
 
+Para usarla **sin depender del PC** (túnel o servidor local apagados), publica `dist/` en un hosting estático HTTPS con COOP/COEP. Guía paso a paso: [docs/DEPLOY_STATIC.md](docs/DEPLOY_STATIC.md).
+
 ```bash
 pnpm web:build          # genera dist/ (HTML, JS, manifest, service worker, iconos)
 pnpm web:serve          # http://localhost:8085 (para probar en este Mac)
@@ -100,17 +102,18 @@ Limitaciones: los datos de la PWA viven en el navegador de ese origen y son inde
 
 ## Scripts
 
-| Comando                             | Descripción                        |
-| ----------------------------------- | ---------------------------------- |
-| `pnpm start`                        | Servidor de desarrollo             |
-| `pnpm typecheck`                    | TypeScript estricto, sin emitir    |
-| `pnpm lint`                         | ESLint                             |
-| `pnpm format` / `pnpm format:check` | Prettier                           |
-| `pnpm test`                         | Jest (24 suites, 122 pruebas)      |
-| `pnpm test:integration`             | Pruebas de persistencia            |
-| `pnpm export:check`                 | Exporta bundles iOS/Android        |
-| `pnpm web:build` / `pnpm web:serve` | PWA estática y servidor local      |
-| `pnpm web:smoke` / `web:smoke:i18n` | Smoke de PWA e idiomas/importación |
+| Comando                             | Descripción                         |
+| ----------------------------------- | ----------------------------------- |
+| `pnpm start`                        | Servidor de desarrollo              |
+| `pnpm typecheck`                    | TypeScript estricto, sin emitir     |
+| `pnpm lint`                         | ESLint                              |
+| `pnpm format` / `pnpm format:check` | Prettier                            |
+| `pnpm test`                         | Jest (24 suites, 122 pruebas)       |
+| `pnpm test:integration`             | Pruebas de persistencia             |
+| `pnpm export:check`                 | Exporta bundles iOS/Android         |
+| `pnpm web:build` / `pnpm web:serve` | PWA estática y servidor local       |
+| `pnpm web:smoke` / `web:smoke:i18n` | Smoke de PWA e idiomas/importación  |
+| `pnpm web:smoke:offline`            | Fallback offline sin shell cacheado |
 
 > Con pnpm, usa `pnpm exec jest --runInBand` para pasar argumentos a Jest (el separador `--` no se reenvía).
 
@@ -162,6 +165,7 @@ No se han ejecutado pruebas E2E ni de lector de pantalla: requieren simulador o 
 ## Documentación
 
 - [Cómo probar en local](docs/LOCAL_TESTING.md)
+- [Usar en el iPhone sin el PC](docs/DEPLOY_STATIC.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Plan de ejecución](docs/EXECUTION_PLAN.md)
 - [Estado](docs/STATUS.md)

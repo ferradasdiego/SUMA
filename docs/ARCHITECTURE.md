@@ -955,10 +955,13 @@ Cross-Origin-Embedder-Policy: credentialless
 ### 23.3 PWA
 
 - `public/manifest.webmanifest`: nombre, iconos 192/512/maskable, `display: standalone`, colores.
+- `public/offline.html`: pantalla de respaldo si no hay shell cacheado.
+- `public/_headers` y `public/_redirects`: cabeceras COOP/COEP y fallback SPA para Netlify/Cloudflare Pages. `vercel.json` contiene el equivalente para Vercel.
 - `public/sw.js`: cachea el shell y los recursos en tiempo de ejecución; navegación con fallback a `index.html`.
 - `scripts/patch-web-html.mjs`: inyecta manifest, metadatos iOS, fondo sólido y registro del service worker en el HTML exportado (el `+html` de Expo Router no se aplica en `output: 'single'`).
 - El viewport **no** usa `viewport-fit=cover`. Así el contenido queda dentro del área segura y no se dibuja bajo la barra de estado translúcida de iOS 26, que producía un blur superior. El HTML fija `background-color`, `overscroll-behavior-y: none` y `theme-color: #FFFFFF`.
-- El service worker usa `suma-v4`.
+- El service worker usa `suma-v5`. Si una navegación recibe un archivo vacío o no-HTML (por ejemplo, un túnel caído), sirve el shell cacheado o `offline.html` en lugar de descargar el archivo.
+- Para uso sin PC, `dist/` se puede publicar en Netlify, Cloudflare Pages o Vercel. `public/_headers` y `vercel.json` configuran COOP/COEP; sin esas cabeceras SQLite WASM no arranca. Ver [DEPLOY_STATIC.md](./DEPLOY_STATIC.md).
 - Iconos generados en `public/icons/`, servidos desde el mismo origen.
 
 ### 23.4 Limitaciones

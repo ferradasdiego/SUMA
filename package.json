@@ -21,7 +21,8 @@
     "web:serve:https": "node scripts/serve-web.mjs --https",
     "web:cert": "bash scripts/make-cert.sh",
     "web:smoke": "node scripts/smoke-web.mjs",
-    "web:smoke:i18n": "node scripts/smoke-i18n-import.mjs"
+    "web:smoke:i18n": "node scripts/smoke-i18n-import.mjs",
+    "web:smoke:offline": "node scripts/smoke-offline-fallback.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.15",

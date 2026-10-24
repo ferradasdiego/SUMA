@@ -39,7 +39,7 @@
 | Ajustes | Implementado | Idioma, moneda (editable sin registros), semana, exportación e importación JSON, legal, reset |
 | Persistencia | Implementado | SQLite, migraciones 001/002, transacciones, reapertura |
 | Calidad | Implementado | TypeScript estricto, lint, formato, 122 pruebas, CI |
-| Web/PWA | Implementado | Manifest, service worker v4, SQLite WASM, offline, barra superior sin blur, prueba con Chrome |
+| Web/PWA | Implementado | Manifest, service worker v5, SQLite WASM, offline, barra superior sin blur, prueba con Chrome |
 
 ---
 
@@ -91,6 +91,7 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Bundle Android | `expo export --platform android` | 5,2 MB |
 | Build web | `pnpm web:build` | `dist/` con manifest, service worker e iconos |
 | Smoke PWA | `node scripts/smoke-web.mjs` | 18/18 en HTTP local y HTTPS |
+| Fallback offline | `node scripts/smoke-offline-fallback.mjs` | 1/1: sirve `offline.html`, no un archivo vacío |
 | PWA sin conexión | Recarga con red desactivada | Correcta |
 | Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 
@@ -144,7 +145,8 @@ Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español por defecto (cinco 
 - El rendimiento se midió en Node/sql.js, no en dispositivo.
 - La política de privacidad y los términos siguen pendientes de revisión legal.
 - En la PWA, los datos pertenecen al origen del navegador, no se sincronizan con la app nativa y pueden perderse si se borra el sitio; iOS puede desalojar almacenamiento.
-- La instalación de la PWA en el móvil requiere HTTPS con un certificado local confiado.
+- La instalación de la PWA en el móvil requiere HTTPS; para uso sin el PC se documenta el despliegue estático con COOP/COEP (Netlify/Cloudflare/Vercel).
+- Un túnel de desarrollo no es un alojamiento permanente: al cerrar el puerto deja de responder y su URL puede cambiar. Para uso diario, desplegar `dist/` en un origen estable.
 - La importación se verificó de extremo a extremo en la PWA; el selector de archivos nativo requiere probarse en un dispositivo.
 
 ---
@@ -179,4 +181,4 @@ Ninguna de estas acciones se puede completar en este entorno sin intervención e
 | 2026-10-23 | Importes rápidos configurables: lápiz de edición, diálogo de cambio y persistencia en el perfil (migración 002) |
 | 2026-10-23 | Importación JSON con validación, fusión sin duplicados y reemplazo transaccional; exportación ampliada con importes rápidos |
 | 2026-10-23 | Idiomas ES/EN/GL/CA/PT con banderas, selector en onboarding/Ajustes y errores traducidos |
-| 2026-10-23 | PWA: viewport sin `cover`, fondo sólido y sin overscroll para eliminar el blur superior de iOS; service worker v4 |
+| 2026-10-23 | PWA: viewport sin `cover`, fondo sólido y sin overscroll para eliminar el blur superior de iOS; service worker v5 |

@@ -107,7 +107,7 @@ node scripts/smoke-web.mjs
 
 Comprueba 18 puntos: origen aislado, `SharedArrayBuffer`, onboarding, edición y persistencia de un importe rápido, alta, persistencia al recargar, service worker, manifest, historial, estadísticas, ausencia de errores en línea, funcionamiento sin conexión y edición de un registro sin conexión (una ruta que nunca se había abierto). Se ejecutó sobre `http://localhost` y sobre HTTPS con certificado local.
 
-También se verificó que, sin el `index.html` en caché y con la red desactivada, una navegación muestra `offline.html` en lugar de descargar un archivo vacío (`pnpm web:smoke:offline`). Y que tras **una sola** carga online, con el servidor caído, la app sigue arrancando porque el service worker precargó bundle y WASM (`pnpm web:smoke:first-load`).
+También se verificó que, sin el `index.html` en caché y con la red desactivada, una navegación muestra `offline.html` en lugar de descargar un archivo vacío (`pnpm web:smoke:offline`). Y que tras **una sola** carga online, con el servidor caído, la app sigue arrancando porque el service worker precargó bundle y WASM (`pnpm web:smoke:first-load`). El modo GitHub Pages se prueba sin cabeceras COOP/COEP, sirviendo `dist` en `/SUMA/`, y verifica aislamiento, scope, manifest, precache y recarga offline (`pnpm web:build:gh && pnpm web:smoke:gh`).
 
 Además se verificó en Chrome un flujo manual automatizado de idioma e importación (`pnpm web:smoke:i18n`): onboarding en español → English, alta de un registro, cambio a catalán en Ajustes, exportación, fusión (0 añadidos, 1 existente), restablecimiento, reemplazo y recuperación del registro. Sin errores de consola.
 

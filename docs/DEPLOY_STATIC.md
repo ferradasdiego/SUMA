@@ -95,7 +95,7 @@ Comprueba las cabeceras con `curl -I` antes de instalar.
 
 ### GitHub Pages
 
-No sirve para esta app: no permite configurar COOP/COEP y SQLite WASM no puede usar `SharedArrayBuffer`.
+Pages no permite cabeceras COOP/COEP. Se puede usar el modo específico con service worker descrito en [DEPLOY_GITHUB_PAGES.md](./DEPLOY_GITHUB_PAGES.md) (con una recarga inicial). Para máxima fiabilidad, Cloudflare Pages/Netlify envían las cabeceras nativamente y no necesitan ese workaround.
 
 ## 5. Migrar los datos a la nueva URL
 
@@ -114,7 +114,7 @@ pnpm web:build
 # vuelve a arrastrar dist a Netlify/Cloudflare o despliega con Vercel
 ```
 
-En el iPhone: abre la PWA con conexión, ciérrala y vuelve a abrirla; si sigue la versión anterior, repite una vez. El service worker actual es `suma-v6`.
+En el iPhone: abre la PWA con conexión, ciérrala y vuelve a abrirla; si sigue la versión anterior, repite una vez. El service worker actual es `suma-v7`.
 
 No cambies de dominio ni de subdominio: sería otro origen, con otra base vacía.
 

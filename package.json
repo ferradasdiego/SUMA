@@ -23,7 +23,9 @@
     "web:smoke": "node scripts/smoke-web.mjs",
     "web:smoke:i18n": "node scripts/smoke-i18n-import.mjs",
     "web:smoke:offline": "node scripts/smoke-offline-fallback.mjs",
-    "web:smoke:first-load": "node scripts/smoke-offline-first-load.mjs"
+    "web:smoke:first-load": "node scripts/smoke-offline-first-load.mjs",
+    "web:build:gh": "SUMA_BASE_PATH=${SUMA_BASE_PATH:-/SUMA} SUMA_PAGES=1 pnpm web:build",
+    "web:smoke:gh": "node scripts/smoke-github-pages.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.15",

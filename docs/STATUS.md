@@ -39,7 +39,7 @@
 | Ajustes | Implementado | Idioma, moneda (editable sin registros), semana, exportación e importación JSON, legal, reset |
 | Persistencia | Implementado | SQLite, migraciones 001/002, transacciones, reapertura |
 | Calidad | Implementado | TypeScript estricto, lint, formato, 122 pruebas, CI |
-| Web/PWA | Implementado | Manifest, service worker v6, SQLite WASM, offline tras una carga, barra superior sin blur, prueba con Chrome |
+| Web/PWA | Implementado | Manifest, service worker v7, SQLite WASM, offline tras una carga, GitHub Pages con COI por SW, barra superior sin blur |
 
 ---
 
@@ -93,6 +93,7 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Smoke PWA | `node scripts/smoke-web.mjs` | 18/18 en HTTP local y HTTPS |
 | Fallback offline | `node scripts/smoke-offline-fallback.mjs` | 1/1: sirve `offline.html`, no un archivo vacío |
 | Primera carga offline | `node scripts/smoke-offline-first-load.mjs` | 1/1: una carga online y recarga sin red |
+| GitHub Pages | `pnpm web:build:gh && pnpm web:smoke:gh` | 1/1: `/SUMA/`, COI por SW, precache y offline |
 | PWA sin conexión | Recarga con red desactivada | Correcta |
 | Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 

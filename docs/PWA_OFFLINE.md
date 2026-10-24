@@ -6,7 +6,7 @@ Sí: puedes servirla un rato por HTTPS, instalarla, abrirla **una vez desde el i
 
 La PWA instalada no comparte necesariamente el service worker ni la caché con la pestaña de Safari. Además, la versión anterior solo cacheaba los recursos que se iban pidiendo: el JavaScript, el WASM de SQLite y la fuente se cargaban **antes** de que el service worker tomara el control, así que una sola visita no bastaba. Al apagar el túnel, la primera apertura del icono no tenía de dónde cargar y iOS descargó un archivo vacío (`datos`, 0 KB).
 
-Ahora el build genera una lista de **todos** los recursos y el service worker los precarga en la instalación (`suma-v6`).
+Ahora el build genera una lista de **todos** los recursos y el service worker los precarga en la instalación (`suma-v7`).
 
 ## Pasos exactos
 

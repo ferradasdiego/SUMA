@@ -39,6 +39,7 @@ Se añade un canal web/PWA con react-native-web, Expo Router en modo `single`, l
 - El HTML de la PWA se post-procesa porque `+html.tsx` no se aplica en `output: 'single'`.
 - Se desactivan las rutas asíncronas en web para que toda pantalla funcione sin conexión aunque no se haya visitado antes.
 - Se añade Playwright como herramienta de verificación local, no como dependencia de la app.
+- GitHub Pages no permite COOP/COEP: se publica en una subruta y el service worker inyecta las cabeceras, con una recarga inicial. Cloudflare Pages/Netlify siguen siendo la opción con cabeceras nativas.
 
 ## Riesgos
 

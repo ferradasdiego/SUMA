@@ -4,6 +4,8 @@ import { join, relative, resolve, sep } from 'node:path';
 
 const root = resolve(process.argv[2] ?? 'dist');
 const swPath = join(root, 'sw.js');
+const base = (process.env.SUMA_BASE_PATH ?? '').replace(/\/+$/, '');
+const prefix = (path) => base + path;
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -18,16 +20,17 @@ async function walk(directory) {
 
 const files = await walk(root);
 const precache = files
-  .map((file) => '/' + relative(root, file).split(sep).join('/'))
-  .filter((path) => path !== '/sw.js')
+  .map((file) => prefix('/' + relative(root, file).split(sep).join('/')))
+  .filter((path) => path !== prefix('/sw.js'))
   .filter((path) => !path.endsWith('.map'))
-  .filter((path) => path !== '/_headers' && path !== '/_redirects')
+  .filter((path) => path !== prefix('/_headers') && path !== prefix('/_redirects'))
+  .filter((path) => path !== prefix('/.nojekyll') && path !== prefix('/404.html'))
   .sort();
 
-if (!precache.includes('/index.html')) {
+if (!precache.includes(prefix('/index.html'))) {
   throw new Error('El build no contiene index.html');
 }
-if (!precache.includes('/offline.html')) {
+if (!precache.includes(prefix('/offline.html'))) {
   throw new Error('El build no contiene offline.html');
 }
 if (!precache.some((path) => path.endsWith('.js'))) {
@@ -40,6 +43,6 @@ if (!marker.test(sw)) {
   throw new Error('sw.js no contiene el marcador PRECACHE');
 }
 
-sw = sw.replace(marker, 'const PRECACHE = ' + JSON.stringify(['/', ...precache], null, 2) + ';');
+sw = sw.replace(marker, 'const PRECACHE = ' + JSON.stringify([prefix('/'), ...precache], null, 2) + ';');
 await writeFile(swPath, sw, 'utf8');
-console.log('Service worker preparado con ' + (precache.length + 1) + ' recursos precargados.');
+console.log('Service worker preparado con ' + (precache.length + 1) + ' recursos precargados' + (base ? ' en ' + base : '') + '.');

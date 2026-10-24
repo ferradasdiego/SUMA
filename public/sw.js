@@ -1,14 +1,18 @@
-/* Service worker de SUMA: app shell + cache en tiempo de ejecución. */
+/* Service worker de SUMA: precache completo, offline y COOP/COEP en Pages. */
 // Sube esta versión al publicar cambios para invalidar la caché anterior.
-const VERSION = 'suma-v6';
+const VERSION = 'suma-v7';
+
+// Sirve tanto en la raíz como en una subruta tipo /SUMA/ (GitHub Pages).
+const BASE = new URL('./', self.location).pathname.replace(/\/$/, '');
+const INDEX = BASE + '/index.html';
 const SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.webmanifest',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/apple-touch-icon.png',
-  '/offline.html',
+  BASE + '/',
+  INDEX,
+  BASE + '/manifest.webmanifest',
+  BASE + '/icons/icon-192.png',
+  BASE + '/icons/icon-512.png',
+  BASE + '/icons/apple-touch-icon.png',
+  BASE + '/offline.html',
 ];
 
 // build-sw.mjs sustituye este array por todos los recursos del build.
@@ -33,19 +37,33 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+function withIsolationHeaders(response) {
+  const headers = new Headers(response.headers);
+  headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+  // Safari no admite COEP: credentialless; require-corp funciona en Chrome y Safari.
+  headers.set('Cross-Origin-Embedder-Policy', 'require-corp');
+  headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 async function offlineShell() {
-  return (
-    (await caches.match('/index.html')) ||
-    (await caches.match('/')) ||
-    (await caches.match('/offline.html'))
-  );
+  const cached =
+    (await caches.match(INDEX)) ||
+    (await caches.match(BASE + '/')) ||
+    (await caches.match(BASE + '/offline.html'));
+
+  return cached ? withIsolationHeaders(cached) : undefined;
 }
 
 function isCacheable(url) {
   return (
-    url.pathname.startsWith('/_expo/') ||
-    url.pathname.startsWith('/assets/') ||
-    url.pathname.startsWith('/icons/') ||
+    url.pathname.startsWith(BASE + '/_expo/') ||
+    url.pathname.startsWith(BASE + '/assets/') ||
+    url.pathname.startsWith(BASE + '/icons/') ||
     /\.(js|css|wasm|ttf|otf|woff2?|png|jpg|jpeg|svg|json|webmanifest)$/.test(url.pathname)
   );
 }
@@ -56,7 +74,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname === '/sw.js') return;
+  if (url.pathname === BASE + '/sw.js') return;
 
   if (request.mode === 'navigate') {
     event.respondWith(
@@ -71,10 +89,10 @@ self.addEventListener('fetch', (event) => {
             return (await offlineShell()) ?? response;
           }
 
-          const copy = response.clone();
+          const isolated = withIsolationHeaders(response);
           const cache = await caches.open(VERSION);
-          await cache.put('/index.html', copy);
-          return response;
+          await cache.put(INDEX, isolated.clone());
+          return isolated;
         } catch {
           const cached = await offlineShell();
           if (cached) return cached;

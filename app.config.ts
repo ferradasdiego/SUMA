@@ -3,6 +3,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 const APP_NAME = 'SUMA';
 const APP_SLUG = 'suma';
 const BUNDLE_ID = 'com.suma.mobile';
+const BASE_PATH = process.env.SUMA_BASE_PATH?.trim() || undefined;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -51,5 +52,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ],
   experiments: {
     typedRoutes: false,
+    ...(BASE_PATH ? { baseUrl: BASE_PATH } : {}),
   },
 });

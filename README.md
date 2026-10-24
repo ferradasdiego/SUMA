@@ -102,18 +102,20 @@ Limitaciones: los datos de la PWA viven en el navegador de ese origen y son inde
 
 ## Scripts
 
-| Comando                             | Descripción                         |
-| ----------------------------------- | ----------------------------------- |
-| `pnpm start`                        | Servidor de desarrollo              |
-| `pnpm typecheck`                    | TypeScript estricto, sin emitir     |
-| `pnpm lint`                         | ESLint                              |
-| `pnpm format` / `pnpm format:check` | Prettier                            |
-| `pnpm test`                         | Jest (24 suites, 122 pruebas)       |
-| `pnpm test:integration`             | Pruebas de persistencia             |
-| `pnpm export:check`                 | Exporta bundles iOS/Android         |
-| `pnpm web:build` / `pnpm web:serve` | PWA estática y servidor local       |
-| `pnpm web:smoke` / `web:smoke:i18n` | Smoke de PWA e idiomas/importación  |
-| `pnpm web:smoke:offline`            | Fallback offline sin shell cacheado |
+| Comando                              | Descripción                         |
+| ------------------------------------ | ----------------------------------- |
+| `pnpm start`                         | Servidor de desarrollo              |
+| `pnpm typecheck`                     | TypeScript estricto, sin emitir     |
+| `pnpm lint`                          | ESLint                              |
+| `pnpm format` / `pnpm format:check`  | Prettier                            |
+| `pnpm test`                          | Jest (24 suites, 122 pruebas)       |
+| `pnpm test:integration`              | Pruebas de persistencia             |
+| `pnpm export:check`                  | Exporta bundles iOS/Android         |
+| `pnpm web:build` / `pnpm web:serve`  | PWA estática y servidor local       |
+| `pnpm web:smoke` / `web:smoke:i18n`  | Smoke de PWA e idiomas/importación  |
+| `pnpm web:smoke:offline`             | Fallback offline sin shell cacheado |
+| `pnpm web:smoke:first-load`          | Una carga online y servidor caído   |
+| `pnpm web:build:gh` / `web:smoke:gh` | Build y prueba para GitHub Pages    |
 
 > Con pnpm, usa `pnpm exec jest --runInBand` para pasar argumentos a Jest (el separador `--` no se reenvía).
 
@@ -166,6 +168,7 @@ No se han ejecutado pruebas E2E ni de lector de pantalla: requieren simulador o 
 
 - [Cómo probar en local](docs/LOCAL_TESTING.md)
 - [Instalar y usar sin el PC](docs/PWA_OFFLINE.md)
+- [Desplegar en GitHub Pages](docs/DEPLOY_GITHUB_PAGES.md)
 - [Desplegar en un hosting estático](docs/DEPLOY_STATIC.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Plan de ejecución](docs/EXECUTION_PLAN.md)

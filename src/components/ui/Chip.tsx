@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
 import { Pressable } from 'react-native';
 
+import { useTheme } from '@/theme';
+import { spacing } from '@/theme/tokens';
+
 import { AppText } from './AppText';
-import { colors, radii, spacing } from '@/theme';
 
 export interface ChipProps {
   label: string;
@@ -13,6 +15,8 @@ export interface ChipProps {
 }
 
 export function Chip({ label, selected = false, onPress, icon, testID }: ChipProps) {
+  const { colors, components, skin } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -22,8 +26,9 @@ export function Chip({ label, selected = false, onPress, icon, testID }: ChipPro
       testID={testID}
       style={({ pressed }) => [
         styles.base,
-        selected ? styles.selected : styles.unselected,
-        pressed && styles.pressed,
+        components.chip,
+        selected && components.chipSelected,
+        pressed && (skin.decoration === 'paper' ? styles.pressedPaper : styles.pressed),
       ]}
     >
       {icon}
@@ -41,10 +46,8 @@ const styles = {
     gap: spacing.sm,
     minHeight: 44,
     paddingHorizontal: spacing.lg,
-    borderRadius: radii.pill,
-    borderWidth: 1,
+    borderRadius: 999,
   },
-  selected: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  unselected: { backgroundColor: colors.background, borderColor: colors.border },
   pressed: { opacity: 0.8 },
+  pressedPaper: { opacity: 0.85, transform: [{ translateY: 1 }] },
 };

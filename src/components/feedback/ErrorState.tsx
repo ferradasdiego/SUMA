@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { t } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 export interface ErrorStateProps {
   title?: string;
@@ -17,6 +17,8 @@ export function ErrorState({
   description = t('feedback.errorDescription'),
   onRetry,
 }: ErrorStateProps) {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container} accessibilityRole="alert" accessibilityLiveRegion="assertive">
       <Ionicons name="alert-circle-outline" size={32} color={colors.danger} />

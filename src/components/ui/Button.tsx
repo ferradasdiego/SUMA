@@ -1,7 +1,8 @@
 import { ActivityIndicator, Pressable, type StyleProp, type ViewStyle } from 'react-native';
 
+import { useTheme } from '@/theme';
+
 import { AppText } from './AppText';
-import { colors, minButtonHeight, radii, typography } from '@/theme';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -17,20 +18,6 @@ export interface ButtonProps {
   style?: StyleProp<ViewStyle>;
 }
 
-const surface: Record<ButtonVariant, ViewStyle> = {
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.primarySoft },
-  ghost: { backgroundColor: 'transparent' },
-  danger: { backgroundColor: colors.danger },
-};
-
-const labelColor: Record<ButtonVariant, string> = {
-  primary: colors.onPrimary,
-  secondary: colors.primary,
-  ghost: colors.primary,
-  danger: colors.onPrimary,
-};
-
 export function Button({
   label,
   onPress,
@@ -42,7 +29,27 @@ export function Button({
   testID,
   style,
 }: ButtonProps) {
+  const { colors, components, skin, typography } = useTheme();
   const isDisabled = disabled || loading;
+  const isPaper = skin.decoration === 'paper';
+
+  const backgrounds: Record<ButtonVariant, ViewStyle> = {
+    primary: components.buttonPrimary,
+    secondary: components.buttonSecondary,
+    ghost: { backgroundColor: 'transparent' },
+    danger: {
+      ...components.buttonPrimary,
+      backgroundColor: colors.danger,
+      ...(isPaper ? { borderColor: colors.dangerStrong } : {}),
+    },
+  };
+
+  const labelColors: Record<ButtonVariant, string> = {
+    primary: colors.onPrimary,
+    secondary: colors.primary,
+    ghost: colors.primary,
+    danger: colors.onPrimary,
+  };
 
   return (
     <Pressable
@@ -54,17 +61,21 @@ export function Button({
       testID={testID}
       style={({ pressed }) => [
         styles.base,
-        surface[variant],
+        backgrounds[variant],
         fullWidth && styles.fullWidth,
         isDisabled && styles.disabled,
-        pressed && !isDisabled && styles.pressed,
+        pressed && !isDisabled && (isPaper ? styles.pressedPaper : styles.pressed),
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={labelColor[variant]} />
+        <ActivityIndicator color={labelColors[variant]} />
       ) : (
-        <AppText variant="body" style={styles.label} color={labelColor[variant]}>
+        <AppText
+          variant="label"
+          style={[styles.label, typography.label]}
+          color={labelColors[variant]}
+        >
           {label}
         </AppText>
       )}
@@ -74,14 +85,14 @@ export function Button({
 
 const styles = {
   base: {
-    minHeight: minButtonHeight,
-    borderRadius: radii.md,
+    minHeight: 52,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   fullWidth: { alignSelf: 'stretch' as const },
   disabled: { opacity: 0.45 },
   pressed: { opacity: 0.85 },
-  label: { ...typography.label, fontSize: 16 },
+  pressedPaper: { opacity: 0.92, transform: [{ translateY: 1 }] },
+  label: { fontSize: 16 },
 };

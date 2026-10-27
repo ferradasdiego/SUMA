@@ -2,15 +2,19 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Pressable } from 'react-native';
 
-import { AppText } from '@/components/ui/AppText';
 import { t } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { useTheme } from '@/theme';
+import { spacing } from '@/theme/tokens';
+
+import { AppText } from './AppText';
 
 export interface BackButtonProps {
   label?: string;
 }
 
 export function BackButton({ label = t('common.back') }: BackButtonProps) {
+  const { colors } = useTheme();
+
   return (
     <Pressable
       accessibilityRole="button"

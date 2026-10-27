@@ -21,6 +21,7 @@ import { openExpoDatabase } from '@/data/local/expoDriver';
 import type { SqlDriver } from '@/data/local/driver';
 import type { Repositories } from '@/data/repositories/types';
 import { setActiveLocale } from '@/i18n';
+import { ThemeProvider } from '@/theme';
 import type { Category, ProfilePatch, UserProfile, WeekStartsOn } from '@/domain/entities/types';
 import { err, ok, unknownError, type AppError, type Result } from '@/domain/errors/result';
 
@@ -221,7 +222,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <ThemeProvider skinId={profile?.skin}>
+      <AppContext.Provider value={value}>{children}</AppContext.Provider>
+    </ThemeProvider>
+  );
 }
 
 export function useApp(): AppContextValue {

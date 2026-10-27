@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import Svg, { Circle, Line, Polygon, Rect } from 'react-native-svg';
 
 import type { LanguageCode } from '@/i18n';
-import { colors } from '@/theme';
+import { useTheme } from '@/theme';
 
 export interface FlagProps {
   readonly code: LanguageCode;
@@ -12,6 +12,8 @@ export interface FlagProps {
 
 /** Banderas vectoriales sencillas: no dependen de emojis ni de red. */
 export function Flag({ code, width = 22, height = 16 }: FlagProps) {
+  const { colors } = useTheme();
+
   return (
     <View
       accessible={false}

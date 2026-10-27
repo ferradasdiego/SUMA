@@ -46,7 +46,7 @@ pnpm exec expo-doctor
 ## 2. Opción A — Pruebas automatizadas (sin dispositivo)
 
 ```bash
-pnpm exec jest --runInBand          # 24 suites, 122 pruebas
+pnpm exec jest --runInBand          # 25 suites, 136 pruebas
 pnpm test:integration               # persistencia con SQLite real (sql.js)
 ```
 

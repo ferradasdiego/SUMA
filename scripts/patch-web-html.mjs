@@ -25,15 +25,22 @@ const block = `<!-- SUMA PWA -->
     <link rel="apple-touch-icon" href="${url('/icons/apple-touch-icon.png')}" />
     <link rel="icon" type="image/png" sizes="48x48" href="${url('/icons/favicon-48.png')}" />
     <style id="suma-shell">
+      :root { --suma-bg: #FFFFFF; }
       html, body, #root {
         height: 100%;
         margin: 0;
-        background-color: #FFFFFF;
+        background-color: var(--suma-bg);
       }
       html { color-scheme: light; }
       body {
         overscroll-behavior-y: none;
         -webkit-tap-highlight-color: transparent;
+      }
+      /* Foco visible para navegación con teclado; la skin solo cambia el color. */
+      :focus-visible {
+        outline: 3px solid #7C5C8A;
+        outline-offset: 2px;
+        border-radius: 6px;
       }
       /* Evita que el contenido asome bajo la barra de estado translúcida de iOS. */
       body::before {
@@ -43,7 +50,7 @@ const block = `<!-- SUMA PWA -->
         left: 0;
         right: 0;
         height: env(safe-area-inset-top, 0px);
-        background: #FFFFFF;
+        background: var(--suma-bg);
         z-index: 2147483647;
         pointer-events: none;
       }

@@ -46,3 +46,4 @@ suma-export/
 # Web/PWA
 .certs/
 artifacts/
+.artifacts/

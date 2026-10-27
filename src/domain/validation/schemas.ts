@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { MAX_ENTRY_MINOR, MAX_GOAL_MINOR, isSupportedCurrency } from '@/domain/money/currency';
 import { MAX_QUICK_AMOUNTS, MIN_QUICK_AMOUNTS } from '@/domain/preferences/quickAmounts';
+import { SKIN_IDS } from '@/domain/preferences/skin';
 import { isLocalDate } from '@/domain/time/calendar';
 
 export const currencySchema = z
@@ -83,6 +84,8 @@ export const quickAmountsSchema = z
   .min(MIN_QUICK_AMOUNTS, 'Añade al menos un importe rápido')
   .max(MAX_QUICK_AMOUNTS, 'Demasiados importes rápidos');
 
+export const skinSchema = z.enum(SKIN_IDS);
+
 export const profileSchema = z.object({
   id: z.string().min(1),
   displayName: z.string().max(80).nullable(),
@@ -90,6 +93,7 @@ export const profileSchema = z.object({
   locale: z.string().min(2).max(35),
   weekStartsOn: z.union([z.literal(0), z.literal(1)]),
   onboardingCompleted: z.boolean(),
+  skin: skinSchema,
   quickAmountsMinor: quickAmountsSchema,
   createdAt: isoDateTimeSchema,
   updatedAt: isoDateTimeSchema,
@@ -101,6 +105,7 @@ export const profilePatchSchema = z.object({
   locale: z.string().min(2).max(35).optional(),
   weekStartsOn: z.union([z.literal(0), z.literal(1)]).optional(),
   onboardingCompleted: z.boolean().optional(),
+  skin: skinSchema.optional(),
   quickAmountsMinor: quickAmountsSchema.optional(),
 });
 

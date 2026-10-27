@@ -8,7 +8,7 @@ import type { ExportPayload } from '@/data/export/exportData';
 import type { ImportMode } from '@/data/import/importService';
 import { t } from '@/i18n';
 import { formatDateLabel } from '@/utils/format';
-import { colors, radii, spacing } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 
 export interface ImportDialogProps {
   readonly payload: ExportPayload | null;
@@ -19,6 +19,9 @@ export interface ImportDialogProps {
 }
 
 export function ImportDialog({ payload, locale, busy, onCancel, onImport }: ImportDialogProps) {
+  const { colors, components, skin } = useTheme();
+  const styles = createStyles(colors);
+  const isPaper = skin.decoration === 'paper';
   const [confirmingReplace, setConfirmingReplace] = useState(false);
 
   if (!payload) return null;
@@ -31,7 +34,10 @@ export function ImportDialog({ payload, locale, busy, onCancel, onImport }: Impo
   return (
     <Modal visible transparent animationType="fade" onRequestClose={cancel}>
       <Pressable style={styles.overlay} onPress={cancel} accessibilityLabel={t('common.close')}>
-        <Pressable style={styles.card} onPress={(event) => event.stopPropagation()}>
+        <Pressable
+          style={[components.dialog, isPaper && styles.sticker, styles.card]}
+          onPress={(event) => event.stopPropagation()}
+        >
           <ScrollView
             style={styles.scroll}
             showsVerticalScrollIndicator={false}
@@ -124,30 +130,34 @@ export function ImportDialog({ payload, locale, busy, onCancel, onImport }: Impo
   );
 }
 
-const styles = {
-  overlay: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    padding: spacing.xl,
-    maxHeight: '90%' as const,
-  },
-  cardContent: { flexGrow: 0 },
-  scroll: { flexShrink: 1 },
-  card: {
-    width: '100%' as const,
-    backgroundColor: colors.background,
-    borderRadius: radii.lg,
-    padding: spacing.xl,
-  },
-  message: { marginTop: spacing.sm },
-  option: { marginTop: spacing.lg, gap: spacing.xs },
-  actions: {
-    flexDirection: 'row' as const,
-    gap: spacing.md,
-    marginTop: spacing.lg,
-  },
-  action: { flex: 1 },
-  replaceButton: { marginTop: spacing.md },
-};
+function createStyles(colors: Theme['colors']) {
+  return {
+    overlay: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      padding: spacing.xl,
+      maxHeight: '90%' as const,
+    },
+    cardContent: { flexGrow: 0 },
+    scroll: { flexShrink: 1 },
+    card: { width: '100%' as const },
+    sticker: {
+      shadowColor: colors.stickerShadow,
+      shadowOffset: { width: 4, height: 4 },
+      shadowOpacity: 1,
+      shadowRadius: 0,
+      elevation: 6,
+    },
+    message: { marginTop: spacing.sm },
+    option: { marginTop: spacing.lg, gap: spacing.xs },
+    actions: {
+      flexDirection: 'row' as const,
+      gap: spacing.md,
+      marginTop: spacing.lg,
+    },
+    action: { flex: 1 },
+    replaceButton: { marginTop: spacing.md },
+  };
+}

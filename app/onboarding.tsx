@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
+import { Sparkle } from '@/components/skin/Doodle';
+import { PiggyBank } from '@/components/skin/PiggyBank';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Chip } from '@/components/ui/Chip';
@@ -9,16 +11,18 @@ import { Screen } from '@/components/ui/Screen';
 import { useApp } from '@/features/app/AppProvider';
 import type { WeekStartsOn } from '@/domain/entities/types';
 import { t, translateError } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 const CURRENCIES = ['EUR', 'USD', 'GBP'] as const;
 
 export default function OnboardingScreen() {
   const { profile, completeOnboarding, updateProfile } = useApp();
+  const { colors, illustration, skin } = useTheme();
   const [currency, setCurrency] = useState<string>(profile?.preferredCurrency ?? 'EUR');
   const [weekStartsOn, setWeekStartsOn] = useState<WeekStartsOn>(profile?.weekStartsOn ?? 1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isPaper = skin.decoration === 'paper';
 
   async function start() {
     setSaving(true);
@@ -30,9 +34,24 @@ export default function OnboardingScreen() {
 
   return (
     <Screen scroll>
-      <View style={styles.hero}>
-        <AppText variant="display">SUMA</AppText>
-      </View>
+      {isPaper ? (
+        <View style={styles.heroPaper}>
+          <PiggyBank width={108} />
+          <View style={styles.heroCopy}>
+            <AppText variant="display">SUMA</AppText>
+            <View style={styles.claimRow}>
+              <AppText variant="body" color={colors.textMuted}>
+                {t('onboarding.claim')}
+              </AppText>
+              <Sparkle size={14} color={illustration?.sparkle ?? colors.doodle} />
+            </View>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.hero}>
+          <AppText variant="display">SUMA</AppText>
+        </View>
+      )}
 
       <AppText variant="label" style={styles.label}>
         {t('onboarding.language')}
@@ -47,8 +66,12 @@ export default function OnboardingScreen() {
       />
 
       <View style={styles.claimBlock}>
-        <AppText variant="title">{t('onboarding.claim')}</AppText>
-        <AppText variant="body" color={colors.textMuted} style={styles.description}>
+        {!isPaper ? <AppText variant="title">{t('onboarding.claim')}</AppText> : null}
+        <AppText
+          variant="body"
+          color={colors.textMuted}
+          style={isPaper ? undefined : styles.description}
+        >
           {t('onboarding.description')}
         </AppText>
       </View>
@@ -108,6 +131,19 @@ export default function OnboardingScreen() {
 
 const styles = {
   hero: { marginTop: spacing.xxxl, marginBottom: spacing.lg },
+  heroPaper: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.sm,
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
+  },
+  heroCopy: { flex: 1 },
+  claimRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: spacing.xs,
+  },
   claimBlock: { marginTop: spacing.lg },
   description: { marginTop: spacing.md },
   label: { marginTop: spacing.lg, marginBottom: spacing.sm },

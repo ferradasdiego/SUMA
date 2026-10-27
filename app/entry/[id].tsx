@@ -10,9 +10,10 @@ import type { Entry } from '@/domain/entities/types';
 import { useApp } from '@/features/app/AppProvider';
 import { EntryForm } from '@/features/entries/EntryForm';
 import { t } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 export default function EditEntryScreen() {
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ id: string | string[] }>();
   const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
   const { repositories } = useApp();

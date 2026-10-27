@@ -3,7 +3,7 @@ import { Modal, Pressable, View } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { t } from '@/i18n';
-import { colors, radii, spacing } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 
 export interface ConfirmDialogProps {
   visible: boolean;
@@ -26,6 +26,10 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { colors, components, skin } = useTheme();
+  const styles = createStyles(colors);
+  const isPaper = skin.decoration === 'paper';
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <Pressable
@@ -33,7 +37,10 @@ export function ConfirmDialog({
         onPress={onCancel}
         accessibilityLabel={t('feedback.closeDialog')}
       >
-        <Pressable style={styles.card} onPress={(event) => event.stopPropagation()}>
+        <Pressable
+          style={[components.dialog, isPaper && styles.sticker, styles.card]}
+          onPress={(event) => event.stopPropagation()}
+        >
           <AppText variant="section">{title}</AppText>
           <AppText variant="body" color={colors.textMuted} style={styles.message}>
             {message}
@@ -58,25 +65,29 @@ export function ConfirmDialog({
   );
 }
 
-const styles = {
-  overlay: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    padding: spacing.xl,
-  },
-  card: {
-    width: '100%' as const,
-    backgroundColor: colors.background,
-    borderRadius: radii.lg,
-    padding: spacing.xl,
-  },
-  message: { marginTop: spacing.sm },
-  actions: {
-    flexDirection: 'row' as const,
-    gap: spacing.md,
-    marginTop: spacing.xl,
-  },
-  action: { flex: 1 },
-};
+function createStyles(colors: Theme['colors']) {
+  return {
+    overlay: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      padding: spacing.xl,
+    },
+    card: { width: '100%' as const },
+    sticker: {
+      shadowColor: colors.stickerShadow,
+      shadowOffset: { width: 4, height: 4 },
+      shadowOpacity: 1,
+      shadowRadius: 0,
+      elevation: 6,
+    },
+    message: { marginTop: spacing.sm },
+    actions: {
+      flexDirection: 'row' as const,
+      gap: spacing.md,
+      marginTop: spacing.xl,
+    },
+    action: { flex: 1 },
+  };
+}

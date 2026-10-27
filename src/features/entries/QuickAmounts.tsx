@@ -9,7 +9,7 @@ import { formatAmountInput, parseAmount } from '@/domain/money/money';
 import { resolveQuickAmounts } from '@/domain/preferences/quickAmounts';
 import { useApp } from '@/features/app/AppProvider';
 import { t, translateError } from '@/i18n';
-import { colors, radii, spacing } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 
 export interface QuickAmountsProps {
   readonly currency: string;
@@ -23,6 +23,10 @@ export interface QuickAmountsProps {
  * en ese modo, tocar un importe abre el diálogo para cambiarlo.
  */
 export function QuickAmounts({ currency, locale, selectedAmount, onPick }: QuickAmountsProps) {
+  const theme = useTheme();
+  const { colors, components } = theme;
+  const styles = createStyles(theme);
+  const isPaper = theme.skin.decoration === 'paper';
   const { profile, updateProfile } = useApp();
   const [editing, setEditing] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -124,7 +128,10 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
           onPress={closeEditor}
           accessibilityLabel={t('common.close')}
         >
-          <Pressable style={styles.card} onPress={(event) => event.stopPropagation()}>
+          <Pressable
+            style={[components.dialog, isPaper && styles.sticker, styles.card]}
+            onPress={(event) => event.stopPropagation()}
+          >
             <AppText variant="section">{t('add.quickDialogTitle')}</AppText>
             <AppText variant="caption" color={colors.textMuted} style={styles.dialogHint}>
               {t('add.quickDialogHint')}
@@ -179,62 +186,66 @@ export function QuickAmounts({ currency, locale, selectedAmount, onPick }: Quick
   );
 }
 
-const styles = {
-  container: { gap: spacing.sm },
-  header: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  pencil: {
-    width: 32,
-    height: 32,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    backgroundColor: colors.background,
-  },
-  pencilActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  hint: { marginBottom: spacing.xs },
-  chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: spacing.sm },
-  overlay: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    padding: spacing.xl,
-  },
-  card: {
-    width: '100%' as const,
-    backgroundColor: colors.background,
-    borderRadius: radii.lg,
-    padding: spacing.xl,
-    gap: spacing.xs,
-  },
-  dialogHint: { marginTop: spacing.xs },
-  dialogLabel: { marginTop: spacing.lg, marginBottom: spacing.xs },
-  input: {
-    minHeight: 56,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.lg,
-    fontSize: 24,
-    fontWeight: '700' as const,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  inputError: { borderColor: colors.danger },
-  actions: {
-    flexDirection: 'row' as const,
-    gap: spacing.md,
-    marginTop: spacing.xl,
-  },
-  action: { flex: 1 },
-};
+function createStyles(theme: Theme) {
+  const { colors, components, radii, typography } = theme;
+  const boldFamily = typography.section.fontFamily;
+
+  return {
+    container: { gap: spacing.sm },
+    header: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    pencil: {
+      ...components.chip,
+      width: 32,
+      height: 32,
+      borderRadius: radii.sm,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    },
+    pencilActive: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    hint: { marginBottom: spacing.xs },
+    chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: spacing.sm },
+    overlay: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      padding: spacing.xl,
+    },
+    card: {
+      width: '100%' as const,
+      gap: spacing.xs,
+    },
+    sticker: {
+      shadowColor: colors.stickerShadow,
+      shadowOffset: { width: 4, height: 4 },
+      shadowOpacity: 1,
+      shadowRadius: 0,
+      elevation: 6,
+    },
+    dialogHint: { marginTop: spacing.xs },
+    dialogLabel: { marginTop: spacing.lg, marginBottom: spacing.xs },
+    input: {
+      ...components.input,
+      minHeight: 56,
+      paddingHorizontal: spacing.lg,
+      fontSize: 24,
+      color: colors.text,
+      ...(boldFamily ? { fontFamily: boldFamily } : { fontWeight: '700' as const }),
+    },
+    inputError: { borderColor: colors.danger },
+    actions: {
+      flexDirection: 'row' as const,
+      gap: spacing.md,
+      marginTop: spacing.xl,
+    },
+    action: { flex: 1 },
+  };
+}

@@ -23,6 +23,7 @@ interface ProfileRow {
 }
 
 async function merge(ctx: ImportContext, payload: ExportPayload): Promise<Result<ImportSummary>> {
+  // La fusión nunca modifica el perfil local: conserva su skin y preferencias.
   const profiles = await ctx.driver.all<ProfileRow>(
     'SELECT preferred_currency FROM user_profile WHERE id = ?',
     ['local'],
@@ -132,7 +133,7 @@ async function replace(ctx: ImportContext, payload: ExportPayload): Promise<Resu
     await tx.run('DELETE FROM user_profile');
 
     await tx.run(
-      'INSERT INTO user_profile (id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, quick_amounts_minor, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO user_profile (id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, skin, quick_amounts_minor, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         'local',
         payload.profile.displayName,
@@ -140,6 +141,7 @@ async function replace(ctx: ImportContext, payload: ExportPayload): Promise<Resu
         payload.profile.locale,
         payload.profile.weekStartsOn,
         payload.profile.onboardingCompleted ? 1 : 0,
+        payload.profile.skin,
         JSON.stringify(payload.profile.quickAmountsMinor),
         timestamp,
         timestamp,

@@ -22,7 +22,7 @@ import { useStatistics, type StatisticsKind } from '@/features/statistics/useSta
 import { categoryLabel, t, translateError, type TranslationKey } from '@/i18n';
 import { deviceTimeZone } from '@/utils/device';
 import { formatDateLabel, formatRangeLabel } from '@/utils/format';
-import { categoryColors, colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 const KINDS: { value: StatisticsKind; labelKey: TranslationKey }[] = [
   { value: 'day', labelKey: 'stats.day' },
@@ -32,6 +32,7 @@ const KINDS: { value: StatisticsKind; labelKey: TranslationKey }[] = [
 ];
 
 export default function StatisticsScreen() {
+  const { colors, categoryColors } = useTheme();
   const { profile, categories } = useApp();
   const [kind, setKind] = useState<StatisticsKind>('month');
   const [anchor, setAnchor] = useState<string>(() => todayLocalDate(new Date(), deviceTimeZone()));
@@ -99,7 +100,7 @@ export default function StatisticsScreen() {
       {state.status === 'ready' ? (
         <>
           <View style={styles.grid}>
-            <Card style={styles.card}>
+            <Card style={styles.card} tone="blue">
               <AppText variant="caption" color={colors.textMuted}>
                 {t('stats.total')}
               </AppText>
@@ -111,7 +112,7 @@ export default function StatisticsScreen() {
                 style={styles.cardAmount}
               />
             </Card>
-            <Card style={styles.card}>
+            <Card style={styles.card} tone="butter">
               <AppText variant="caption" color={colors.textMuted}>
                 {t('stats.decisions')}
               </AppText>
@@ -119,7 +120,7 @@ export default function StatisticsScreen() {
                 {state.data.summary.entryCount}
               </AppText>
             </Card>
-            <Card style={styles.card}>
+            <Card style={styles.card} tone="mint">
               <AppText variant="caption" color={colors.textMuted}>
                 {t('stats.average')}
               </AppText>
@@ -131,7 +132,7 @@ export default function StatisticsScreen() {
                 style={styles.cardAmount}
               />
             </Card>
-            <Card style={styles.card}>
+            <Card style={styles.card} tone="pink">
               <AppText variant="caption" color={colors.textMuted}>
                 {t('stats.bestDay')}
               </AppText>
@@ -156,7 +157,7 @@ export default function StatisticsScreen() {
             </Card>
           </View>
 
-          <Card style={styles.comparison}>
+          <Card style={styles.comparison} tone="lilac">
             {state.data.summary.comparison ? (
               <>
                 <AppText variant="caption" color={colors.textMuted}>

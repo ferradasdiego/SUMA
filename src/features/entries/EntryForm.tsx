@@ -17,7 +17,7 @@ import { addDays, todayLocalDate } from '@/domain/time/calendar';
 import { useApp } from '@/features/app/AppProvider';
 import { prepareEntry, type EntryFormValues } from '@/features/entries/prepareEntry';
 import { categoryLabel, t, translateError } from '@/i18n';
-import { categoryColors, colors, radii, spacing } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 import { deviceTimeZone } from '@/utils/device';
 
 type FormField = keyof EntryFormValues;
@@ -42,6 +42,9 @@ export interface EntryFormProps {
 }
 
 export function EntryForm({ entry, onSaved }: EntryFormProps) {
+  const theme = useTheme();
+  const { colors, categoryColors } = theme;
+  const styles = createStyles(theme);
   const { profile, categories, repositories, invalidate } = useApp();
   const [success, setSuccess] = useState(false);
 
@@ -318,50 +321,51 @@ export function EntryForm({ entry, onSaved }: EntryFormProps) {
   );
 }
 
-const styles = {
-  container: { gap: spacing.sm, paddingBottom: spacing.xxxl },
-  success: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  successText: { marginTop: spacing.xs },
-  successAction: {
-    marginTop: spacing.md,
-    alignSelf: 'flex-start' as const,
-    paddingHorizontal: spacing.lg,
-  },
-  label: { marginTop: spacing.md },
-  amountRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: spacing.sm,
-    width: '100%' as const,
-  },
-  amountInput: {
-    flex: 1,
-    minWidth: 0,
-    minHeight: 56,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.lg,
-    fontSize: 28,
-    fontWeight: '700' as const,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: spacing.sm },
-  input: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  note: { minHeight: 88, textAlignVertical: 'top' as const },
-  inputError: { borderColor: colors.danger },
-  submit: { marginTop: spacing.xl },
-  cancel: { marginTop: spacing.sm },
-  preview: { marginTop: spacing.md, textAlign: 'center' as const },
-};
+function createStyles(theme: Theme) {
+  const { colors, components, typography } = theme;
+  const bodyFamily = typography.body.fontFamily;
+  const boldFamily = typography.section.fontFamily;
+
+  return {
+    container: { gap: spacing.sm, paddingBottom: spacing.xxxl },
+    success: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
+    successText: { marginTop: spacing.xs },
+    successAction: {
+      marginTop: spacing.md,
+      alignSelf: 'flex-start' as const,
+      paddingHorizontal: spacing.lg,
+    },
+    label: { marginTop: spacing.md },
+    amountRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      gap: spacing.sm,
+      width: '100%' as const,
+    },
+    amountInput: {
+      ...components.input,
+      flex: 1,
+      minWidth: 0,
+      minHeight: 56,
+      paddingHorizontal: spacing.lg,
+      fontSize: 28,
+      color: colors.text,
+      ...(boldFamily ? { fontFamily: boldFamily } : { fontWeight: '700' as const }),
+    },
+    chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: spacing.sm },
+    input: {
+      ...components.input,
+      minHeight: 52,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      fontSize: 16,
+      color: colors.text,
+      ...(bodyFamily ? { fontFamily: bodyFamily } : {}),
+    },
+    note: { minHeight: 88, textAlignVertical: 'top' as const },
+    inputError: { borderColor: colors.danger },
+    submit: { marginTop: spacing.xl },
+    cancel: { marginTop: spacing.sm },
+    preview: { marginTop: spacing.md, textAlign: 'center' as const },
+  };
+}

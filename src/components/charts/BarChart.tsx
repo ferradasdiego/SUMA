@@ -3,7 +3,7 @@ import { View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Line, Rect } from 'react-native-svg';
 
 import { AppText } from '@/components/ui/AppText';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 export interface ChartPoint {
   readonly label: string;
@@ -17,6 +17,7 @@ export interface BarChartProps {
 }
 
 export function BarChart({ data, accessibilityLabel, height = 160 }: BarChartProps) {
+  const { colors } = useTheme();
   const [width, setWidth] = useState(0);
   const max = Math.max(1, ...data.map((point) => point.value));
   const baseline = height - 8;

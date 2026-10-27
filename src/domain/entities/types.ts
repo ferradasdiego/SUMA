@@ -1,3 +1,5 @@
+import type { SkinId } from '@/domain/preferences/skin';
+
 export type IsoDateTime = string;
 export type LocalDate = string;
 export type CurrencyCode = string;
@@ -69,6 +71,7 @@ export interface UserProfile {
   readonly locale: string;
   readonly weekStartsOn: WeekStartsOn;
   readonly onboardingCompleted: boolean;
+  readonly skin: SkinId;
   readonly quickAmountsMinor: readonly number[];
   readonly createdAt: IsoDateTime;
   readonly updatedAt: IsoDateTime;
@@ -82,6 +85,7 @@ export type ProfilePatch = Partial<
     | 'locale'
     | 'weekStartsOn'
     | 'onboardingCompleted'
+    | 'skin'
     | 'quickAmountsMinor'
   >
 >;

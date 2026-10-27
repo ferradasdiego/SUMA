@@ -1,7 +1,10 @@
 import { View } from 'react-native';
 
-import { colors, spacing } from '@/theme';
+import { useTheme } from '@/theme';
+import { spacing } from '@/theme/tokens';
 
 export function Divider() {
-  return <View style={{ height: 1, backgroundColor: colors.border, marginVertical: spacing.lg }} />;
+  const { components } = useTheme();
+
+  return <View style={[components.divider, { marginVertical: spacing.lg }]} />;
 }

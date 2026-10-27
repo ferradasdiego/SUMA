@@ -2,7 +2,7 @@
 
 | Campo | Valor |
 |---|---|
-| Última actualización | 2026-10-23 |
+| Última actualización | 2026-10-27 |
 | Fase actual | **Fase 6 — Beta privada (no iniciada; requiere cuentas)** |
 | Estado global | MVP funcional en código y verificado con pruebas automatizadas. Variante web/PWA instalable. **Sin verificación en dispositivo nativo.** |
 | Documento base | [SUMA_MASTER_SPEC.md](../SUMA_MASTER_SPEC.md) v1.0 |
@@ -16,7 +16,7 @@
 ## 1. Resumen
 
 - Fases 0 a 5 cerradas: memoria, esqueleto técnico, dominio y persistencia, registro e Inicio, historial/estadísticas/objetivos y calidad.
-- **122 pruebas automatizadas en verde** en 24 suites.
+- **136 pruebas automatizadas en verde** en 25 suites.
 - La app compila el bundle para iOS y Android; **no se ha ejecutado en simulador ni dispositivo** (licencia de Xcode no aceptada; sin JDK/Android SDK).
 - Persistencia real verificada en pruebas con SQLite y reapertura de la base.
 - Exportación e importación JSON (fusionar o reemplazar), cinco idiomas y accesibilidad básica implementados.
@@ -30,15 +30,16 @@
 |---|---|---|
 | Onboarding | Implementado | Idioma, moneda, primer día de semana, persistencia |
 | Idiomas | Implementado | ES/EN/GL/CA/PT con banderas, selector en onboarding y Ajustes, errores traducidos |
+| Skins visuales | Implementado | Clásica + Kawaii cozy seleccionables en Ajustes, persistidas en el perfil (migración 003), persistencia incluida en la copia JSON, contraste AA por skin y capturas web revisadas |
 | Registro | Implementado | Importe, categoría, nota, fecha, **importes rápidos editables**, anti-doble-envío |
 | Inicio | Implementado | Total, hoy, semana, últimos movimientos, objetivo, CTA |
 | Historial | Implementado | Filtros, orden, paginación, edición, borrado confirmado |
 | Estadísticas | Implementado | Día/semana/mes/año, comparación, promedios, mejor día, categorías |
 | Gráficas | Implementado | Barras, línea y barras horizontales accesibles |
 | Objetivos | Implementado | Un objetivo activo, crear/editar/borrar, progreso |
-| Ajustes | Implementado | Idioma, moneda (editable sin registros), semana, exportación e importación JSON, legal, reset |
-| Persistencia | Implementado | SQLite, migraciones 001/002, transacciones, reapertura |
-| Calidad | Implementado | TypeScript estricto, lint, formato, 122 pruebas, CI |
+| Ajustes | Implementado | Idioma, moneda (editable sin registros), semana, **apariencia (skin)**, exportación e importación JSON, legal, reset |
+| Persistencia | Implementado | SQLite, migraciones 001/002/003, transacciones, reapertura |
+| Calidad | Implementado | TypeScript estricto, lint, formato, 136 pruebas, CI |
 | Web/PWA | Implementado | Manifest, service worker v7, SQLite WASM, offline tras una carga, GitHub Pages con COI por SW, barra superior sin blur |
 
 ---
@@ -68,7 +69,7 @@ Nota de sandbox: los comandos de Expo se ejecutan con `HOME=$PWD/.home`, `EXPO_N
 | 2 — Dominio y persistencia | Cerrada | SQLite real, migraciones, reapertura |
 | 3 — Registro e Inicio | Cerrada | Formulario, Inicio, onboarding, ajustes |
 | 4 — Historial, estadísticas y objetivos | Cerrada | Pantallas, gráficas y pruebas |
-| 5 — Calidad y accesibilidad | Cerrada (dispositivo pendiente) | 122 pruebas, exportación, rendimiento |
+| 5 — Calidad y accesibilidad | Cerrada (dispositivo pendiente) | 136 pruebas, exportación, rendimiento |
 | 6 — Beta privada | No iniciada (bloqueada) | Requiere cuentas y builds |
 | 7 — Monetización y lanzamiento | No iniciada | Requiere beta |
 
@@ -83,7 +84,7 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | Formato | `pnpm format:check` | Correcto |
 | Lint | `pnpm lint` | 0 errores, 0 avisos |
 | TypeScript | `pnpm typecheck` | 0 errores |
-| Pruebas | `pnpm exec jest --runInBand` | 24 suites, 122/122 |
+| Pruebas | `pnpm exec jest --runInBand` | 25 suites, 136/136 |
 | Rendimiento | semilla de 10.000 registros (sql.js) | seed 192 ms; suma 2 ms; página 3 ms |
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | `node node_modules/expo-doctor/bin/expo-doctor.js` | 20/20 |
@@ -97,7 +98,7 @@ Progreso: **6 de 8 fases cerradas**. Tareas: **38 de 54 cerradas**, 4 parciales,
 | PWA sin conexión | Recarga con red desactivada | Correcta |
 | Simulador iOS | `xcrun simctl` | Bloqueado por licencia |
 
-Cobertura: dinero y límites, fechas y DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación e importación JSON (fusión y reemplazo), preparación de formularios, diccionarios/idioma, componentes y accesibilidad básica.
+Cobertura: dinero y límites, fechas y DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación e importación JSON (fusión y reemplazo), preparación de formularios, diccionarios/idioma, selector de skins, contraste AA de tokens por skin, componentes y accesibilidad básica.
 
 No ejecutadas y motivo:
 
@@ -120,7 +121,8 @@ Las 20 decisiones arquitectónicas están en [DECISIONS.md](./DECISIONS.md) (ADR
 - La PWA usa la implementación web oficial de `expo-sqlite` (wa-sqlite/WASM) y requiere COOP/COEP y HTTPS en el móvil.
 - El viewport web no usa `viewport-fit=cover`: el contenido queda dentro del área segura y se evita el blur de la barra de estado de iOS 26.
 - La UI usa cinco diccionarios tipados y un locale activo; los errores de dominio se traducen con un mapa de mensajes.
-- El HTML de la PWA se post-procesa porque `+html.tsx` no aplica con `output: 'single'`.
+- La identidad visual es un sistema de skins (`useTheme()`): la Clásica conserva los tokens originales y la Kawaii cozy vive en `src/theme/skins/kawaii.ts`. La elección se persiste en `user_profile.skin` y se incluye en la exportación JSON; las copias antiguas sin skin se importan como Clásica.
+- El HTML de la PWA se post-procesa porque `+html.tsx` no aplica con `output: 'single'`; ese post-proceso incorpora el foco visible para teclado y sincroniza el color de fondo de la PWA con la skin activa.
 
 Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español por defecto (cinco idiomas disponibles), EUR, sin notificaciones, JSON, un objetivo.
 
@@ -150,6 +152,7 @@ Supuestos P1–P8 sin confirmar: `com.suma.mobile`, español por defecto (cinco 
 - La instalación de la PWA en el móvil requiere HTTPS; para uso sin el PC se documenta el despliegue estático con COOP/COEP (Netlify/Cloudflare/Vercel).
 - Un túnel de desarrollo no es un alojamiento permanente: al cerrar el puerto deja de responder y su URL puede cambiar. Para uso diario, desplegar `dist/` en un origen estable.
 - La importación se verificó de extremo a extremo en la PWA; el selector de archivos nativo requiere probarse en un dispositivo.
+- La skin Kawaii cozy se verificó visualmente en la build web con capturas de Inicio, Añadir, Historial, Estadísticas y Ajustes; queda pendiente revisarla en dispositivo. Su tipografía Mali no tiene cifras tabulares reales y sus doodles no se anuncian a lectores de pantalla.
 
 ---
 
@@ -184,3 +187,4 @@ Ninguna de estas acciones se puede completar en este entorno sin intervención e
 | 2026-10-23 | Importación JSON con validación, fusión sin duplicados y reemplazo transaccional; exportación ampliada con importes rápidos |
 | 2026-10-23 | Idiomas ES/EN/GL/CA/PT con banderas, selector en onboarding/Ajustes y errores traducidos |
 | 2026-10-23 | PWA: viewport sin `cover`, fondo sólido y sin overscroll para eliminar el blur superior de iOS; service worker v5 |
+| 2026-10-27 | Skins visuales: skin Kawaii cozy (papel, pastel, doodles y tipografía Mali) seleccionable en Ajustes, migración 003, exportación/importación y pruebas de contraste AA |

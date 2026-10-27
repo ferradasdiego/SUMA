@@ -11,8 +11,26 @@ describe('parseImportPayload', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.entries).toHaveLength(1);
+      expect(result.value.profile.skin).toBe('kawaii');
       expect(result.value.profile.quickAmountsMinor).toEqual([150, 250, 500, 1000]);
     }
+  });
+
+  it('acepta una copia antigua sin skin y la normaliza a classic', () => {
+    const raw = JSON.parse(toText()) as Record<string, unknown>;
+    const oldProfile = raw.profile as Record<string, unknown>;
+    delete oldProfile.skin;
+
+    const result = parseImportPayload(JSON.stringify(raw));
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.profile.skin).toBe('classic');
+  });
+
+  it('rechaza una skin desconocida', () => {
+    const raw = JSON.parse(toText()) as Record<string, unknown>;
+    const profile = raw.profile as Record<string, unknown>;
+    profile.skin = 'neon';
+    expect(parseImportPayload(JSON.stringify(raw)).ok).toBe(false);
   });
 
   it('rechaza un JSON inválido', () => {

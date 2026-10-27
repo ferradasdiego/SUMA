@@ -1,3 +1,4 @@
+import { useFonts } from 'expo-font';
 import { Redirect, Stack, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -8,9 +9,11 @@ import { LoadingState } from '@/components/feedback/LoadingState';
 import { Screen } from '@/components/ui/Screen';
 import { AppProvider, useApp } from '@/features/app/AppProvider';
 import { t } from '@/i18n';
-import { colors } from '@/theme';
+import { skinFonts, useTheme } from '@/theme';
 
 function AppStack() {
+  const { colors } = useTheme();
+
   return (
     <Stack
       screenOptions={{
@@ -63,12 +66,22 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
+  // Las fuentes de la skin kawaii se cargan siempre para poder previsualizarlas
+  // en Ajustes incluso con la skin clásica activa.
+  const [fontsLoaded, fontError] = useFonts(skinFonts);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AppProvider>
           <StatusBar style="dark" />
-          <RootNavigator />
+          {fontsLoaded || fontError ? (
+            <RootNavigator />
+          ) : (
+            <Screen>
+              <LoadingState label={t('app.preparing')} />
+            </Screen>
+          )}
         </AppProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

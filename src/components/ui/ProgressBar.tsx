@@ -1,6 +1,6 @@
 import { View, type DimensionValue } from 'react-native';
 
-import { colors, radii } from '@/theme';
+import { useTheme } from '@/theme';
 
 export interface ProgressBarProps {
   ratio: number;
@@ -8,9 +8,12 @@ export interface ProgressBarProps {
 }
 
 export function ProgressBar({ ratio, accessibilityLabel }: ProgressBarProps) {
+  const { colors, skin, radii } = useTheme();
   const clamped = Math.max(0, Math.min(1, ratio));
   const percent = Math.round(clamped * 100);
   const width = (clamped * 100 + '%') as DimensionValue;
+  const height = skin.decoration === 'paper' ? 14 : 10;
+  const trackColor = skin.decoration === 'paper' ? colors.track : colors.primarySoft;
 
   return (
     <View
@@ -18,23 +21,21 @@ export function ProgressBar({ ratio, accessibilityLabel }: ProgressBarProps) {
       accessibilityRole="progressbar"
       accessibilityLabel={accessibilityLabel}
       accessibilityValue={{ min: 0, max: 100, now: percent }}
-      style={styles.track}
+      style={{
+        height,
+        borderRadius: radii.pill,
+        backgroundColor: trackColor,
+        overflow: 'hidden',
+      }}
     >
-      <View style={[styles.fill, { width }]} />
+      <View
+        style={{
+          height,
+          width,
+          borderRadius: radii.pill,
+          backgroundColor: colors.primary,
+        }}
+      />
     </View>
   );
 }
-
-const styles = {
-  track: {
-    height: 10,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primarySoft,
-    overflow: 'hidden' as const,
-  },
-  fill: {
-    height: 10,
-    borderRadius: radii.pill,
-    backgroundColor: colors.primary,
-  },
-};

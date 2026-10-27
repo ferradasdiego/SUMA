@@ -1,7 +1,8 @@
 import { Text, type TextProps } from 'react-native';
 
 import { formatAmount } from '@/domain/money/money';
-import { colors, typography, type TypographyVariant } from '@/theme';
+import { useTheme } from '@/theme';
+import type { TypographyVariant } from '@/theme/skins/types';
 
 export interface AmountTextProps extends TextProps {
   minor: number;
@@ -16,12 +17,21 @@ export function AmountText({
   currency,
   locale,
   variant = 'body',
-  color = colors.text,
+  color,
   style,
   ...rest
 }: AmountTextProps) {
+  const { colors, typography } = useTheme();
+
   return (
-    <Text {...rest} style={[typography[variant], { color, fontVariant: ['tabular-nums'] }, style]}>
+    <Text
+      {...rest}
+      style={[
+        typography[variant],
+        { color: color ?? colors.text, fontVariant: ['tabular-nums'] },
+        style,
+      ]}
+    >
       {formatAmount(minor, { currency, locale })}
     </Text>
   );

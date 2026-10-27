@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { ExportPayload } from '@/data/export/exportData';
 import { err, ok, validationError, type Result } from '@/domain/errors/result';
+import { DEFAULT_SKIN } from '@/domain/preferences/skin';
 import {
   categorySchema,
   currencySchema,
@@ -10,6 +11,7 @@ import {
   goalSchema,
   isoDateTimeSchema,
   quickAmountsSchema,
+  skinSchema,
 } from '@/domain/validation/schemas';
 
 const MAX_IMPORT_BYTES = 10_000_000;
@@ -21,6 +23,8 @@ const importProfileSchema = z.object({
   locale: z.string().min(2).max(35),
   weekStartsOn: z.union([z.literal(0), z.literal(1)]),
   onboardingCompleted: z.boolean(),
+  // Opcional para seguir aceptando copias exportadas antes de existir la skin.
+  skin: skinSchema.optional(),
   quickAmountsMinor: quickAmountsSchema,
 });
 
@@ -105,5 +109,11 @@ export function parseImportPayload(text: string): Result<ExportPayload> {
     return err(validationError('El archivo contiene más de un objetivo activo', 'file'));
   }
 
-  return ok(payload);
+  return ok({
+    ...payload,
+    profile: {
+      ...payload.profile,
+      skin: payload.profile.skin ?? DEFAULT_SKIN,
+    },
+  });
 }

@@ -118,14 +118,14 @@ Además se verificó en Chrome un flujo manual automatizado de idioma e importac
 | Formato | `pnpm format:check` | Correcto |
 | Lint | `pnpm lint` | 0 errores, 0 avisos |
 | TypeScript | `pnpm typecheck` | 0 errores |
-| Pruebas | `pnpm exec jest --runInBand` | 24 suites, 122/122 |
+| Pruebas | `pnpm exec jest --runInBand` | 25 suites, 136/136 |
 | Rendimiento (sql.js) | semilla de 10.000 registros | seed 192 ms; suma 2 ms; página de 50 en 3 ms |
 | Auditoría | `pnpm audit --prod --audit-level high --ignore-unfixable` | Sin vulnerabilidades accionables |
 | Expo Doctor | 20/20 comprobaciones | Correcto |
 | Bundles | iOS y Android | Generados (5,2 MB) |
 | PWA | `pnpm web:build` + smoke | 18/18 comprobaciones en HTTP y HTTPS |
 
-Cobertura por área: dinero y límites, fechas/DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación e importación JSON (validación, fusión y reemplazo), preparación de alta y de objetivo, importes rápidos persistentes, diccionarios completos (claves y marcadores), selector de idioma, componentes y accesibilidad básica.
+Cobertura por área: dinero y límites, fechas/DST, periodos y comparaciones, agregados y objetivos, migraciones y CRUD, restricciones, persistencia tras reapertura, transacciones, exportación e importación JSON (validación, fusión y reemplazo), preparación de alta y de objetivo, importes rápidos persistentes, diccionarios completos (claves y marcadores), selector de idioma, selector de skins, contraste AA de tokens por skin, componentes y accesibilidad básica.
 
 No ejecutadas (y motivo):
 

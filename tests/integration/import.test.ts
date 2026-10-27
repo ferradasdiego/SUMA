@@ -1,4 +1,6 @@
 import { initializeDatabase } from '@/data/database';
+import { serializeExport } from '@/data/export/exportData';
+import { parseImportPayload } from '@/data/export/importData';
 import { importData } from '@/data/import/importService';
 import { openSqlJsDatabase, type SqlJsDriver } from '@/data/local/sqljsDriver';
 import type { DatabaseContext } from '@/data/repositories/types';
@@ -71,6 +73,9 @@ describe('importData', () => {
       expect(imported?.isActive).toBe(false);
     }
 
+    const localProfile = await db.repositories.profile.get();
+    expect(localProfile.ok && localProfile.value.skin).toBe('classic');
+
     await driver.close();
   });
 
@@ -91,6 +96,7 @@ describe('importData', () => {
         ...makeExportPayload().profile,
         weekStartsOn: 0,
         onboardingCompleted: true,
+        skin: 'kawaii',
         quickAmountsMinor: [200, 300, 400, 500],
       },
       entries: [makeEntry({ id: 'entry-replace', note: 'De la copia' })],
@@ -113,8 +119,30 @@ describe('importData', () => {
     expect(profile.ok).toBe(true);
     if (profile.ok) {
       expect(profile.value.weekStartsOn).toBe(0);
+      expect(profile.value.skin).toBe('kawaii');
       expect(profile.value.quickAmountsMinor).toEqual([200, 300, 400, 500]);
     }
+
+    await driver.close();
+  });
+
+  it('importa una copia antigua sin skin y aplica la clásica', async () => {
+    const { driver, db } = await setup();
+    await db.repositories.profile.update({ skin: 'kawaii' });
+
+    const raw = JSON.parse(serializeExport(makeExportPayload())) as Record<string, unknown>;
+    const oldProfile = raw.profile as Record<string, unknown>;
+    delete oldProfile.skin;
+
+    const parsed = parseImportPayload(JSON.stringify(raw));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+
+    const result = await importData({ driver, now }, parsed.value, 'replace');
+    expect(result.ok).toBe(true);
+
+    const profile = await db.repositories.profile.get();
+    expect(profile.ok && profile.value.skin).toBe('classic');
 
     await driver.close();
   });

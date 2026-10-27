@@ -12,7 +12,7 @@ import { todayLocalDate } from '@/domain/time/calendar';
 import { useApp } from '@/features/app/AppProvider';
 import { prepareGoal, type GoalFormValues } from '@/features/goals/prepareGoal';
 import { t, translateError } from '@/i18n';
-import { colors, radii, spacing } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 import { deviceTimeZone } from '@/utils/device';
 
 type FormField = keyof GoalFormValues;
@@ -34,6 +34,9 @@ export interface GoalFormProps {
 }
 
 export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
+  const theme = useTheme();
+  const { colors } = theme;
+  const styles = createStyles(theme);
   const { profile, repositories, invalidate } = useApp();
   const locale = profile?.locale ?? 'es-ES';
   const currency = goal?.currency ?? profile?.preferredCurrency ?? 'EUR';
@@ -207,28 +210,31 @@ export function GoalForm({ goal, onSaved, onCancel }: GoalFormProps) {
   );
 }
 
-const styles = {
-  container: { gap: spacing.sm },
-  label: { marginTop: spacing.md },
-  input: {
-    minHeight: 52,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.sm,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  amountRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    gap: spacing.sm,
-    width: '100%' as const,
-  },
-  amountInput: { flex: 1, minWidth: 0 },
-  inputError: { borderColor: colors.danger },
-  submit: { marginTop: spacing.xl },
-  cancel: { marginTop: spacing.sm },
-};
+function createStyles(theme: Theme) {
+  const { colors, components, typography } = theme;
+  const bodyFamily = typography.body.fontFamily;
+
+  return {
+    container: { gap: spacing.sm },
+    label: { marginTop: spacing.md },
+    input: {
+      ...components.input,
+      minHeight: 52,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      fontSize: 16,
+      color: colors.text,
+      ...(bodyFamily ? { fontFamily: bodyFamily } : {}),
+    },
+    amountRow: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      gap: spacing.sm,
+      width: '100%' as const,
+    },
+    amountInput: { flex: 1, minWidth: 0 },
+    inputError: { borderColor: colors.danger },
+    submit: { marginTop: spacing.xl },
+    cancel: { marginTop: spacing.sm },
+  };
+}

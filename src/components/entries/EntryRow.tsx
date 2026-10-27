@@ -6,7 +6,8 @@ import { AppText } from '@/components/ui/AppText';
 import { categoryLabel } from '@/i18n';
 import type { Category, Entry } from '@/domain/entities/types';
 import { formatDateLabel } from '@/utils/format';
-import { categoryColors, colors, radii, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
+import type { CategoryColorToken } from '@/theme/skins/types';
 
 export interface EntryRowProps {
   entry: Entry;
@@ -15,16 +16,26 @@ export interface EntryRowProps {
 }
 
 export function EntryRow({ entry, category, locale }: EntryRowProps) {
-  const token = (category?.colorToken ?? 'stone') as keyof typeof categoryColors;
+  const { colors, categoryColors, categoryTones, skin } = useTheme();
+  const token = (category?.colorToken ?? 'stone') as CategoryColorToken;
   const accent = categoryColors[token] ?? colors.textMuted;
   const label = entry.note?.trim()
     ? entry.note.trim()
     : categoryLabel(category?.nameKey ?? 'category.other');
+  const isPaper = skin.decoration === 'paper';
 
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, isPaper && styles.rowPaper]}>
       <View
-        style={[styles.icon, { backgroundColor: colors.surface, borderColor: accent }]}
+        style={[
+          styles.icon,
+          isPaper && styles.iconPaper,
+          {
+            backgroundColor: isPaper ? colors.surfaces[categoryTones[token]] : colors.surface,
+            borderColor: accent,
+            borderRadius: isPaper ? 21 : 12,
+          },
+        ]}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
@@ -35,7 +46,7 @@ export function EntryRow({ entry, category, locale }: EntryRowProps) {
         />
       </View>
       <View style={styles.content}>
-        <AppText variant="body" numberOfLines={1}>
+        <AppText variant="body" numberOfLines={isPaper ? 2 : 1}>
           {label}
         </AppText>
         <AppText variant="caption" color={colors.textMuted}>
@@ -48,8 +59,8 @@ export function EntryRow({ entry, category, locale }: EntryRowProps) {
         currency={entry.currency}
         locale={locale}
         variant="body"
-        color={colors.primary}
-        style={styles.amount}
+        color={isPaper ? colors.positive : colors.primary}
+        style={[styles.amount, isPaper && styles.amountPaper]}
       />
     </View>
   );
@@ -62,14 +73,18 @@ const styles = {
     paddingVertical: spacing.md,
     gap: spacing.md,
   },
+  rowPaper: {
+    alignItems: 'flex-start' as const,
+  },
   icon: {
     width: 40,
     height: 40,
-    borderRadius: radii.sm,
     borderWidth: 1,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
   },
+  iconPaper: { marginTop: 2 },
   content: { flex: 1, gap: 2 },
   amount: { textAlign: 'right' as const },
+  amountPaper: { marginTop: 3 },
 };

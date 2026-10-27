@@ -3,9 +3,10 @@ import { err, migrationError, ok, type Result } from '@/domain/errors/result';
 
 import { migration001 } from './001_initial';
 import { migration002 } from './002_quick_amounts';
+import { migration003 } from './003_skin';
 import type { Migration } from './types';
 
-export const MIGRATIONS: readonly Migration[] = [migration001, migration002];
+export const MIGRATIONS: readonly Migration[] = [migration001, migration002, migration003];
 
 export async function migrate(driver: SqlDriver): Promise<Result<void>> {
   try {

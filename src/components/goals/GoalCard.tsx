@@ -8,17 +8,23 @@ import { Card } from '@/components/ui/Card';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { t } from '@/i18n';
 import { percentLabel } from '@/utils/format';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
+import type { CardTone } from '@/theme/skins/types';
 
 export interface GoalCardProps {
   goal: Goal;
   progress: GoalProgress;
   locale: string;
+  tone?: CardTone;
 }
 
-export function GoalCard({ goal, progress, locale }: GoalCardProps) {
+export function GoalCard({ goal, progress, locale, tone }: GoalCardProps) {
+  const { colors, skin } = useTheme();
+  const resolvedTone: CardTone =
+    tone ?? (skin.decoration === 'paper' ? (progress.isReached ? 'mint' : 'pink') : 'plain');
+
   return (
-    <Card>
+    <Card tone={resolvedTone}>
       <AppText variant="caption" color={colors.textMuted}>
         {t('goals.title')}
       </AppText>
@@ -41,7 +47,6 @@ export function GoalCard({ goal, progress, locale }: GoalCardProps) {
           currency={goal.currency}
           locale={locale}
           variant="body"
-          color={colors.text}
         />
         <AppText variant="caption" color={colors.textMuted}>
           {t('goals.of')}{' '}

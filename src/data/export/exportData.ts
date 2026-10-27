@@ -1,4 +1,5 @@
 import type { Category, Entry, Goal, UserProfile } from '@/domain/entities/types';
+import type { SkinId } from '@/domain/preferences/skin';
 
 export const EXPORT_FORMAT_VERSION = 1 as const;
 
@@ -12,6 +13,7 @@ export interface ExportPayload {
     readonly locale: string;
     readonly weekStartsOn: 0 | 1;
     readonly onboardingCompleted: boolean;
+    readonly skin: SkinId;
     readonly quickAmountsMinor: readonly number[];
   };
   readonly categories: readonly Category[];
@@ -38,6 +40,7 @@ export function buildExportPayload(input: BuildExportInput): ExportPayload {
       locale: input.profile.locale,
       weekStartsOn: input.profile.weekStartsOn,
       onboardingCompleted: input.profile.onboardingCompleted,
+      skin: input.profile.skin,
       quickAmountsMinor: [...input.profile.quickAmountsMinor],
     },
     categories: input.categories.map((category) => ({ ...category })),

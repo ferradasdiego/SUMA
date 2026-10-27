@@ -13,9 +13,10 @@ import { useApp } from '@/features/app/AppProvider';
 import { GoalForm } from '@/features/goals/GoalForm';
 import { useActiveGoal } from '@/features/goals/useActiveGoal';
 import { t, translateError } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 export default function GoalsScreen() {
+  const { colors } = useTheme();
   const { state, refresh } = useActiveGoal();
   const { repositories, invalidate, profile } = useApp();
   const [editing, setEditing] = useState(false);

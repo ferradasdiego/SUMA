@@ -96,3 +96,16 @@ Animaciones cortas (150–250 ms) y funcionales: transición de tab, aparición 
 - Textos culpabilizadores ("llevas 3 días sin ahorrar").
 - Gráficas sin resumen textual.
 - Mostrar importes con decimales incorrectos o sin moneda.
+
+## 11. Skins visuales
+
+La identidad visual es seleccionable desde Ajustes. La skin **Clásica** conserva exactamente la dirección artística de las secciones 1–10 y es la opción por defecto; la skin **Kawaii cozy** es la primera identidad adicional.
+
+- Contrato y registro: `src/theme/skins/types.ts`, `src/theme/skins/registry.ts`.
+- Consumo en componentes: `useTheme()`; ningún componente de producto importa colores estáticos.
+- Persistencia: `user_profile.skin`, incluida en las copias de seguridad JSON (las copias antiguas se importan como Clásica).
+- Superficies pastel opcionales: `Card tone`.
+- Decoración de papel y doodles: solo cuando `skin.decoration === 'paper'`.
+- Contraste: todas las skins pasan AA en el test `tests/unit/tokens.test.ts`.
+
+La guía completa de la nueva skin, su paleta, tipografía, arquitectura y proceso de verificación está en [SKINS.md](SKINS.md).

@@ -1,8 +1,10 @@
 import { initializeDatabase } from '@/data/database';
 import { migration001 } from '@/data/migrations/001_initial';
+import { migration002 } from '@/data/migrations/002_quick_amounts';
 import { migrate } from '@/data/migrations';
 import { openSqlJsDatabase, type SqlJsDriver } from '@/data/local/sqljsDriver';
 import type { DatabaseContext } from '@/data/repositories/types';
+import type { SkinId } from '@/domain/preferences/skin';
 
 const ENTRY = {
   amountMinor: 250,
@@ -46,13 +48,14 @@ describe('migraciones y semilla', () => {
       expect(profile.value.preferredCurrency).toBe('EUR');
       expect(profile.value.weekStartsOn).toBe(1);
       expect(profile.value.onboardingCompleted).toBe(false);
+      expect(profile.value.skin).toBe('classic');
       expect(profile.value.quickAmountsMinor).toEqual([150, 250, 500, 1000]);
     }
 
     const migrations = await driver.all<{ version: number }>(
       'SELECT version FROM schema_migrations',
     );
-    expect(migrations).toHaveLength(2);
+    expect(migrations).toHaveLength(3);
 
     await driver.close();
   });
@@ -96,15 +99,59 @@ describe('migraciones y semilla', () => {
     const versions = await driver.all<{ version: number }>(
       'SELECT version FROM schema_migrations ORDER BY version',
     );
-    expect(versions.map((row) => Number(row.version))).toEqual([1, 2]);
+    expect(versions.map((row) => Number(row.version))).toEqual([1, 2, 3]);
 
-    const profiles = await driver.all<{ quick_amounts_minor: string }>(
-      'SELECT quick_amounts_minor FROM user_profile',
+    const profiles = await driver.all<{ quick_amounts_minor: string; skin: string }>(
+      'SELECT quick_amounts_minor, skin FROM user_profile',
     );
     expect(JSON.parse(profiles[0]!.quick_amounts_minor)).toEqual([150, 250, 500, 1000]);
+    expect(profiles[0]!.skin).toBe('classic');
 
     const entries = await driver.all<{ id: string }>('SELECT id FROM entries');
     expect(entries.map((row) => row.id)).toEqual(['old-entry']);
+
+    await driver.close();
+  });
+
+  it('añade la skin a una base v2 con el valor clásico por defecto', async () => {
+    const driver = await openSqlJsDatabase();
+    const timestamp = '2026-10-23T10:00:00.000Z';
+
+    await driver.exec('PRAGMA foreign_keys = ON');
+    await driver.exec(
+      'CREATE TABLE schema_migrations (version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TEXT NOT NULL)',
+    );
+    await driver.transaction(async (tx) => {
+      await migration001.up(tx);
+      await migration002.up(tx);
+      await tx.run('INSERT INTO schema_migrations (version, name, applied_at) VALUES (1, ?, ?)', [
+        'initial_schema',
+        timestamp,
+      ]);
+      await tx.run('INSERT INTO schema_migrations (version, name, applied_at) VALUES (2, ?, ?)', [
+        'quick_amounts',
+        timestamp,
+      ]);
+      await tx.run(
+        "INSERT INTO user_profile (id, display_name, preferred_currency, locale, week_starts_on, onboarding_completed, quick_amounts_minor, created_at, updated_at) VALUES ('local', NULL, 'EUR', 'es-ES', 1, 1, '[150,250,500,1000]', ?, ?)",
+        [timestamp, timestamp],
+      );
+    });
+
+    const result = await migrate(driver);
+    expect(result.ok).toBe(true);
+
+    const versions = await driver.all<{ version: number }>(
+      'SELECT version FROM schema_migrations ORDER BY version',
+    );
+    expect(versions.map((row) => Number(row.version))).toEqual([1, 2, 3]);
+
+    const profiles = await driver.all<{ skin: string; quick_amounts_minor: string }>(
+      'SELECT skin, quick_amounts_minor FROM user_profile',
+    );
+    expect(profiles).toHaveLength(1);
+    expect(profiles[0]!.skin).toBe('classic');
+    expect(JSON.parse(profiles[0]!.quick_amounts_minor)).toEqual([150, 250, 500, 1000]);
 
     await driver.close();
   });
@@ -121,7 +168,7 @@ describe('migraciones y semilla', () => {
     const migrations = await driver.all<{ version: number }>(
       'SELECT version FROM schema_migrations',
     );
-    expect(migrations).toHaveLength(2);
+    expect(migrations).toHaveLength(3);
     await driver.close();
   });
 });
@@ -361,6 +408,33 @@ describe('perfil y restablecimiento', () => {
     await driver.close();
   });
 
+  it('asigna la skin clásica por defecto y permite cambiarla', async () => {
+    const { driver, db } = await setup();
+
+    const initial = await db.repositories.profile.get();
+    expect(initial.ok && initial.value.skin).toBe('classic');
+
+    const updated = await db.repositories.profile.update({ skin: 'kawaii' });
+    expect(updated.ok).toBe(true);
+    if (updated.ok) expect(updated.value.skin).toBe('kawaii');
+
+    const invalid = await db.repositories.profile.update({ skin: 'neon' as SkinId });
+    expect(invalid.ok).toBe(false);
+    if (!invalid.ok) expect(invalid.error.field).toBe('skin');
+
+    await driver.close();
+  });
+
+  it('cae a la skin clásica si el valor guardado no es válido', async () => {
+    const { driver, db } = await setup();
+    await driver.run("UPDATE user_profile SET skin = 'neon' WHERE id = 'local'");
+
+    const profile = await db.repositories.profile.get();
+    expect(profile.ok && profile.value.skin).toBe('classic');
+
+    await driver.close();
+  });
+
   it('restablece registros y objetivos conservando el perfil', async () => {
     const { driver, db } = await setup();
     await db.repositories.entries.create(ENTRY);
@@ -413,7 +487,30 @@ describe('persistencia', () => {
     }
 
     const migrations = await reopened.all('SELECT version FROM schema_migrations');
-    expect(migrations).toHaveLength(2);
+    expect(migrations).toHaveLength(3);
+
+    await reopened.close();
+  });
+
+  it('conserva la skin elegida al cerrar y reabrir la base', async () => {
+    const { driver, db } = await setup();
+    const updated = await db.repositories.profile.update({ skin: 'kawaii' });
+    expect(updated.ok).toBe(true);
+
+    const bytes = driver.exportBytes();
+    await driver.close();
+
+    const reopened = await openSqlJsDatabase(bytes);
+    const result = await initializeDatabase({
+      driver: reopened,
+      newId: () => 'reopen-id',
+      now: () => new Date('2026-10-24T10:00:00.000Z'),
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.error.message);
+
+    const profile = await result.value.repositories.profile.get();
+    expect(profile.ok && profile.value.skin).toBe('kawaii');
 
     await reopened.close();
   });

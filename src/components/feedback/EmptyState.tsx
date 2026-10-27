@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 export interface EmptyStateProps {
   title: string;
@@ -20,9 +20,11 @@ export function EmptyState({
   actionLabel,
   onAction,
 }: EmptyStateProps) {
+  const { colors } = useTheme();
+
   return (
     <View style={styles.container}>
-      <View style={styles.iconCircle}>
+      <View style={[styles.iconCircle, { backgroundColor: colors.primarySoft }]}>
         <Ionicons name={icon} size={28} color={colors.primary} />
       </View>
       <AppText variant="section" align="center">
@@ -52,7 +54,6 @@ const styles = {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.primarySoft,
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     marginBottom: spacing.lg,

@@ -22,7 +22,7 @@ import {
   type HistoryRange,
 } from '@/features/history/useHistory';
 import { categoryLabel, t, translateError, type TranslationKey } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 const RANGES: { value: HistoryRange; labelKey: TranslationKey }[] = [
   { value: 'all', labelKey: 'history.rangeAll' },
@@ -32,6 +32,7 @@ const RANGES: { value: HistoryRange; labelKey: TranslationKey }[] = [
 ];
 
 export default function HistoryScreen() {
+  const { colors } = useTheme();
   const { profile, categories, repositories, invalidate } = useApp();
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [range, setRange] = useState<HistoryRange>('all');

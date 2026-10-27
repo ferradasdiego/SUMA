@@ -1,5 +1,6 @@
 import type { Category, Entry, Goal, UserProfile } from '@/domain/entities/types';
 import { DEFAULT_QUICK_AMOUNTS_MINOR } from '@/domain/preferences/quickAmounts';
+import { DEFAULT_SKIN, isSkinId } from '@/domain/preferences/skin';
 import { err, ok, storageError, type Result } from '@/domain/errors/result';
 import {
   categorySchema,
@@ -52,6 +53,7 @@ export interface ProfileRow {
   readonly locale: string;
   readonly week_starts_on: number;
   readonly onboarding_completed: number;
+  readonly skin: string | null;
   readonly quick_amounts_minor: string | null;
   readonly created_at: string;
   readonly updated_at: string;
@@ -138,6 +140,7 @@ export function rowToProfile(row: ProfileRow): Result<UserProfile> {
     locale: row.locale,
     weekStartsOn: row.week_starts_on === 0 ? 0 : 1,
     onboardingCompleted: row.onboarding_completed === 1,
+    skin: isSkinId(row.skin) ? row.skin : DEFAULT_SKIN,
     quickAmountsMinor: parseQuickAmounts(row.quick_amounts_minor),
     createdAt: row.created_at,
     updatedAt: row.updated_at,

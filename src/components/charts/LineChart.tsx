@@ -4,7 +4,7 @@ import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 
 import { AppText } from '@/components/ui/AppText';
 import type { ChartPoint } from '@/components/charts/BarChart';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme } from '@/theme';
 
 export interface LineChartProps {
   data: readonly ChartPoint[];
@@ -13,6 +13,7 @@ export interface LineChartProps {
 }
 
 export function LineChart({ data, accessibilityLabel, height = 160 }: LineChartProps) {
+  const { colors } = useTheme();
   const [width, setWidth] = useState(0);
   const max = Math.max(1, ...data.map((point) => point.value));
   const baseline = height - 8;

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { ConfirmDialog } from '@/components/feedback/ConfirmDialog';
+import { SkinPicker } from '@/components/settings/SkinPicker';
 import { AppText } from '@/components/ui/AppText';
 import { BackButton } from '@/components/ui/BackButton';
 import { Button } from '@/components/ui/Button';
@@ -18,11 +19,14 @@ import { pickImportFile } from '@/features/settings/importFile';
 import type { ExportPayload } from '@/data/export/exportData';
 import type { ImportMode } from '@/data/import/importService';
 import type { WeekStartsOn } from '@/domain/entities/types';
+import type { SkinId } from '@/domain/preferences/skin';
 import { t, translateError } from '@/i18n';
-import { colors, spacing } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 
 export default function SettingsScreen() {
   const { profile, repositories, updateProfile, importData, invalidate, dataVersion } = useApp();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [entryCount, setEntryCount] = useState<number | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -50,6 +54,12 @@ export default function SettingsScreen() {
 
   async function changeWeekStart(next: WeekStartsOn) {
     const result = await updateProfile({ weekStartsOn: next });
+    setMessage(result.ok ? null : translateError(result.error));
+  }
+
+  async function changeSkin(next: SkinId) {
+    setImportMessage(null);
+    const result = await updateProfile({ skin: next });
     setMessage(result.ok ? null : translateError(result.error));
   }
 
@@ -219,6 +229,16 @@ export default function SettingsScreen() {
 
       <Divider />
 
+      <AppText variant="label">{t('settings.appearance')}</AppText>
+      <AppText variant="caption" color={colors.textMuted} style={styles.hint}>
+        {t('settings.skinHelp')}
+      </AppText>
+      <View style={styles.skinPicker}>
+        <SkinPicker value={profile.skin} onChange={(skin) => void changeSkin(skin)} />
+      </View>
+
+      <Divider />
+
       <AppText variant="label">{t('settings.data')}</AppText>
       <Button
         label={exporting ? t('settings.exporting') : t('settings.export')}
@@ -311,15 +331,19 @@ export default function SettingsScreen() {
   );
 }
 
-const styles = {
-  title: { marginBottom: spacing.lg },
-  value: { marginTop: spacing.xs },
-  hint: { marginTop: spacing.xs },
-  chips: { flexDirection: 'row' as const, gap: spacing.sm, marginTop: spacing.sm },
-  languageCard: { marginTop: spacing.md },
-  languagePicker: { marginTop: spacing.md },
-  message: { marginTop: spacing.sm },
-  exportButton: { marginTop: spacing.sm },
-  importButton: { marginTop: spacing.sm },
-  destructive: { marginTop: spacing.sm },
-};
+function createStyles(colors: Theme['colors']) {
+  return {
+    title: { marginBottom: spacing.lg },
+    value: { marginTop: spacing.xs },
+    hint: { marginTop: spacing.xs },
+    chips: { flexDirection: 'row' as const, gap: spacing.sm, marginTop: spacing.sm, flexWrap: 'wrap' as const },
+    languageCard: { marginTop: spacing.md },
+    languagePicker: { marginTop: spacing.md },
+    message: { marginTop: spacing.sm },
+    skinPicker: { marginTop: spacing.md },
+    exportButton: { marginTop: spacing.sm },
+    importButton: { marginTop: spacing.sm },
+    destructive: { marginTop: spacing.sm },
+    divider: { backgroundColor: colors.border },
+  };
+}

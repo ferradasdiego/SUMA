@@ -1,8 +1,12 @@
-import type { ReactNode } from 'react';
 import { ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
-import { colors, spacing } from '@/theme';
+import type { ReactNode } from 'react';
+
+import { useTheme } from '@/theme';
+import { spacing } from '@/theme/tokens';
+
+import { PaperBackdrop } from '../skin/PaperBackdrop';
 
 export interface ScreenProps {
   children: ReactNode;
@@ -21,10 +25,16 @@ export function Screen({
   style,
   testID,
 }: ScreenProps) {
+  const { colors, skin } = useTheme();
   const contentStyle = [scroll ? styles.scrollInner : styles.inner, padded && styles.padded, style];
 
   return (
-    <SafeAreaView edges={edges} style={styles.safe} testID={testID}>
+    <SafeAreaView
+      edges={edges}
+      style={[styles.safe, { backgroundColor: colors.background }]}
+      testID={testID}
+    >
+      {skin.decoration === 'paper' ? <PaperBackdrop /> : null}
       {scroll ? (
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -43,7 +53,7 @@ export function Screen({
 }
 
 const styles = {
-  safe: { flex: 1, backgroundColor: colors.background },
+  safe: { flex: 1 },
   inner: { flex: 1 },
   scrollInner: { flexGrow: 1 },
   scrollContent: { flexGrow: 1 },
